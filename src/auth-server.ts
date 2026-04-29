@@ -1,3 +1,4 @@
+import "dotenv/config";
 import http from "node:http";
 import { URL } from "node:url";
 import fs from "node:fs";
@@ -16,7 +17,7 @@ const config: OAuthConfig = {
   redirectUri: process.env.OUTLOOK_REDIRECT_URI || "http://localhost:3333/callback",
 };
 
-const TOKEN_FILE = process.env.OUTLOOK_TOKEN_FILE || "/data/tokens.json";
+const TOKEN_FILE = process.env.OUTLOOK_TOKEN_FILE || "./tokens.json";
 
 if (!config.clientId || !config.clientSecret) {
   console.error("Missing OUTLOOK_CLIENT_ID or OUTLOOK_CLIENT_SECRET");

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -11,7 +12,7 @@ const oauthConfig: OAuthConfig = {
   redirectUri: process.env.OUTLOOK_REDIRECT_URI || "http://localhost:3333/callback",
 };
 
-const tokenFile = process.env.OUTLOOK_TOKEN_FILE || "/data/tokens.json";
+const tokenFile = process.env.OUTLOOK_TOKEN_FILE || "./tokens.json";
 
 if (!oauthConfig.clientId || !oauthConfig.clientSecret) {
   console.error("Missing required environment variables: OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET");
