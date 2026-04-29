@@ -47,7 +47,7 @@ export async function sendSetupLinkEmail(to: string, setupUrl: string) {
         <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Payment received!</h1>
         <p style="color: #71717a; margin-bottom: 24px;">Complete your setup by connecting your Microsoft account:</p>
 
-        <a href="${setupUrl}" style="display: inline-block; background: #fff; color: #18181b; font-weight: 600; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 24px;">Continue Setup</a>
+        <a href="${setupUrl}" style="display: inline-block; background: #18181b; color: #ffffff; font-weight: 600; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 24px;">Continue Setup</a>
 
         <p style="color: #a1a1aa; font-size: 14px; margin-top: 24px;">Or copy this link:</p>
         <p style="color: #71717a; font-size: 13px; word-break: break-all;">${setupUrl}</p>
