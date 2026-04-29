@@ -48,21 +48,21 @@ export default function Home() {
         </div>
 
         <div className="mt-16 mb-16 w-full">
-          <h2 className="text-2xl font-bold text-center mb-8">How it works</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="relative p-5 rounded-xl bg-zinc-900/50 border border-zinc-800">
-              <span className="absolute -top-3 left-4 px-2 bg-zinc-950 text-xs font-bold text-blue-400">1</span>
-              <h3 className="font-semibold mb-1">Purchase &amp; Connect</h3>
+          <h2 className="text-2xl font-bold text-center mb-10">How it works</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">1</div>
+              <h3 className="font-semibold mb-2">Purchase &amp; Connect</h3>
               <p className="text-sm text-zinc-400">Pay once, then sign in with your Microsoft account to grant access.</p>
             </div>
-            <div className="relative p-5 rounded-xl bg-zinc-900/50 border border-zinc-800">
-              <span className="absolute -top-3 left-4 px-2 bg-zinc-950 text-xs font-bold text-blue-400">2</span>
-              <h3 className="font-semibold mb-1">Add to your AI tool</h3>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">2</div>
+              <h3 className="font-semibold mb-2">Add to your AI tool</h3>
               <p className="text-sm text-zinc-400">Drop the MCP config into Claude Code, Cursor, or Windsurf settings.</p>
             </div>
-            <div className="relative p-5 rounded-xl bg-zinc-900/50 border border-zinc-800">
-              <span className="absolute -top-3 left-4 px-2 bg-zinc-950 text-xs font-bold text-blue-400">3</span>
-              <h3 className="font-semibold mb-1">Ask your AI</h3>
+            <div className="flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">3</div>
+              <h3 className="font-semibold mb-2">Ask your AI</h3>
               <p className="text-sm text-zinc-400">&ldquo;Check my inbox&rdquo;, &ldquo;Send a reply&rdquo;, &ldquo;What&apos;s on my calendar?&rdquo;</p>
             </div>
           </div>
