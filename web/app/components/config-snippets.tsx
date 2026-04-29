@@ -72,11 +72,6 @@ const configs = [
   }
 }`,
   },
-  {
-    name: "Docker",
-    file: "docker run",
-    code: `docker run -e OUTLOOK_MCP_API_KEY=<your-api-key> ghcr.io/paytience/outlook-mcp:latest`,
-  },
 ];
 
 export function ConfigSnippets() {
