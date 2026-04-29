@@ -75,18 +75,25 @@ export function ConfigSnippets() {
           Add to <code className="text-zinc-400">{configs[active].file}</code>:
         </p>
         <pre className="text-xs font-mono bg-zinc-950 rounded-lg p-4 overflow-x-auto border border-zinc-800">
-          {configs[active].code.split("\n").map((line, i) => (
-            <div
-              key={i}
-              className={
-                line.includes("OUTLOOK_MCP_API_KEY")
-                  ? "text-amber-400 bg-amber-400/10 -mx-4 px-4 py-0.5 rounded"
-                  : "text-zinc-300"
-              }
-            >
-              {line}
-            </div>
-          ))}
+          {configs[active].code.split("\n").map((line, i) => {
+            if (line.includes("<your-api-key>")) {
+              const [before, after] = line.split("<your-api-key>");
+              return (
+                <div key={i} className="text-zinc-300">
+                  {before}
+                  <span className="text-emerald-400 border border-emerald-400/30 bg-emerald-400/5 rounded px-1 py-0.5">
+                    {"<your-api-key>"}
+                  </span>
+                  {after}
+                </div>
+              );
+            }
+            return (
+              <div key={i} className="text-zinc-300">
+                {line}
+              </div>
+            );
+          })}
         </pre>
       </div>
     </div>

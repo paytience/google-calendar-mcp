@@ -2,7 +2,7 @@ import { ConfigSnippets } from "./components/config-snippets";
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen px-6">
+    <main className="flex flex-col items-center justify-center min-h-screen px-6 py-20">
       <div className="max-w-2xl text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 text-sm font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
           MCP Server for Outlook
