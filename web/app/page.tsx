@@ -27,12 +27,27 @@ export default function Home() {
           <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
             <div className="text-2xl mb-2">📬</div>
             <h3 className="font-semibold mb-1">Email</h3>
-            <p className="text-sm text-zinc-400">Read, send, reply, search, and organize your inbox.</p>
+            <p className="text-sm text-zinc-400">Read, send, reply, forward, search, flag, categorize, and organize your inbox.</p>
           </div>
           <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
             <div className="text-2xl mb-2">📅</div>
             <h3 className="font-semibold mb-1">Calendar</h3>
-            <p className="text-sm text-zinc-400">View events, create meetings, invite attendees.</p>
+            <p className="text-sm text-zinc-400">View events, create meetings, RSVP to invitations, and manage multiple calendars.</p>
+          </div>
+          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
+            <div className="text-2xl mb-2">👤</div>
+            <h3 className="font-semibold mb-1">Contacts</h3>
+            <p className="text-sm text-zinc-400">Search, create, update, and manage your Outlook address book.</p>
+          </div>
+          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
+            <div className="text-2xl mb-2">✈️</div>
+            <h3 className="font-semibold mb-1">Auto-Reply</h3>
+            <p className="text-sm text-zinc-400">Set and manage out-of-office replies with scheduled start and end times.</p>
+          </div>
+          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
+            <div className="text-2xl mb-2">🎯</div>
+            <h3 className="font-semibold mb-1">Focused Inbox</h3>
+            <p className="text-sm text-zinc-400">Control which senders go to Focused or Other. View and manage inbox rules.</p>
           </div>
           <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
             <div className="text-2xl mb-2">🔐</div>

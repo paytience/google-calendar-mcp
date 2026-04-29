@@ -31,7 +31,7 @@ async function main() {
 
   const server = new McpServer({
     name: "outlook-mcp",
-    version: "2.0.0",
+    version: "2.1.0",
   });
 
   server.tool("list_accounts", "List all connected Outlook accounts", {}, async () => {
@@ -301,6 +301,173 @@ async function main() {
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );
+
+  // Contacts
+
+  server.tool(
+    "list_contacts",
+    "List contacts from your address book",
+    {
+      count: z.number().optional().describe("Number of contacts to return (default: 25)"),
+      skip: z.number().optional().describe("Number of contacts to skip for pagination"),
+      search: z.string().optional().describe("Search query to filter contacts"),
+    },
+    async ({ count, skip, search }) => {
+      const contacts = await outlook.listContacts({ top: count || 25, skip, search });
+      return { content: [{ type: "text", text: JSON.stringify(contacts, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "get_contact",
+    "Get details of a specific contact",
+    { contactId: z.string().describe("The ID of the contact") },
+    async ({ contactId }) => {
+      const contact = await outlook.getContact(contactId);
+      return { content: [{ type: "text", text: JSON.stringify(contact, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "create_contact",
+    "Create a new contact",
+    {
+      givenName: z.string().optional().describe("First name"),
+      surname: z.string().optional().describe("Last name"),
+      displayName: z.string().optional().describe("Display name"),
+      email: z.string().optional().describe("Email address"),
+      mobilePhone: z.string().optional().describe("Mobile phone number"),
+      companyName: z.string().optional().describe("Company name"),
+      jobTitle: z.string().optional().describe("Job title"),
+    },
+    async ({ givenName, surname, displayName, email, mobilePhone, companyName, jobTitle }) => {
+      const emailAddresses = email ? [{ address: email, name: displayName || "" }] : undefined;
+      const result = await outlook.createContact({ givenName, surname, displayName, emailAddresses, mobilePhone, companyName, jobTitle });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "update_contact",
+    "Update an existing contact",
+    {
+      contactId: z.string().describe("The ID of the contact to update"),
+      givenName: z.string().optional().describe("First name"),
+      surname: z.string().optional().describe("Last name"),
+      displayName: z.string().optional().describe("Display name"),
+      email: z.string().optional().describe("Email address"),
+      mobilePhone: z.string().optional().describe("Mobile phone number"),
+      companyName: z.string().optional().describe("Company name"),
+      jobTitle: z.string().optional().describe("Job title"),
+    },
+    async ({ contactId, givenName, surname, displayName, email, mobilePhone, companyName, jobTitle }) => {
+      const emailAddresses = email ? [{ address: email, name: displayName || "" }] : undefined;
+      const result = await outlook.updateContact(contactId, { givenName, surname, displayName, emailAddresses, mobilePhone, companyName, jobTitle });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "delete_contact",
+    "Delete a contact",
+    { contactId: z.string().describe("The ID of the contact to delete") },
+    async ({ contactId }) => {
+      const result = await outlook.deleteContact(contactId);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  // Calendar
+
+  server.tool("list_calendars", "List all calendars in the account", {}, async () => {
+    const calendars = await outlook.listCalendars();
+    return { content: [{ type: "text", text: JSON.stringify(calendars, null, 2) }] };
+  });
+
+  server.tool(
+    "respond_to_event",
+    "Accept, tentatively accept, or decline a calendar event invitation",
+    {
+      eventId: z.string().describe("The ID of the event"),
+      response: z.enum(["accept", "tentativelyAccept", "decline"]).describe("Your response"),
+      message: z.string().optional().describe("Optional message to include with your response"),
+    },
+    async ({ eventId, response, message }) => {
+      const result = await outlook.respondToEvent(eventId, response, message);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  // Categories
+
+  server.tool("list_categories", "List all available email categories", {}, async () => {
+    const categories = await outlook.listCategories();
+    return { content: [{ type: "text", text: JSON.stringify(categories, null, 2) }] };
+  });
+
+  server.tool(
+    "set_message_categories",
+    "Set categories on an email message",
+    {
+      messageId: z.string().describe("The ID of the email"),
+      categories: z.array(z.string()).describe("List of category names to apply"),
+    },
+    async ({ messageId, categories }) => {
+      const result = await outlook.setMessageCategories(messageId, categories);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  // Auto-reply
+
+  server.tool("get_auto_reply", "Get current automatic reply (out-of-office) settings", {}, async () => {
+    const settings = await outlook.getAutoReplySettings();
+    return { content: [{ type: "text", text: JSON.stringify(settings, null, 2) }] };
+  });
+
+  server.tool(
+    "set_auto_reply",
+    "Configure automatic reply (out-of-office) settings",
+    {
+      status: z.enum(["disabled", "alwaysEnabled", "scheduled"]).describe("Auto-reply status"),
+      internalReplyMessage: z.string().optional().describe("Reply message for people in your organization (HTML)"),
+      externalReplyMessage: z.string().optional().describe("Reply message for external senders (HTML)"),
+      scheduledStartDateTime: z.string().optional().describe("Start date/time in ISO format (for scheduled status)"),
+      scheduledEndDateTime: z.string().optional().describe("End date/time in ISO format (for scheduled status)"),
+      externalAudience: z.enum(["none", "contactsOnly", "all"]).optional().describe("Who receives external reply"),
+    },
+    async ({ status, internalReplyMessage, externalReplyMessage, scheduledStartDateTime, scheduledEndDateTime, externalAudience }) => {
+      const result = await outlook.setAutoReply({ status, internalReplyMessage, externalReplyMessage, scheduledStartDateTime, scheduledEndDateTime, externalAudience });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  // Focused inbox
+
+  server.tool("get_focused_inbox_overrides", "List senders that are always routed to Focused or Other inbox", {}, async () => {
+    const overrides = await outlook.getFocusedInboxOverrides();
+    return { content: [{ type: "text", text: JSON.stringify(overrides, null, 2) }] };
+  });
+
+  server.tool(
+    "set_focused_inbox_override",
+    "Always route a sender's emails to Focused or Other inbox",
+    {
+      senderEmail: z.string().describe("The sender's email address"),
+      classifyAs: z.enum(["focused", "other"]).describe("Where to route the sender's messages"),
+    },
+    async ({ senderEmail, classifyAs }) => {
+      const result = await outlook.setFocusedInboxOverride(senderEmail, classifyAs);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  // Mail rules
+
+  server.tool("list_mail_rules", "List inbox mail rules", {}, async () => {
+    const rules = await outlook.listMailRules();
+    return { content: [{ type: "text", text: JSON.stringify(rules, null, 2) }] };
+  });
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

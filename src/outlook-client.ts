@@ -286,4 +286,179 @@ export class OutlookClient {
       });
     });
   }
+
+  // Contacts
+
+  async listContacts(options?: { top?: number; skip?: number; search?: string }) {
+    const client = this.ensureClient();
+    let url = "/me/contacts";
+    const params: string[] = [];
+    if (options?.top) params.push(`$top=${options.top}`);
+    if (options?.skip) params.push(`$skip=${options.skip}`);
+    if (options?.search) params.push(`$search="${options.search}"`);
+    params.push("$select=id,displayName,emailAddresses,mobilePhone,businessPhones,companyName,jobTitle");
+    params.push("$orderby=displayName");
+    if (params.length > 0) url += `?${params.join("&")}`;
+    return withRetry(async () => {
+      const response = await client.api(url).get();
+      return response.value;
+    });
+  }
+
+  async getContact(contactId: string) {
+    const client = this.ensureClient();
+    return withRetry(async () => client.api(`/me/contacts/${contactId}`).get());
+  }
+
+  async createContact(options: {
+    givenName?: string;
+    surname?: string;
+    displayName?: string;
+    emailAddresses?: { address: string; name?: string }[];
+    mobilePhone?: string;
+    businessPhones?: string[];
+    companyName?: string;
+    jobTitle?: string;
+  }) {
+    const client = this.ensureClient();
+    const contact: Record<string, unknown> = {};
+    if (options.givenName) contact.givenName = options.givenName;
+    if (options.surname) contact.surname = options.surname;
+    if (options.displayName) contact.displayName = options.displayName;
+    if (options.emailAddresses) contact.emailAddresses = options.emailAddresses;
+    if (options.mobilePhone) contact.mobilePhone = options.mobilePhone;
+    if (options.businessPhones) contact.businessPhones = options.businessPhones;
+    if (options.companyName) contact.companyName = options.companyName;
+    if (options.jobTitle) contact.jobTitle = options.jobTitle;
+    return withRetry(async () => client.api("/me/contacts").post(contact));
+  }
+
+  async updateContact(contactId: string, options: {
+    givenName?: string;
+    surname?: string;
+    displayName?: string;
+    emailAddresses?: { address: string; name?: string }[];
+    mobilePhone?: string;
+    businessPhones?: string[];
+    companyName?: string;
+    jobTitle?: string;
+  }) {
+    const client = this.ensureClient();
+    const update: Record<string, unknown> = {};
+    if (options.givenName) update.givenName = options.givenName;
+    if (options.surname) update.surname = options.surname;
+    if (options.displayName) update.displayName = options.displayName;
+    if (options.emailAddresses) update.emailAddresses = options.emailAddresses;
+    if (options.mobilePhone) update.mobilePhone = options.mobilePhone;
+    if (options.businessPhones) update.businessPhones = options.businessPhones;
+    if (options.companyName) update.companyName = options.companyName;
+    if (options.jobTitle) update.jobTitle = options.jobTitle;
+    return withRetry(async () => client.api(`/me/contacts/${contactId}`).patch(update));
+  }
+
+  async deleteContact(contactId: string) {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      await client.api(`/me/contacts/${contactId}`).delete();
+      return { success: true };
+    });
+  }
+
+  // Calendar RSVP
+
+  async respondToEvent(eventId: string, response: "accept" | "tentativelyAccept" | "decline", message?: string) {
+    const client = this.ensureClient();
+    const body: Record<string, unknown> = { sendResponse: true };
+    if (message) body.comment = message;
+    return withRetry(async () => {
+      await client.api(`/me/events/${eventId}/${response}`).post(body);
+      return { success: true };
+    });
+  }
+
+  // List calendars
+
+  async listCalendars() {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      const response = await client.api("/me/calendars").select("id,name,color,isDefaultCalendar,owner").get();
+      return response.value;
+    });
+  }
+
+  // Categories
+
+  async listCategories() {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      const response = await client.api("/me/outlook/masterCategories").get();
+      return response.value;
+    });
+  }
+
+  async setMessageCategories(messageId: string, categories: string[]) {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      return client.api(`/me/messages/${messageId}`).patch({ categories });
+    });
+  }
+
+  // Auto-reply / Out of office
+
+  async getAutoReplySettings() {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      return client.api("/me/mailboxSettings/automaticRepliesSetting").get();
+    });
+  }
+
+  async setAutoReply(options: {
+    status: "disabled" | "alwaysEnabled" | "scheduled";
+    internalReplyMessage?: string;
+    externalReplyMessage?: string;
+    scheduledStartDateTime?: string;
+    scheduledEndDateTime?: string;
+    externalAudience?: "none" | "contactsOnly" | "all";
+  }) {
+    const client = this.ensureClient();
+    const settings: Record<string, unknown> = { status: options.status };
+    if (options.internalReplyMessage) settings.internalReplyMessage = { message: options.internalReplyMessage };
+    if (options.externalReplyMessage) settings.externalReplyMessage = { message: options.externalReplyMessage };
+    if (options.scheduledStartDateTime) settings.scheduledStartDateTime = { dateTime: options.scheduledStartDateTime, timeZone: "UTC" };
+    if (options.scheduledEndDateTime) settings.scheduledEndDateTime = { dateTime: options.scheduledEndDateTime, timeZone: "UTC" };
+    if (options.externalAudience) settings.externalAudience = options.externalAudience;
+    return withRetry(async () => {
+      return client.api("/me/mailboxSettings").patch({ automaticRepliesSetting: settings });
+    });
+  }
+
+  // Focused inbox
+
+  async getFocusedInboxOverrides() {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      const response = await client.api("/me/inferenceClassification/overrides").get();
+      return response.value;
+    });
+  }
+
+  async setFocusedInboxOverride(senderEmail: string, classifyAs: "focused" | "other") {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      return client.api("/me/inferenceClassification/overrides").post({
+        classifyAs,
+        senderEmailAddress: { address: senderEmail },
+      });
+    });
+  }
+
+  // Mail rules
+
+  async listMailRules() {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      const response = await client.api("/me/mailFolders/inbox/messageRules").get();
+      return response.value;
+    });
+  }
 }
