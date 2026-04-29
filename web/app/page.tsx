@@ -1,3 +1,5 @@
+import { ConfigSnippets } from "./components/config-snippets";
+
 export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen px-6">
@@ -107,12 +109,17 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="mt-16 mb-8 w-full">
+          <h2 className="text-2xl font-bold text-center mb-6">Add to your AI tool</h2>
+          <ConfigSnippets />
+        </div>
+
         <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 text-left w-full">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3 font-medium">Quick Setup</p>
           <code className="block text-sm text-zinc-300 font-mono">
             npx outlook-mcp
           </code>
-          <p className="text-xs text-zinc-500 mt-3">Works with Claude Code, Cursor, Windsurf, and any MCP client.</p>
+          <p className="text-xs text-zinc-500 mt-3">Run this first to connect your Outlook account, then add the config above.</p>
         </div>
       </div>
 
