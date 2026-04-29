@@ -1,57 +1,69 @@
 import { Client } from "@microsoft/microsoft-graph-client";
+import fs from "node:fs";
 import "isomorphic-fetch";
+import { refreshAccessToken, OAuthConfig, TokenSet } from "./auth.js";
 
-export interface OutlookConfig {
-  clientId: string;
-  clientSecret: string;
-  tenantId: string;
-  userEmail: string;
+export interface OutlookClientConfig {
+  oauthConfig: OAuthConfig;
+  tokenFile: string;
 }
 
 export class OutlookClient {
   private client: Client;
-  private config: OutlookConfig;
-  private accessToken: string | null = null;
-  private tokenExpiry: number = 0;
+  private config: OutlookClientConfig;
+  private tokens: TokenSet | null = null;
 
-  constructor(config: OutlookConfig) {
+  constructor(config: OutlookClientConfig) {
     this.config = config;
+    this.loadTokens();
+
     this.client = Client.init({
       authProvider: async (done) => {
-        const token = await this.getAccessToken();
-        done(null, token);
+        try {
+          const token = await this.getValidAccessToken();
+          done(null, token);
+        } catch (err) {
+          done(err as Error, null);
+        }
       },
     });
   }
 
-  private async getAccessToken(): Promise<string> {
-    if (this.accessToken && Date.now() < this.tokenExpiry) {
-      return this.accessToken;
+  private loadTokens() {
+    if (fs.existsSync(this.config.tokenFile)) {
+      const data = fs.readFileSync(this.config.tokenFile, "utf-8");
+      this.tokens = JSON.parse(data);
+    }
+  }
+
+  private saveTokens(tokens: TokenSet) {
+    this.tokens = tokens;
+    fs.writeFileSync(this.config.tokenFile, JSON.stringify(tokens, null, 2));
+  }
+
+  private async getValidAccessToken(): Promise<string> {
+    if (!this.tokens) {
+      this.loadTokens();
+    }
+    if (!this.tokens) {
+      throw new Error("Not authenticated. Run the auth server first to connect an Outlook account.");
     }
 
-    const tokenUrl = `https://login.microsoftonline.com/${this.config.tenantId}/oauth2/v2.0/token`;
-    const params = new URLSearchParams({
-      client_id: this.config.clientId,
-      client_secret: this.config.clientSecret,
-      scope: "https://graph.microsoft.com/.default",
-      grant_type: "client_credentials",
-    });
-
-    const response = await fetch(tokenUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params.toString(),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Failed to get access token: ${error}`);
+    if (Date.now() < this.tokens.expiresAt - 60000) {
+      return this.tokens.accessToken;
     }
 
-    const data = await response.json();
-    this.accessToken = data.access_token;
-    this.tokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
-    return this.accessToken!;
+    const newTokens = await refreshAccessToken(
+      this.config.oauthConfig,
+      this.tokens.refreshToken
+    );
+    this.saveTokens(newTokens);
+    return newTokens.accessToken;
+  }
+
+  isAuthenticated(): boolean {
+    this.loadTokens();
+    return this.tokens !== null;
   }
 
   async listMessages(options?: {
@@ -62,7 +74,7 @@ export class OutlookClient {
     search?: string;
   }) {
     const folder = options?.folder || "inbox";
-    let url = `/users/${this.config.userEmail}/mailFolders/${folder}/messages`;
+    let url = `/me/mailFolders/${folder}/messages`;
     const params: string[] = [];
 
     if (options?.top) params.push(`$top=${options.top}`);
@@ -81,7 +93,7 @@ export class OutlookClient {
 
   async getMessage(messageId: string) {
     const response = await this.client
-      .api(`/users/${this.config.userEmail}/messages/${messageId}`)
+      .api(`/me/messages/${messageId}`)
       .select("id,subject,from,toRecipients,ccRecipients,receivedDateTime,body,hasAttachments,attachments")
       .expand("attachments")
       .get();
@@ -113,19 +125,15 @@ export class OutlookClient {
       })),
     };
 
-    await this.client
-      .api(`/users/${this.config.userEmail}/sendMail`)
-      .post({ message });
-
+    await this.client.api("/me/sendMail").post({ message });
     return { success: true };
   }
 
   async replyToMessage(messageId: string, options: { body: string; replyAll?: boolean }) {
     const endpoint = options.replyAll ? "replyAll" : "reply";
     await this.client
-      .api(`/users/${this.config.userEmail}/messages/${messageId}/${endpoint}`)
+      .api(`/me/messages/${messageId}/${endpoint}`)
       .post({ comment: options.body });
-
     return { success: true };
   }
 
@@ -139,7 +147,7 @@ export class OutlookClient {
     const end = options?.endDateTime || new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const response = await this.client
-      .api(`/users/${this.config.userEmail}/calendarView`)
+      .api("/me/calendarView")
       .query({ startDateTime: start, endDateTime: end })
       .select("id,subject,start,end,location,organizer,attendees,isOnlineMeeting,onlineMeetingUrl,bodyPreview")
       .orderby("start/dateTime")
@@ -182,24 +190,18 @@ export class OutlookClient {
       event.onlineMeetingProvider = "teamsForBusiness";
     }
 
-    const response = await this.client
-      .api(`/users/${this.config.userEmail}/events`)
-      .post(event);
-
+    const response = await this.client.api("/me/events").post(event);
     return response;
   }
 
   async listMailFolders() {
-    const response = await this.client
-      .api(`/users/${this.config.userEmail}/mailFolders`)
-      .top(50)
-      .get();
+    const response = await this.client.api("/me/mailFolders").top(50).get();
     return response.value;
   }
 
   async moveMessage(messageId: string, destinationFolderId: string) {
     const response = await this.client
-      .api(`/users/${this.config.userEmail}/messages/${messageId}/move`)
+      .api(`/me/messages/${messageId}/move`)
       .post({ destinationId: destinationFolderId });
     return response;
   }

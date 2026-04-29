@@ -2,29 +2,36 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { OutlookClient } from "./outlook-client.js";
+import { OAuthConfig } from "./auth.js";
 
-const config = {
+const oauthConfig: OAuthConfig = {
   clientId: process.env.OUTLOOK_CLIENT_ID || "",
   clientSecret: process.env.OUTLOOK_CLIENT_SECRET || "",
-  tenantId: process.env.OUTLOOK_TENANT_ID || "",
-  userEmail: process.env.OUTLOOK_USER_EMAIL || "",
+  tenantId: process.env.OUTLOOK_TENANT_ID || "common",
+  redirectUri: process.env.OUTLOOK_REDIRECT_URI || "http://localhost:3333/callback",
 };
 
-if (!config.clientId || !config.clientSecret || !config.tenantId || !config.userEmail) {
-  console.error(
-    "Missing required environment variables: OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET, OUTLOOK_TENANT_ID, OUTLOOK_USER_EMAIL"
-  );
+const tokenFile = process.env.OUTLOOK_TOKEN_FILE || "/data/tokens.json";
+
+if (!oauthConfig.clientId || !oauthConfig.clientSecret) {
+  console.error("Missing required environment variables: OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET");
   process.exit(1);
 }
 
-const outlook = new OutlookClient(config);
+const outlook = new OutlookClient({ oauthConfig, tokenFile });
+
+if (!outlook.isAuthenticated()) {
+  console.error(
+    "Not authenticated. Run the auth server first: docker compose up auth"
+  );
+  process.exit(1);
+}
 
 const server = new McpServer({
   name: "outlook-mcp",
   version: "1.0.0",
 });
 
-// List emails
 server.tool(
   "list_emails",
   "List emails from a mailbox folder",
@@ -49,7 +56,6 @@ server.tool(
   }
 );
 
-// Read a specific email
 server.tool(
   "read_email",
   "Read the full content of a specific email",
@@ -64,7 +70,6 @@ server.tool(
   }
 );
 
-// Send email
 server.tool(
   "send_email",
   "Send a new email",
@@ -84,7 +89,6 @@ server.tool(
   }
 );
 
-// Reply to email
 server.tool(
   "reply_to_email",
   "Reply to an existing email",
@@ -101,7 +105,6 @@ server.tool(
   }
 );
 
-// List calendar events
 server.tool(
   "list_calendar_events",
   "List upcoming calendar events",
@@ -122,7 +125,6 @@ server.tool(
   }
 );
 
-// Create calendar event
 server.tool(
   "create_calendar_event",
   "Create a new calendar event",
@@ -153,7 +155,6 @@ server.tool(
   }
 );
 
-// List mail folders
 server.tool(
   "list_mail_folders",
   "List all mail folders in the mailbox",
@@ -166,7 +167,6 @@ server.tool(
   }
 );
 
-// Move email
 server.tool(
   "move_email",
   "Move an email to a different folder",
@@ -182,7 +182,6 @@ server.tool(
   }
 );
 
-// Search emails
 server.tool(
   "search_emails",
   "Search emails by keyword",

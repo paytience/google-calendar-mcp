@@ -1,6 +1,13 @@
 # Outlook MCP
 
-MCP server for Microsoft Outlook integration via Microsoft Graph API. Provides email and calendar tools for AI assistants.
+MCP server for Microsoft Outlook integration via Microsoft Graph API. Uses OAuth 2.0 Authorization Code flow for secure, commercial-grade authentication.
+
+## Architecture
+
+Two services running in Docker:
+
+1. **Auth Server** (port 3333): Handles the OAuth flow. Users visit `/login`, sign in with Microsoft, and the refresh token is stored in a shared volume.
+2. **MCP Server** (stdio): Uses the stored refresh token to access Outlook on behalf of the user.
 
 ## Tools
 
@@ -16,60 +23,51 @@ MCP server for Microsoft Outlook integration via Microsoft Graph API. Provides e
 | `list_calendar_events` | List upcoming calendar events |
 | `create_calendar_event` | Create a new calendar event |
 
-## Azure App Registration
+## Azure AD App Registration (one time)
 
 1. Go to [Azure Portal](https://portal.azure.com) > Azure Active Directory > App registrations
-2. Create a new registration
-3. Under "API permissions", add Microsoft Graph application permissions:
+2. Click "New registration"
+3. Set "Supported account types" to **"Accounts in any organizational directory and personal Microsoft accounts"** (multi-tenant)
+4. Set Redirect URI to `http://localhost:3333/callback` (Web platform)
+5. Under "API permissions", add Microsoft Graph **delegated** permissions:
    - `Mail.Read`
    - `Mail.Send`
    - `Mail.ReadWrite`
    - `Calendars.Read`
    - `Calendars.ReadWrite`
-4. Grant admin consent for your organization
-5. Under "Certificates & secrets", create a new client secret
-6. Note your Client ID, Tenant ID, and Client Secret
+   - `offline_access`
+6. Under "Certificates & secrets", create a client secret
+7. Note your **Client ID** and **Client Secret**
+
+No admin consent needed for delegated permissions; each user consents individually.
 
 ## Setup
 
-Copy `.env.example` to `.env` and fill in your Azure credentials:
-
-```
-OUTLOOK_CLIENT_ID=your-azure-app-client-id
-OUTLOOK_CLIENT_SECRET=your-azure-app-client-secret
-OUTLOOK_TENANT_ID=your-azure-tenant-id
-OUTLOOK_USER_EMAIL=user@yourdomain.com
+```bash
+cp .env.example .env
+# Fill in OUTLOOK_CLIENT_ID and OUTLOOK_CLIENT_SECRET
 ```
 
-## Running with Docker
+## Running
+
+### 1. Start services
 
 ```bash
 docker compose up --build -d
 ```
 
-## Claude Code Configuration
+### 2. Authenticate
 
-Add to your MCP settings:
+Open `http://localhost:3333/login` in your browser. Sign in with your Microsoft account and grant permissions. Once you see "Outlook connected successfully", the MCP server is ready.
 
-```json
-{
-  "mcpServers": {
-    "outlook": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "--env-file", "/path/to/.env", "outlook-mcp"]
-    }
-  }
-}
-```
-
-Or with docker compose:
+### 3. Configure Claude Code
 
 ```json
 {
   "mcpServers": {
     "outlook": {
       "command": "docker",
-      "args": ["compose", "-f", "/path/to/docker-compose.yml", "run", "--rm", "-T", "outlook-mcp"]
+      "args": ["compose", "-f", "/path/to/docker-compose.yml", "run", "--rm", "-T", "mcp"]
     }
   }
 }
@@ -79,5 +77,10 @@ Or with docker compose:
 
 ```bash
 npm install
-npm run dev
+npm run dev:auth   # Start auth server
+npm run dev        # Start MCP server
 ```
+
+## How Token Refresh Works
+
+The auth server obtains an initial access + refresh token pair. The MCP server automatically refreshes the access token when it expires (every ~1 hour). The refresh token itself is long-lived (90 days with rolling refresh), so re-authentication is rarely needed.
