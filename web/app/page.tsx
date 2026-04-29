@@ -1,13 +1,64 @@
 export default function Home() {
   return (
-    <main style={{ maxWidth: 600, margin: "80px auto", padding: "0 20px", fontFamily: "system-ui" }}>
-      <h1>Outlook MCP</h1>
-      <p>Connect your Microsoft Outlook account to AI assistants via the Model Context Protocol.</p>
-      <p style={{ color: "#666" }}>
-        This page is used by the <code>outlook-mcp</code> npm package to authenticate your Outlook account.
-        If you arrived here directly, install the package first:
-      </p>
-      <pre style={{ background: "#f4f4f4", padding: 16, borderRadius: 8 }}>npx outlook-mcp</pre>
+    <main className="flex flex-col items-center justify-center min-h-screen px-6">
+      <div className="max-w-2xl text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 text-sm font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+          MCP Server for Outlook
+        </div>
+
+        <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
+          Your AI reads your email.
+        </h1>
+
+        <p className="text-lg text-zinc-400 mb-12 max-w-lg mx-auto">
+          Connect Microsoft Outlook to Claude, Cursor, and any MCP-compatible assistant. Read, send, search emails and manage your calendar.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <a
+            href="/pricing"
+            className="px-8 py-3 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-200 transition-colors"
+          >
+            Get Started &mdash; $5
+          </a>
+          <a
+            href="https://github.com/paytience/outlook-mcp"
+            className="px-8 py-3 border border-zinc-700 text-zinc-300 font-medium rounded-lg hover:border-zinc-500 hover:text-white transition-colors"
+          >
+            View on GitHub
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
+            <div className="text-2xl mb-2">📬</div>
+            <h3 className="font-semibold mb-1">Email</h3>
+            <p className="text-sm text-zinc-400">Read, send, reply, search, and organize your inbox.</p>
+          </div>
+          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
+            <div className="text-2xl mb-2">📅</div>
+            <h3 className="font-semibold mb-1">Calendar</h3>
+            <p className="text-sm text-zinc-400">View events, create meetings, invite attendees.</p>
+          </div>
+          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
+            <div className="text-2xl mb-2">🔐</div>
+            <h3 className="font-semibold mb-1">Secure</h3>
+            <p className="text-sm text-zinc-400">OAuth 2.0 with encrypted token storage. Your credentials never touch disk.</p>
+          </div>
+        </div>
+
+        <div className="mt-16 p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 text-left">
+          <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3 font-medium">Quick Setup</p>
+          <code className="block text-sm text-zinc-300 font-mono">
+            npx outlook-mcp
+          </code>
+          <p className="text-xs text-zinc-500 mt-3">Works with Claude Code, Cursor, Windsurf, and any MCP client.</p>
+        </div>
+      </div>
+
+      <footer className="absolute bottom-8 text-xs text-zinc-600">
+        Built by Paytience
+      </footer>
     </main>
   );
 }
