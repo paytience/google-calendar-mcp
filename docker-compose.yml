@@ -1,0 +1,11 @@
+services:
+  outlook-mcp:
+    build: .
+    container_name: outlook-mcp
+    environment:
+      - OUTLOOK_CLIENT_ID=${OUTLOOK_CLIENT_ID}
+      - OUTLOOK_CLIENT_SECRET=${OUTLOOK_CLIENT_SECRET}
+      - OUTLOOK_TENANT_ID=${OUTLOOK_TENANT_ID}
+      - OUTLOOK_USER_EMAIL=${OUTLOOK_USER_EMAIL}
+    stdin_open: true
+    restart: unless-stopped
