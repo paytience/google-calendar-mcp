@@ -154,7 +154,7 @@ function SetupContent() {
             <h3 className="font-semibold">Your API Key</h3>
             {apiKey ? (
               <div className="mt-3">
-                <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 mb-3">
+                <div onClick={copyKey} className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 mb-3 cursor-pointer hover:border-emerald-500/40 transition-colors">
                   <code className="text-xs text-emerald-400 font-mono break-all select-all">{apiKey}</code>
                 </div>
                 <div className="flex gap-2">
@@ -172,6 +172,7 @@ function SetupContent() {
                     {emailSent ? "Sent!" : sending ? "Sending..." : "Send to my email"}
                   </button>
                 </div>
+                <p className="text-xs text-zinc-500 mt-2">This key was also sent to your email.</p>
               </div>
             ) : isCompleted ? (
               <p className="text-sm text-zinc-500">Key was sent to your email. Check your inbox.</p>

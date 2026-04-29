@@ -49,7 +49,7 @@ export async function sendSetupLinkEmail(to: string, setupUrl: string) {
 
         <a href="${setupUrl}" style="display: inline-block; background: #18181b; color: #ffffff; font-weight: 600; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 24px;">Continue Setup</a>
 
-        <p style="color: #a1a1aa; font-size: 14px; margin-top: 24px;">Or copy this link:</p>
+        <p style="color: #3f3f46; font-size: 14px; margin-top: 24px;">Or copy this link:</p>
         <p style="color: #71717a; font-size: 13px; word-break: break-all;">${setupUrl}</p>
 
         <hr style="border: none; border-top: 1px solid #27272a; margin: 32px 0;" />

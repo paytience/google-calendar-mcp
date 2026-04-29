@@ -29,7 +29,7 @@ function PricingContent() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen px-6">
       <div className="max-w-md w-full">
-        <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8 block">
+        <Link href="/" className="text-sm text-zinc-400 hover:text-zinc-200 transition-colors mb-8 block">
           &larr; Back
         </Link>
 
@@ -45,7 +45,7 @@ function PricingContent() {
         <div className="rounded-2xl bg-zinc-900 border border-zinc-800 p-8">
           <div className="flex items-baseline gap-1 mb-6">
             <span className="text-5xl font-bold">$5</span>
-            <span className="text-zinc-500 text-sm">one-time</span>
+            <span className="text-zinc-400 text-sm">one-time</span>
           </div>
 
           <ul className="space-y-3 mb-8">
@@ -90,7 +90,7 @@ function PricingContent() {
           </button>
         </div>
 
-        <p className="text-xs text-zinc-600 text-center mt-6">
+        <p className="text-xs text-zinc-400 text-center mt-6">
           Secure payment via Stripe. No subscription required.
         </p>
       </div>
