@@ -12,7 +12,6 @@ export async function GET(request: Request) {
 
   const supabase = getSupabase();
 
-  // Session must exist (created by checkout route before Stripe redirect)
   const { data: existing } = await supabase
     .from("mcp_sessions")
     .select("*")
@@ -20,8 +19,12 @@ export async function GET(request: Request) {
     .single();
 
   if (!existing) {
-    // No session means they didn't go through checkout
     return NextResponse.redirect(new URL(`/pricing?session_id=${sessionId}`, request.url));
+  }
+
+  // Accept pending or paid sessions (pending handles race with webhook)
+  if (existing.status === "completed") {
+    return NextResponse.redirect(new URL(`/setup?session=${sessionId}`, request.url));
   }
 
   const authUrl = getAuthorizationUrl(sessionId);

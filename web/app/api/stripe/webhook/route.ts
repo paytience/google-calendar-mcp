@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { sendSetupLinkEmail } from "@/lib/email";
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!;
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mcpoutlook.com";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -36,8 +38,22 @@ export async function POST(request: Request) {
     if (mcpSessionId) {
       await supabase
         .from("mcp_sessions")
-        .update({ stripe_customer_id: customerId })
+        .update({
+          stripe_customer_id: customerId,
+          status: "paid",
+          user_email: customerEmail,
+        })
         .eq("session_id", mcpSessionId);
+
+      // Send setup link email
+      if (customerEmail) {
+        try {
+          const setupUrl = `${BASE_URL}/setup?session=${mcpSessionId}`;
+          await sendSetupLinkEmail(customerEmail, setupUrl);
+        } catch (e) {
+          console.error("Failed to send setup link email:", e);
+        }
+      }
     }
   }
 

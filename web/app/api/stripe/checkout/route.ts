@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       "mode": "payment",
       "line_items[0][price]": PRICE_ID,
       "line_items[0][quantity]": "1",
-      "success_url": `${BASE_URL}/api/auth/login?session_id=${sessionId}`,
+      "success_url": `${BASE_URL}/setup?session=${sessionId}`,
       "cancel_url": `${BASE_URL}/pricing?canceled=true`,
       "metadata[session_id]": sessionId,
     }).toString(),

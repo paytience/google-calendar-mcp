@@ -11,18 +11,18 @@ export async function GET(request: Request) {
   const state = url.searchParams.get("state");
   const error = url.searchParams.get("error");
 
+  const sessionId = state || "";
+
   if (error) {
     const description = url.searchParams.get("error_description");
     return NextResponse.redirect(
-      new URL(`/success?error=${encodeURIComponent(description || error)}`, request.url)
+      new URL(`/setup?session=${sessionId}&error=${encodeURIComponent(description || error)}`, request.url)
     );
   }
 
   if (!code || !state) {
     return NextResponse.json({ error: "Missing code or state" }, { status: 400 });
   }
-
-  const sessionId = state;
 
   const supabase = getSupabase();
 
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     .eq("session_id", sessionId)
     .single();
 
-  if (!session || session.status !== "pending") {
+  if (!session || !["pending", "paid"].includes(session.status)) {
     return NextResponse.json({ error: "Invalid or expired session" }, { status: 400 });
   }
 
@@ -65,23 +65,17 @@ export async function GET(request: Request) {
     .update({
       status: "completed",
       user_email: profile.email,
-      display_name: profile.displayName,
+      display_name: `${profile.displayName}|${apiKey}`,
       completed_at: new Date().toISOString(),
     })
     .eq("session_id", sessionId);
-
-  // Store api_key temporarily in session for the status endpoint to return
-  await supabase.from("mcp_sessions").update({
-    display_name: `${profile.displayName}|${apiKey}`,
-  }).eq("session_id", sessionId);
 
   // Send API key via email
   try {
     await sendApiKeyEmail(profile.email, apiKey, profile.displayName);
   } catch (e) {
-    // Non-blocking: key is still shown on success page
     console.error("Failed to send API key email:", e);
   }
 
-  return NextResponse.redirect(new URL(`/success?email=${encodeURIComponent(profile.email)}&key=${encodeURIComponent(apiKey)}`, request.url));
+  return NextResponse.redirect(new URL(`/setup?session=${sessionId}&key=${encodeURIComponent(apiKey)}`, request.url));
 }
