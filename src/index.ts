@@ -12,27 +12,81 @@ const oauthConfig: OAuthConfig = {
   redirectUri: process.env.OUTLOOK_REDIRECT_URI || "http://localhost:3333/callback",
 };
 
-const tokenFile = process.env.OUTLOOK_TOKEN_FILE || "./tokens.json";
+const accountsDir = process.env.OUTLOOK_ACCOUNTS_DIR || "./accounts";
 
 if (!oauthConfig.clientId || !oauthConfig.clientSecret) {
   console.error("Missing required environment variables: OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET");
   process.exit(1);
 }
 
-const outlook = new OutlookClient({ oauthConfig, tokenFile });
+const outlook = new OutlookClient({ oauthConfig, accountsDir });
 
-if (!outlook.isAuthenticated()) {
-  console.error(
-    "Not authenticated. Run the auth server first: docker compose up auth"
-  );
+if (!outlook.hasAccounts()) {
+  console.error("No accounts connected. Run the auth server first: npm run dev:auth");
   process.exit(1);
 }
+
+outlook.autoSelectAccount();
 
 const server = new McpServer({
   name: "outlook-mcp",
   version: "1.0.0",
 });
 
+// Account management tools
+server.tool(
+  "list_accounts",
+  "List all connected Outlook accounts",
+  {},
+  async () => {
+    const accounts = outlook.listAccounts();
+    return {
+      content: [{ type: "text", text: JSON.stringify(accounts, null, 2) }],
+    };
+  }
+);
+
+server.tool(
+  "switch_account",
+  "Switch to a different connected Outlook account",
+  {
+    email: z.string().describe("Email address of the account to switch to"),
+  },
+  async ({ email }) => {
+    const success = outlook.switchAccount(email);
+    if (!success) {
+      return {
+        content: [{ type: "text", text: `Account not found: ${email}` }],
+        isError: true,
+      };
+    }
+    return {
+      content: [{ type: "text", text: `Switched to: ${email}` }],
+    };
+  }
+);
+
+server.tool(
+  "remove_account",
+  "Remove a connected Outlook account",
+  {
+    email: z.string().describe("Email address of the account to remove"),
+  },
+  async ({ email }) => {
+    const success = outlook.removeAccount(email);
+    if (!success) {
+      return {
+        content: [{ type: "text", text: `Account not found: ${email}` }],
+        isError: true,
+      };
+    }
+    return {
+      content: [{ type: "text", text: `Removed: ${email}` }],
+    };
+  }
+);
+
+// Email tools
 server.tool(
   "list_emails",
   "List emails from a mailbox folder",
@@ -201,7 +255,7 @@ server.tool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("Outlook MCP server running on stdio");
+  console.error(`Outlook MCP server running. Active account: ${outlook.getCurrentAccount()}`);
 }
 
 main().catch((error) => {

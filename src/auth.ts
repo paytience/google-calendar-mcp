@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import "isomorphic-fetch";
 
 export interface OAuthConfig {
@@ -13,6 +15,12 @@ export interface TokenSet {
   expiresAt: number;
 }
 
+export interface StoredAccount {
+  email: string;
+  displayName: string;
+  tokens: TokenSet;
+}
+
 const SCOPES = [
   "offline_access",
   "Mail.Read",
@@ -20,6 +28,7 @@ const SCOPES = [
   "Mail.ReadWrite",
   "Calendars.Read",
   "Calendars.ReadWrite",
+  "User.Read",
 ];
 
 export function getAuthorizationUrl(config: OAuthConfig, state?: string): string {
@@ -100,4 +109,61 @@ export async function refreshAccessToken(
     refreshToken: data.refresh_token || refreshToken,
     expiresAt: Date.now() + data.expires_in * 1000,
   };
+}
+
+export async function fetchUserProfile(accessToken: string): Promise<{ email: string; displayName: string }> {
+  const response = await fetch("https://graph.microsoft.com/v1.0/me", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch user profile");
+  }
+
+  const data = await response.json();
+  return {
+    email: data.mail || data.userPrincipalName,
+    displayName: data.displayName || data.mail || data.userPrincipalName,
+  };
+}
+
+export class AccountStore {
+  private storePath: string;
+
+  constructor(storePath: string) {
+    this.storePath = storePath;
+    if (!fs.existsSync(storePath)) {
+      fs.mkdirSync(storePath, { recursive: true });
+    }
+  }
+
+  private accountFilePath(email: string): string {
+    const safe = email.toLowerCase().replace(/[^a-z0-9@._-]/g, "_");
+    return path.join(this.storePath, `${safe}.json`);
+  }
+
+  save(account: StoredAccount): void {
+    fs.writeFileSync(this.accountFilePath(account.email), JSON.stringify(account, null, 2));
+  }
+
+  get(email: string): StoredAccount | null {
+    const filePath = this.accountFilePath(email);
+    if (!fs.existsSync(filePath)) return null;
+    return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  }
+
+  list(): StoredAccount[] {
+    if (!fs.existsSync(this.storePath)) return [];
+    return fs
+      .readdirSync(this.storePath)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => JSON.parse(fs.readFileSync(path.join(this.storePath, f), "utf-8")));
+  }
+
+  remove(email: string): boolean {
+    const filePath = this.accountFilePath(email);
+    if (!fs.existsSync(filePath)) return false;
+    fs.unlinkSync(filePath);
+    return true;
+  }
 }

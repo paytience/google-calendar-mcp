@@ -1,22 +1,24 @@
 import { Client } from "@microsoft/microsoft-graph-client";
-import fs from "node:fs";
 import "isomorphic-fetch";
-import { refreshAccessToken, OAuthConfig, TokenSet } from "./auth.js";
+import { refreshAccessToken, AccountStore, OAuthConfig, StoredAccount } from "./auth.js";
 
 export interface OutlookClientConfig {
   oauthConfig: OAuthConfig;
-  tokenFile: string;
+  accountsDir: string;
 }
 
 export class OutlookClient {
-  private client: Client;
+  private client: Client | null = null;
   private config: OutlookClientConfig;
-  private tokens: TokenSet | null = null;
+  private store: AccountStore;
+  private currentAccount: StoredAccount | null = null;
 
   constructor(config: OutlookClientConfig) {
     this.config = config;
-    this.loadTokens();
+    this.store = new AccountStore(config.accountsDir);
+  }
 
+  private initClient() {
     this.client = Client.init({
       authProvider: async (done) => {
         try {
@@ -29,41 +31,70 @@ export class OutlookClient {
     });
   }
 
-  private loadTokens() {
-    if (fs.existsSync(this.config.tokenFile)) {
-      const data = fs.readFileSync(this.config.tokenFile, "utf-8");
-      this.tokens = JSON.parse(data);
-    }
-  }
-
-  private saveTokens(tokens: TokenSet) {
-    this.tokens = tokens;
-    fs.writeFileSync(this.config.tokenFile, JSON.stringify(tokens, null, 2));
-  }
-
   private async getValidAccessToken(): Promise<string> {
-    if (!this.tokens) {
-      this.loadTokens();
-    }
-    if (!this.tokens) {
-      throw new Error("Not authenticated. Run the auth server first to connect an Outlook account.");
+    if (!this.currentAccount) {
+      throw new Error("No account selected. Use switch_account to select one.");
     }
 
-    if (Date.now() < this.tokens.expiresAt - 60000) {
-      return this.tokens.accessToken;
+    const tokens = this.currentAccount.tokens;
+    if (Date.now() < tokens.expiresAt - 60000) {
+      return tokens.accessToken;
     }
 
     const newTokens = await refreshAccessToken(
       this.config.oauthConfig,
-      this.tokens.refreshToken
+      tokens.refreshToken
     );
-    this.saveTokens(newTokens);
+    this.currentAccount.tokens = newTokens;
+    this.store.save(this.currentAccount);
     return newTokens.accessToken;
   }
 
-  isAuthenticated(): boolean {
-    this.loadTokens();
-    return this.tokens !== null;
+  listAccounts(): { email: string; displayName: string; active: boolean }[] {
+    return this.store.list().map((a) => ({
+      email: a.email,
+      displayName: a.displayName,
+      active: this.currentAccount?.email === a.email,
+    }));
+  }
+
+  switchAccount(email: string): boolean {
+    const account = this.store.get(email);
+    if (!account) return false;
+    this.currentAccount = account;
+    this.initClient();
+    return true;
+  }
+
+  removeAccount(email: string): boolean {
+    if (this.currentAccount?.email === email) {
+      this.currentAccount = null;
+      this.client = null;
+    }
+    return this.store.remove(email);
+  }
+
+  getCurrentAccount(): string | null {
+    return this.currentAccount?.email || null;
+  }
+
+  hasAccounts(): boolean {
+    return this.store.list().length > 0;
+  }
+
+  autoSelectAccount(): boolean {
+    const accounts = this.store.list();
+    if (accounts.length === 0) return false;
+    this.currentAccount = accounts[0];
+    this.initClient();
+    return true;
+  }
+
+  private ensureClient(): Client {
+    if (!this.client || !this.currentAccount) {
+      throw new Error("No account selected. Use switch_account to select one.");
+    }
+    return this.client;
   }
 
   async listMessages(options?: {
@@ -73,6 +104,7 @@ export class OutlookClient {
     filter?: string;
     search?: string;
   }) {
+    const client = this.ensureClient();
     const folder = options?.folder || "inbox";
     let url = `/me/mailFolders/${folder}/messages`;
     const params: string[] = [];
@@ -87,12 +119,13 @@ export class OutlookClient {
 
     if (params.length > 0) url += `?${params.join("&")}`;
 
-    const response = await this.client.api(url).get();
+    const response = await client.api(url).get();
     return response.value;
   }
 
   async getMessage(messageId: string) {
-    const response = await this.client
+    const client = this.ensureClient();
+    const response = await client
       .api(`/me/messages/${messageId}`)
       .select("id,subject,from,toRecipients,ccRecipients,receivedDateTime,body,hasAttachments,attachments")
       .expand("attachments")
@@ -108,6 +141,7 @@ export class OutlookClient {
     body: string;
     bodyType?: "HTML" | "Text";
   }) {
+    const client = this.ensureClient();
     const message = {
       subject: options.subject,
       body: {
@@ -125,13 +159,14 @@ export class OutlookClient {
       })),
     };
 
-    await this.client.api("/me/sendMail").post({ message });
+    await client.api("/me/sendMail").post({ message });
     return { success: true };
   }
 
   async replyToMessage(messageId: string, options: { body: string; replyAll?: boolean }) {
+    const client = this.ensureClient();
     const endpoint = options.replyAll ? "replyAll" : "reply";
-    await this.client
+    await client
       .api(`/me/messages/${messageId}/${endpoint}`)
       .post({ comment: options.body });
     return { success: true };
@@ -142,11 +177,12 @@ export class OutlookClient {
     endDateTime?: string;
     top?: number;
   }) {
+    const client = this.ensureClient();
     const now = new Date();
     const start = options?.startDateTime || now.toISOString();
     const end = options?.endDateTime || new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const response = await this.client
+    const response = await client
       .api("/me/calendarView")
       .query({ startDateTime: start, endDateTime: end })
       .select("id,subject,start,end,location,organizer,attendees,isOnlineMeeting,onlineMeetingUrl,bodyPreview")
@@ -167,6 +203,7 @@ export class OutlookClient {
     location?: string;
     isOnlineMeeting?: boolean;
   }) {
+    const client = this.ensureClient();
     const event: Record<string, unknown> = {
       subject: options.subject,
       start: { dateTime: options.start, timeZone: options.timeZone || "UTC" },
@@ -190,17 +227,19 @@ export class OutlookClient {
       event.onlineMeetingProvider = "teamsForBusiness";
     }
 
-    const response = await this.client.api("/me/events").post(event);
+    const response = await client.api("/me/events").post(event);
     return response;
   }
 
   async listMailFolders() {
-    const response = await this.client.api("/me/mailFolders").top(50).get();
+    const client = this.ensureClient();
+    const response = await client.api("/me/mailFolders").top(50).get();
     return response.value;
   }
 
   async moveMessage(messageId: string, destinationFolderId: string) {
-    const response = await this.client
+    const client = this.ensureClient();
+    const response = await client
       .api(`/me/messages/${messageId}/move`)
       .post({ destinationId: destinationFolderId });
     return response;

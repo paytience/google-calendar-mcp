@@ -1,13 +1,12 @@
 import "dotenv/config";
 import http from "node:http";
 import { URL } from "node:url";
-import fs from "node:fs";
-import path from "node:path";
 import {
   getAuthorizationUrl,
   exchangeCodeForTokens,
+  fetchUserProfile,
+  AccountStore,
   OAuthConfig,
-  TokenSet,
 } from "./auth.js";
 
 const config: OAuthConfig = {
@@ -17,7 +16,8 @@ const config: OAuthConfig = {
   redirectUri: process.env.OUTLOOK_REDIRECT_URI || "http://localhost:3333/callback",
 };
 
-const TOKEN_FILE = process.env.OUTLOOK_TOKEN_FILE || "./tokens.json";
+const ACCOUNTS_DIR = process.env.OUTLOOK_ACCOUNTS_DIR || "./accounts";
+const store = new AccountStore(ACCOUNTS_DIR);
 
 if (!config.clientId || !config.clientSecret) {
   console.error("Missing OUTLOOK_CLIENT_ID or OUTLOOK_CLIENT_SECRET");
@@ -54,11 +54,17 @@ const server = http.createServer(async (req, res) => {
 
     try {
       const tokens = await exchangeCodeForTokens(config, code);
-      saveTokens(tokens);
+      const profile = await fetchUserProfile(tokens.accessToken);
+
+      store.save({
+        email: profile.email,
+        displayName: profile.displayName,
+        tokens,
+      });
 
       res.writeHead(200, { "Content-Type": "text/html" });
-      res.end("<h1>Outlook connected successfully</h1><p>You can close this window. The MCP server will use these credentials.</p>");
-      console.log("Tokens saved successfully. The MCP server can now access Outlook.");
+      res.end(`<h1>Connected: ${profile.displayName}</h1><p>${profile.email} added successfully.</p><p><a href="/login">Add another account</a> | <a href="/accounts">View all accounts</a></p>`);
+      console.log(`Account added: ${profile.email} (${profile.displayName})`);
     } catch (err) {
       res.writeHead(500, { "Content-Type": "text/html" });
       res.end(`<h1>Token exchange failed</h1><p>${err}</p>`);
@@ -66,29 +72,26 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (url.pathname === "/status") {
-    const hasTokens = fs.existsSync(TOKEN_FILE);
+  if (url.pathname === "/accounts") {
+    const accounts = store.list();
+    const list = accounts
+      .map((a) => `<li>${a.displayName} (${a.email})</li>`)
+      .join("");
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ authenticated: hasTokens }));
+    res.end(JSON.stringify(accounts.map((a) => ({ email: a.email, displayName: a.displayName }))));
     return;
   }
 
   res.writeHead(200, { "Content-Type": "text/html" });
   res.end(`
     <h1>Outlook MCP Auth</h1>
-    <p><a href="/login">Click here to connect your Outlook account</a></p>
+    <p><a href="/login">Connect an Outlook account</a></p>
+    <p><a href="/accounts">View connected accounts</a></p>
   `);
 });
 
-function saveTokens(tokens: TokenSet) {
-  const dir = path.dirname(TOKEN_FILE);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(TOKEN_FILE, JSON.stringify(tokens, null, 2));
-}
-
 server.listen(port, () => {
   console.log(`Auth server running at http://localhost:${port}`);
-  console.log(`Open http://localhost:${port}/login to connect your Outlook account`);
+  console.log(`Open http://localhost:${port}/login to connect an Outlook account`);
+  console.log(`Accounts stored in: ${ACCOUNTS_DIR}`);
 });
