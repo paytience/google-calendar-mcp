@@ -4,7 +4,7 @@ import { getSupabase } from "@/lib/supabase";
 export async function POST(request: Request) {
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
   const PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1TRXnEIvnPDvHV9e0w0KpIDI";
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mcpoutlook.com";
+  const origin = new URL(request.url).origin;
 
   if (!STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 500 });
@@ -34,8 +34,8 @@ export async function POST(request: Request) {
       "mode": "payment",
       "line_items[0][price]": PRICE_ID,
       "line_items[0][quantity]": "1",
-      "success_url": `${BASE_URL}/setup?session=${sessionId}`,
-      "cancel_url": `${BASE_URL}/pricing?canceled=true`,
+      "success_url": `${origin}/setup?session=${sessionId}`,
+      "cancel_url": `${origin}/pricing?canceled=true`,
       "metadata[session_id]": sessionId,
     }).toString(),
   });
