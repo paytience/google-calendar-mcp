@@ -195,6 +195,113 @@ async function main() {
     }
   );
 
+  server.tool(
+    "delete_email",
+    "Delete an email",
+    { messageId: z.string().describe("The ID of the email to delete") },
+    async ({ messageId }) => {
+      const result = await outlook.deleteMessage(messageId);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "mark_email_read",
+    "Mark an email as read or unread",
+    {
+      messageId: z.string().describe("The ID of the email"),
+      isRead: z.boolean().describe("true to mark as read, false for unread"),
+    },
+    async ({ messageId, isRead }) => {
+      const result = await outlook.markMessageRead(messageId, isRead);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "forward_email",
+    "Forward an email to other recipients",
+    {
+      messageId: z.string().describe("The ID of the email to forward"),
+      to: z.array(z.string()).describe("List of recipient email addresses"),
+      comment: z.string().optional().describe("Optional comment to include"),
+    },
+    async ({ messageId, to, comment }) => {
+      const result = await outlook.forwardMessage(messageId, to, comment);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "create_draft",
+    "Create an email draft without sending",
+    {
+      to: z.array(z.string()).describe("List of recipient email addresses"),
+      cc: z.array(z.string()).optional().describe("List of CC email addresses"),
+      subject: z.string().describe("Email subject"),
+      body: z.string().describe("Email body content"),
+      bodyType: z.enum(["HTML", "Text"]).optional().describe("Body content type (default: HTML)"),
+    },
+    async ({ to, cc, subject, body, bodyType }) => {
+      const result = await outlook.createDraft({ to, cc, subject, body, bodyType });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "delete_calendar_event",
+    "Delete a calendar event",
+    { eventId: z.string().describe("The ID of the event to delete") },
+    async ({ eventId }) => {
+      const result = await outlook.deleteCalendarEvent(eventId);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "update_calendar_event",
+    "Update an existing calendar event",
+    {
+      eventId: z.string().describe("The ID of the event to update"),
+      subject: z.string().optional().describe("New subject"),
+      body: z.string().optional().describe("New body/description"),
+      start: z.string().optional().describe("New start date/time in ISO format"),
+      end: z.string().optional().describe("New end date/time in ISO format"),
+      timeZone: z.string().optional().describe("Time zone"),
+      location: z.string().optional().describe("New location"),
+    },
+    async ({ eventId, subject, body, start, end, timeZone, location }) => {
+      const result = await outlook.updateCalendarEvent(eventId, { subject, body, start, end, timeZone, location });
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "get_attachment",
+    "Download an email attachment",
+    {
+      messageId: z.string().describe("The ID of the email"),
+      attachmentId: z.string().describe("The ID of the attachment"),
+    },
+    async ({ messageId, attachmentId }) => {
+      const result = await outlook.getAttachment(messageId, attachmentId);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "flag_email",
+    "Flag or unflag an email",
+    {
+      messageId: z.string().describe("The ID of the email"),
+      status: z.enum(["flagged", "complete", "notFlagged"]).describe("Flag status"),
+    },
+    async ({ messageId, status }) => {
+      const result = await outlook.flagMessage(messageId, status);
+      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error(`Outlook MCP server running. Active account: ${outlook.getCurrentAccount()}`);

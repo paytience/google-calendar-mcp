@@ -201,4 +201,89 @@ export class OutlookClient {
   async searchMessages(query: string, top?: number) {
     return this.listMessages({ search: query, top: top || 10 });
   }
+
+  async deleteMessage(messageId: string) {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      await client.api(`/me/messages/${messageId}`).delete();
+      return { success: true };
+    });
+  }
+
+  async markMessageRead(messageId: string, isRead: boolean) {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      return client.api(`/me/messages/${messageId}`).patch({ isRead });
+    });
+  }
+
+  async forwardMessage(messageId: string, to: string[], comment?: string) {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      await client.api(`/me/messages/${messageId}/forward`).post({
+        comment: comment || "",
+        toRecipients: to.map((email) => ({ emailAddress: { address: email } })),
+      });
+      return { success: true };
+    });
+  }
+
+  async createDraft(options: {
+    to: string[];
+    cc?: string[];
+    subject: string;
+    body: string;
+    bodyType?: "HTML" | "Text";
+  }) {
+    const client = this.ensureClient();
+    const message = {
+      subject: options.subject,
+      body: { contentType: options.bodyType || "HTML", content: options.body },
+      toRecipients: options.to.map((email) => ({ emailAddress: { address: email } })),
+      ccRecipients: options.cc?.map((email) => ({ emailAddress: { address: email } })),
+    };
+    return withRetry(async () => client.api("/me/messages").post(message));
+  }
+
+  async deleteCalendarEvent(eventId: string) {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      await client.api(`/me/events/${eventId}`).delete();
+      return { success: true };
+    });
+  }
+
+  async updateCalendarEvent(eventId: string, options: {
+    subject?: string;
+    body?: string;
+    start?: string;
+    end?: string;
+    timeZone?: string;
+    location?: string;
+  }) {
+    const client = this.ensureClient();
+    const update: Record<string, unknown> = {};
+    if (options.subject) update.subject = options.subject;
+    if (options.body) update.body = { contentType: "HTML", content: options.body };
+    if (options.start) update.start = { dateTime: options.start, timeZone: options.timeZone || "UTC" };
+    if (options.end) update.end = { dateTime: options.end, timeZone: options.timeZone || "UTC" };
+    if (options.location) update.location = { displayName: options.location };
+    return withRetry(async () => client.api(`/me/events/${eventId}`).patch(update));
+  }
+
+  async getAttachment(messageId: string, attachmentId: string) {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      return client.api(`/me/messages/${messageId}/attachments/${attachmentId}`).get();
+    });
+  }
+
+  async flagMessage(messageId: string, flagStatus: "flagged" | "complete" | "notFlagged") {
+    const client = this.ensureClient();
+    return withRetry(async () => {
+      return client.api(`/me/messages/${messageId}`).patch({
+        flag: { flagStatus },
+      });
+    });
+  }
 }

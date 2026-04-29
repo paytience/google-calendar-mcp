@@ -14,18 +14,12 @@ export default function Home() {
           Give Claude, Cursor, and other MCP clients direct access to your Outlook email and calendar. Send, search, and manage messages without leaving your workflow.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+        <div className="flex justify-center mb-16">
           <a
             href="/pricing"
             className="px-8 py-3 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-200 transition-colors"
           >
             Get Started &mdash; $5
-          </a>
-          <a
-            href="https://github.com/paytience/outlook-mcp"
-            className="px-8 py-3 border border-zinc-700 text-zinc-300 font-medium rounded-lg hover:border-zinc-500 hover:text-white transition-colors"
-          >
-            View on GitHub
           </a>
         </div>
 
