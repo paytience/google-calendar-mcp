@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "node:crypto";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { exchangeCodeForTokens, fetchUserProfile } from "@/lib/microsoft-oauth";
 import { encryptTokens } from "@/lib/encryption";
 
@@ -22,6 +22,8 @@ export async function GET(request: Request) {
   }
 
   const sessionId = state;
+
+  const supabase = getSupabase();
 
   const { data: session } = await supabase
     .from("mcp_sessions")

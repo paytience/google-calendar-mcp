@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
   }
 
-  const { data: session } = await supabase
+  const { data: session } = await getSupabase()
     .from("mcp_sessions")
     .select("*")
     .eq("session_id", sessionId)

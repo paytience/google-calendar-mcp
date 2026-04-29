@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { getAuthorizationUrl } from "@/lib/microsoft-oauth";
 
 export async function GET(request: Request) {
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing session_id" }, { status: 400 });
   }
 
-  await supabase.from("mcp_sessions").insert({
+  await getSupabase().from("mcp_sessions").insert({
     session_id: sessionId,
     status: "pending",
   });
