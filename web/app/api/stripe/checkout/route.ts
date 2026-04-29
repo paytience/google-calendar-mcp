@@ -4,7 +4,9 @@ import { getSupabase } from "@/lib/supabase";
 export async function POST(request: Request) {
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
   const PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1TRXnEIvnPDvHV9e0w0KpIDI";
-  const origin = new URL(request.url).origin;
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "mcpoutlook.com";
+  const protocol = request.headers.get("x-forwarded-proto") || "https";
+  const origin = `${protocol}://${host}`;
 
   if (!STRIPE_SECRET_KEY) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 500 });
