@@ -19,8 +19,38 @@ export default function Home() {
             href="/pricing"
             className="px-8 py-3 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-200 transition-colors"
           >
-            Get Started &mdash; $5
+            Get Started
           </a>
+        </div>
+
+        {/* Animated terminal demo */}
+        <div className="mb-16 w-full rounded-xl bg-zinc-950 border border-zinc-800 overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800">
+            <div className="w-3 h-3 rounded-full bg-red-500/60"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500/60"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500/60"></div>
+            <span className="ml-2 text-xs text-zinc-500">Claude Code</span>
+          </div>
+          <div className="p-5 font-mono text-sm text-left space-y-3">
+            <div className="animate-fade-in-1">
+              <span className="text-zinc-500">&gt;</span> <span className="text-zinc-300">Check my inbox for anything urgent</span>
+            </div>
+            <div className="animate-fade-in-2 pl-4 text-zinc-400 text-xs">
+              <span className="text-blue-400">tool:</span> list_emails (filter: isRead eq false, top: 5)
+            </div>
+            <div className="animate-fade-in-3 pl-4 text-zinc-500 text-xs">
+              Found 3 unread emails. 1 flagged as high importance from Sarah Chen re: &quot;Q3 Budget Review&quot;
+            </div>
+            <div className="animate-fade-in-4 mt-2">
+              <span className="text-zinc-500">&gt;</span> <span className="text-zinc-300">Reply to Sarah that I&apos;ll review it by EOD</span>
+            </div>
+            <div className="animate-fade-in-5 pl-4 text-zinc-400 text-xs">
+              <span className="text-blue-400">tool:</span> reply_to_email (messageId: ..., body: &quot;Hi Sarah, I&apos;ll review the Q3 budget by end of day...&quot;)
+            </div>
+            <div className="animate-fade-in-6 pl-4 text-green-400 text-xs">
+              Reply sent successfully.
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
@@ -61,13 +91,13 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">1</div>
-              <h3 className="font-semibold mb-2">Purchase &amp; Connect</h3>
-              <p className="text-sm text-zinc-400">Pay once, then sign in with your Microsoft account to grant access.</p>
+              <h3 className="font-semibold mb-2">Purchase &amp; Get API Key</h3>
+              <p className="text-sm text-zinc-400">Pay once, sign in with Microsoft, and receive your personal API key.</p>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">2</div>
-              <h3 className="font-semibold mb-2">Add to your AI tool</h3>
-              <p className="text-sm text-zinc-400">Drop the MCP config into Claude Code, Cursor, or Windsurf settings.</p>
+              <h3 className="font-semibold mb-2">Run the setup</h3>
+              <p className="text-sm text-zinc-400">Run <code className="text-zinc-300">npx outlook-mcp</code> and enter your API key to connect.</p>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">3</div>
@@ -86,8 +116,8 @@ export default function Home() {
         </div>
       </div>
 
-      <footer className="absolute bottom-8 text-xs text-zinc-600">
-        Built by Paytience
+      <footer className="mt-16 pb-8 text-xs text-zinc-600">
+        Built by <a href="https://github.com/paytience" className="hover:text-zinc-400 transition-colors">Paytience</a>
       </footer>
     </main>
   );

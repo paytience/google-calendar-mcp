@@ -3,6 +3,7 @@ import { randomBytes, createHash } from "node:crypto";
 import { getSupabase } from "@/lib/supabase";
 import { exchangeCodeForTokens, fetchUserProfile } from "@/lib/microsoft-oauth";
 import { encryptTokens } from "@/lib/encryption";
+import { sendApiKeyEmail } from "@/lib/email";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -73,6 +74,14 @@ export async function GET(request: Request) {
   await supabase.from("mcp_sessions").update({
     display_name: `${profile.displayName}|${apiKey}`,
   }).eq("session_id", sessionId);
+
+  // Send API key via email
+  try {
+    await sendApiKeyEmail(profile.email, apiKey, profile.displayName);
+  } catch (e) {
+    // Non-blocking: key is still shown on success page
+    console.error("Failed to send API key email:", e);
+  }
 
   return NextResponse.redirect(new URL(`/success?email=${encodeURIComponent(profile.email)}&key=${encodeURIComponent(apiKey)}`, request.url));
 }
