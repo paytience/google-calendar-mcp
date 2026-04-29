@@ -72,12 +72,17 @@ export async function POST(request: Request) {
 }
 
 async function verifyWebhookSignature(body: string, signature: string): Promise<any | null> {
-  // Simple Stripe webhook verification
   const crypto = await import("node:crypto");
-  const parts = signature.split(",");
-  const timestamp = parts.find((p) => p.startsWith("t="))?.split("=")[1];
-  const v1 = parts.find((p) => p.startsWith("v1="))?.split("=")[1];
+  const elements: Record<string, string> = {};
+  for (const part of signature.split(",")) {
+    const idx = part.indexOf("=");
+    if (idx > 0) {
+      elements[part.slice(0, idx)] = part.slice(idx + 1);
+    }
+  }
 
+  const timestamp = elements["t"];
+  const v1 = elements["v1"];
   if (!timestamp || !v1) return null;
 
   const payload = `${timestamp}.${body}`;
