@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { sendSetupLinkEmail } from "@/lib/email";
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!;
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mcpoutlook.com";
 
 export async function POST(request: Request) {
@@ -14,8 +12,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
-  // Verify webhook signature
-  const event = await verifyWebhookSignature(body, signature);
+  const webhookSecret = (process.env.STRIPE_WEBHOOK_SECRET || "").trim();
+  if (!webhookSecret) {
+    console.error("STRIPE_WEBHOOK_SECRET is not set");
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
+  }
+
+  const event = await verifyWebhookSignature(body, signature, webhookSecret);
   if (!event) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
@@ -71,13 +74,13 @@ export async function POST(request: Request) {
   return NextResponse.json({ received: true });
 }
 
-async function verifyWebhookSignature(body: string, signature: string): Promise<any | null> {
+async function verifyWebhookSignature(body: string, signature: string, secret: string): Promise<any | null> {
   const crypto = await import("node:crypto");
   const elements: Record<string, string> = {};
   for (const part of signature.split(",")) {
     const idx = part.indexOf("=");
     if (idx > 0) {
-      elements[part.slice(0, idx)] = part.slice(idx + 1);
+      elements[part.slice(0, idx).trim()] = part.slice(idx + 1);
     }
   }
 
@@ -86,7 +89,7 @@ async function verifyWebhookSignature(body: string, signature: string): Promise<
   if (!timestamp || !v1) return null;
 
   const payload = `${timestamp}.${body}`;
-  const expected = crypto.createHmac("sha256", STRIPE_WEBHOOK_SECRET).update(payload).digest("hex");
+  const expected = crypto.createHmac("sha256", secret).update(payload).digest("hex");
 
   if (expected !== v1) return null;
 
