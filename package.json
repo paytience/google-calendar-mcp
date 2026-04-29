@@ -1,25 +1,33 @@
 {
   "name": "outlook-mcp",
-  "version": "1.0.0",
-  "description": "MCP server for Microsoft Outlook integration via Microsoft Graph API",
+  "version": "2.0.0",
+  "description": "MCP server for Microsoft Outlook email and calendar",
   "main": "dist/index.js",
+  "bin": {
+    "outlook-mcp": "dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "auth": "node dist/auth-server.js",
-    "dev": "tsx src/index.ts",
-    "dev:auth": "tsx src/auth-server.ts"
+    "dev": "tsx src/index.ts"
+  },
+  "keywords": ["mcp", "outlook", "email", "calendar", "microsoft-graph"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paytience/outlook-mcp"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@modelcontextprotocol/sdk": "^1.12.1",
-    "dotenv": "^17.4.2",
     "isomorphic-fetch": "^3.0.0",
+    "open": "^10.1.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
-  }
+  },
+  "files": ["dist", "README.md", "LICENSE"]
 }

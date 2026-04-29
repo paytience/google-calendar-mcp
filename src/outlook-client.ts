@@ -1,21 +1,18 @@
 import { Client } from "@microsoft/microsoft-graph-client";
 import "isomorphic-fetch";
-import { refreshAccessToken, AccountStore, OAuthConfig, StoredAccount } from "./auth.js";
-
-export interface OutlookClientConfig {
-  oauthConfig: OAuthConfig;
-  accountsDir: string;
-}
+import { refreshAccessToken, OAuthConfig, TokenSet } from "./auth.js";
+import { fetchTokens, updateTokens } from "./token-store.js";
+import { AccountConfig } from "./config.js";
+import { withRetry } from "./retry.js";
 
 export class OutlookClient {
   private client: Client | null = null;
-  private config: OutlookClientConfig;
-  private store: AccountStore;
-  private currentAccount: StoredAccount | null = null;
+  private oauthConfig: OAuthConfig;
+  private currentAccount: AccountConfig | null = null;
+  private tokens: TokenSet | null = null;
 
-  constructor(config: OutlookClientConfig) {
-    this.config = config;
-    this.store = new AccountStore(config.accountsDir);
+  constructor(oauthConfig: OAuthConfig) {
+    this.oauthConfig = oauthConfig;
   }
 
   private initClient() {
@@ -36,58 +33,29 @@ export class OutlookClient {
       throw new Error("No account selected. Use switch_account to select one.");
     }
 
-    const tokens = this.currentAccount.tokens;
-    if (Date.now() < tokens.expiresAt - 60000) {
-      return tokens.accessToken;
+    if (!this.tokens) {
+      const remote = await fetchTokens(this.currentAccount.apiKey);
+      this.tokens = remote.tokens;
     }
 
-    const newTokens = await refreshAccessToken(
-      this.config.oauthConfig,
-      tokens.refreshToken
-    );
-    this.currentAccount.tokens = newTokens;
-    this.store.save(this.currentAccount);
+    if (Date.now() < this.tokens.expiresAt - 60000) {
+      return this.tokens.accessToken;
+    }
+
+    const newTokens = await refreshAccessToken(this.oauthConfig, this.tokens.refreshToken);
+    this.tokens = newTokens;
+    await updateTokens(this.currentAccount.apiKey, newTokens);
     return newTokens.accessToken;
   }
 
-  listAccounts(): { email: string; displayName: string; active: boolean }[] {
-    return this.store.list().map((a) => ({
-      email: a.email,
-      displayName: a.displayName,
-      active: this.currentAccount?.email === a.email,
-    }));
-  }
-
-  switchAccount(email: string): boolean {
-    const account = this.store.get(email);
-    if (!account) return false;
+  switchAccount(account: AccountConfig): void {
     this.currentAccount = account;
+    this.tokens = null;
     this.initClient();
-    return true;
-  }
-
-  removeAccount(email: string): boolean {
-    if (this.currentAccount?.email === email) {
-      this.currentAccount = null;
-      this.client = null;
-    }
-    return this.store.remove(email);
   }
 
   getCurrentAccount(): string | null {
     return this.currentAccount?.email || null;
-  }
-
-  hasAccounts(): boolean {
-    return this.store.list().length > 0;
-  }
-
-  autoSelectAccount(): boolean {
-    const accounts = this.store.list();
-    if (accounts.length === 0) return false;
-    this.currentAccount = accounts[0];
-    this.initClient();
-    return true;
   }
 
   private ensureClient(): Client {
@@ -119,18 +87,21 @@ export class OutlookClient {
 
     if (params.length > 0) url += `?${params.join("&")}`;
 
-    const response = await client.api(url).get();
-    return response.value;
+    return withRetry(async () => {
+      const response = await client.api(url).get();
+      return response.value;
+    });
   }
 
   async getMessage(messageId: string) {
     const client = this.ensureClient();
-    const response = await client
-      .api(`/me/messages/${messageId}`)
-      .select("id,subject,from,toRecipients,ccRecipients,receivedDateTime,body,hasAttachments,attachments")
-      .expand("attachments")
-      .get();
-    return response;
+    return withRetry(async () => {
+      return client
+        .api(`/me/messages/${messageId}`)
+        .select("id,subject,from,toRecipients,ccRecipients,receivedDateTime,body,hasAttachments,attachments")
+        .expand("attachments")
+        .get();
+    });
   }
 
   async sendMessage(options: {
@@ -144,53 +115,43 @@ export class OutlookClient {
     const client = this.ensureClient();
     const message = {
       subject: options.subject,
-      body: {
-        contentType: options.bodyType || "HTML",
-        content: options.body,
-      },
-      toRecipients: options.to.map((email) => ({
-        emailAddress: { address: email },
-      })),
-      ccRecipients: options.cc?.map((email) => ({
-        emailAddress: { address: email },
-      })),
-      bccRecipients: options.bcc?.map((email) => ({
-        emailAddress: { address: email },
-      })),
+      body: { contentType: options.bodyType || "HTML", content: options.body },
+      toRecipients: options.to.map((email) => ({ emailAddress: { address: email } })),
+      ccRecipients: options.cc?.map((email) => ({ emailAddress: { address: email } })),
+      bccRecipients: options.bcc?.map((email) => ({ emailAddress: { address: email } })),
     };
 
-    await client.api("/me/sendMail").post({ message });
-    return { success: true };
+    return withRetry(async () => {
+      await client.api("/me/sendMail").post({ message });
+      return { success: true };
+    });
   }
 
   async replyToMessage(messageId: string, options: { body: string; replyAll?: boolean }) {
     const client = this.ensureClient();
     const endpoint = options.replyAll ? "replyAll" : "reply";
-    await client
-      .api(`/me/messages/${messageId}/${endpoint}`)
-      .post({ comment: options.body });
-    return { success: true };
+    return withRetry(async () => {
+      await client.api(`/me/messages/${messageId}/${endpoint}`).post({ comment: options.body });
+      return { success: true };
+    });
   }
 
-  async listCalendarEvents(options?: {
-    startDateTime?: string;
-    endDateTime?: string;
-    top?: number;
-  }) {
+  async listCalendarEvents(options?: { startDateTime?: string; endDateTime?: string; top?: number }) {
     const client = this.ensureClient();
     const now = new Date();
     const start = options?.startDateTime || now.toISOString();
     const end = options?.endDateTime || new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    const response = await client
-      .api("/me/calendarView")
-      .query({ startDateTime: start, endDateTime: end })
-      .select("id,subject,start,end,location,organizer,attendees,isOnlineMeeting,onlineMeetingUrl,bodyPreview")
-      .orderby("start/dateTime")
-      .top(options?.top || 25)
-      .get();
-
-    return response.value;
+    return withRetry(async () => {
+      const response = await client
+        .api("/me/calendarView")
+        .query({ startDateTime: start, endDateTime: end })
+        .select("id,subject,start,end,location,organizer,attendees,isOnlineMeeting,onlineMeetingUrl,bodyPreview")
+        .orderby("start/dateTime")
+        .top(options?.top || 25)
+        .get();
+      return response.value;
+    });
   }
 
   async createCalendarEvent(options: {
@@ -209,40 +170,32 @@ export class OutlookClient {
       start: { dateTime: options.start, timeZone: options.timeZone || "UTC" },
       end: { dateTime: options.end, timeZone: options.timeZone || "UTC" },
     };
-
-    if (options.body) {
-      event.body = { contentType: "HTML", content: options.body };
-    }
+    if (options.body) event.body = { contentType: "HTML", content: options.body };
     if (options.attendees) {
-      event.attendees = options.attendees.map((email) => ({
-        emailAddress: { address: email },
-        type: "required",
-      }));
+      event.attendees = options.attendees.map((email) => ({ emailAddress: { address: email }, type: "required" }));
     }
-    if (options.location) {
-      event.location = { displayName: options.location };
-    }
+    if (options.location) event.location = { displayName: options.location };
     if (options.isOnlineMeeting) {
       event.isOnlineMeeting = true;
       event.onlineMeetingProvider = "teamsForBusiness";
     }
 
-    const response = await client.api("/me/events").post(event);
-    return response;
+    return withRetry(async () => client.api("/me/events").post(event));
   }
 
   async listMailFolders() {
     const client = this.ensureClient();
-    const response = await client.api("/me/mailFolders").top(50).get();
-    return response.value;
+    return withRetry(async () => {
+      const response = await client.api("/me/mailFolders").top(50).get();
+      return response.value;
+    });
   }
 
   async moveMessage(messageId: string, destinationFolderId: string) {
     const client = this.ensureClient();
-    const response = await client
-      .api(`/me/messages/${messageId}/move`)
-      .post({ destinationId: destinationFolderId });
-    return response;
+    return withRetry(async () => {
+      return client.api(`/me/messages/${messageId}/move`).post({ destinationId: destinationFolderId });
+    });
   }
 
   async searchMessages(query: string, top?: number) {
