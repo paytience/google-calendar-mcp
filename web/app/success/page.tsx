@@ -7,6 +7,7 @@ function SuccessContent() {
   const params = useSearchParams();
   const email = params.get("email");
   const error = params.get("error");
+  const apiKey = params.get("key");
 
   if (error) {
     return (
@@ -42,6 +43,14 @@ function SuccessContent() {
 
         <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-6 mb-6">
           <h2 className="font-semibold mb-4">Setup Instructions</h2>
+
+          {apiKey && (
+            <div className="mb-5 p-4 rounded-lg bg-zinc-950 border border-zinc-800">
+              <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2 font-medium">Your API Key</p>
+              <code className="block text-xs text-green-400 font-mono break-all select-all">{apiKey}</code>
+              <p className="text-xs text-zinc-500 mt-2">Save this key. It won&apos;t be shown again.</p>
+            </div>
+          )}
 
           <div className="space-y-5">
             <div>

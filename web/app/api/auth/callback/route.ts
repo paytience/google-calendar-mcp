@@ -74,5 +74,5 @@ export async function GET(request: Request) {
     display_name: `${profile.displayName}|${apiKey}`,
   }).eq("session_id", sessionId);
 
-  return NextResponse.redirect(new URL(`/success?email=${encodeURIComponent(profile.email)}`, request.url));
+  return NextResponse.redirect(new URL(`/success?email=${encodeURIComponent(profile.email)}&key=${encodeURIComponent(apiKey)}`, request.url));
 }

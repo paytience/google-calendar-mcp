@@ -47,7 +47,28 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-16 p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 text-left">
+        <div className="mt-16 mb-16 w-full">
+          <h2 className="text-2xl font-bold text-center mb-8">How it works</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="relative p-5 rounded-xl bg-zinc-900/50 border border-zinc-800">
+              <span className="absolute -top-3 left-4 px-2 bg-zinc-950 text-xs font-bold text-blue-400">1</span>
+              <h3 className="font-semibold mb-1">Purchase &amp; Connect</h3>
+              <p className="text-sm text-zinc-400">Pay once, then sign in with your Microsoft account to grant access.</p>
+            </div>
+            <div className="relative p-5 rounded-xl bg-zinc-900/50 border border-zinc-800">
+              <span className="absolute -top-3 left-4 px-2 bg-zinc-950 text-xs font-bold text-blue-400">2</span>
+              <h3 className="font-semibold mb-1">Add to your AI tool</h3>
+              <p className="text-sm text-zinc-400">Drop the MCP config into Claude Code, Cursor, or Windsurf settings.</p>
+            </div>
+            <div className="relative p-5 rounded-xl bg-zinc-900/50 border border-zinc-800">
+              <span className="absolute -top-3 left-4 px-2 bg-zinc-950 text-xs font-bold text-blue-400">3</span>
+              <h3 className="font-semibold mb-1">Ask your AI</h3>
+              <p className="text-sm text-zinc-400">&ldquo;Check my inbox&rdquo;, &ldquo;Send a reply&rdquo;, &ldquo;What&apos;s on my calendar?&rdquo;</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 text-left w-full">
           <p className="text-xs text-zinc-500 uppercase tracking-wider mb-3 font-medium">Quick Setup</p>
           <code className="block text-sm text-zinc-300 font-mono">
             npx outlook-mcp
