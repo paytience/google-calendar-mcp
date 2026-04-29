@@ -7,13 +7,13 @@ const POLL_TIMEOUT = 600000; // 10 minutes
 
 export async function setupAccount(): Promise<{ email: string; displayName: string }> {
   const sessionId = randomUUID();
-  const loginUrl = `${AUTH_BASE_URL}/api/auth/login?session_id=${sessionId}`;
+  const pricingUrl = `${AUTH_BASE_URL}/pricing?session_id=${sessionId}`;
 
-  console.error(`Opening browser to connect your Outlook account...`);
-  console.error(`If it doesn't open, visit: ${loginUrl}`);
+  console.error(`Opening browser to set up Outlook MCP...`);
+  console.error(`If it doesn't open, visit: ${pricingUrl}`);
 
   const open = await import("open");
-  await open.default(loginUrl);
+  await open.default(pricingUrl);
 
   const result = await pollForCompletion(sessionId);
 
