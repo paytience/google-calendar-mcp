@@ -1,13 +1,46 @@
 # Outlook MCP
 
-MCP server for Microsoft Outlook integration via Microsoft Graph API. Uses OAuth 2.0 Authorization Code flow for secure, commercial-grade authentication.
+Connect Microsoft Outlook to AI assistants via the Model Context Protocol. Read, send, and search emails. View and create calendar events. Works with Claude Code, Cursor, Windsurf, and any MCP-compatible client.
 
-## Architecture
+## Quick Start
 
-Two services running in Docker:
+```bash
+npx outlook-mcp
+```
 
-1. **Auth Server** (port 3333): Handles the OAuth flow. Users visit `/login`, sign in with Microsoft, and the refresh token is stored in a shared volume.
-2. **MCP Server** (stdio): Uses the stored refresh token to access Outlook on behalf of the user.
+On first run, your browser opens to complete payment ($5 one-time) and connect your Microsoft account. After that, the MCP server starts automatically.
+
+## Configuration
+
+Add to your MCP client settings:
+
+### Claude Code
+
+```json
+{
+  "mcpServers": {
+    "outlook": {
+      "command": "npx",
+      "args": ["-y", "outlook-mcp"]
+    }
+  }
+}
+```
+
+### Cursor
+
+Add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "outlook": {
+      "command": "npx",
+      "args": ["-y", "outlook-mcp"]
+    }
+  }
+}
+```
 
 ## Tools
 
@@ -22,65 +55,27 @@ Two services running in Docker:
 | `move_email` | Move an email to a different folder |
 | `list_calendar_events` | List upcoming calendar events |
 | `create_calendar_event` | Create a new calendar event |
+| `list_accounts` | List connected Outlook accounts |
+| `switch_account` | Switch active account |
+| `add_account` | Connect another Outlook account |
 
-## Azure AD App Registration (one time)
+## Multi-Account Support
 
-1. Go to [Azure Portal](https://portal.azure.com) > Azure Active Directory > App registrations
-2. Click "New registration"
-3. Set "Supported account types" to **"Accounts in any organizational directory and personal Microsoft accounts"** (multi-tenant)
-4. Set Redirect URI to `http://localhost:3333/callback` (Web platform)
-5. Under "API permissions", add Microsoft Graph **delegated** permissions:
-   - `Mail.Read`
-   - `Mail.Send`
-   - `Mail.ReadWrite`
-   - `Calendars.Read`
-   - `Calendars.ReadWrite`
-   - `offline_access`
-6. Under "Certificates & secrets", create a client secret
-7. Note your **Client ID** and **Client Secret**
+Connect unlimited Microsoft/Outlook accounts with a single purchase. Use `switch_account` to change which account is active. All email and calendar tools operate on the currently selected account.
 
-No admin consent needed for delegated permissions; each user consents individually.
+## Security
 
-## Setup
+- OAuth 2.0 Authorization Code flow (industry standard)
+- Tokens encrypted at rest (AES-256-GCM)
+- Client secrets never stored on your machine
+- API keys scoped per installation
 
-```bash
-cp .env.example .env
-# Fill in OUTLOOK_CLIENT_ID and OUTLOOK_CLIENT_SECRET
-```
+## Pricing
 
-## Running
+$5 one-time payment. Lifetime access. Unlimited accounts.
 
-### 1. Start services
+Purchase at [mcpoutlook.com](https://mcpoutlook.com).
 
-```bash
-docker compose up --build -d
-```
+## Support
 
-### 2. Authenticate
-
-Open `http://localhost:3333/login` in your browser. Sign in with your Microsoft account and grant permissions. Once you see "Outlook connected successfully", the MCP server is ready.
-
-### 3. Configure Claude Code
-
-```json
-{
-  "mcpServers": {
-    "outlook": {
-      "command": "docker",
-      "args": ["compose", "-f", "/path/to/docker-compose.yml", "run", "--rm", "-T", "mcp"]
-    }
-  }
-}
-```
-
-## Development
-
-```bash
-npm install
-npm run dev:auth   # Start auth server
-npm run dev        # Start MCP server
-```
-
-## How Token Refresh Works
-
-The auth server obtains an initial access + refresh token pair. The MCP server automatically refreshes the access token when it expires (every ~1 hour). The refresh token itself is long-lived (90 days with rolling refresh), so re-authentication is rarely needed.
+Open an issue on this repository or email support via mcpoutlook.com.
