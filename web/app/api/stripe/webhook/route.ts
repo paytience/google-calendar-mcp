@@ -20,6 +20,11 @@ export async function POST(request: Request) {
 
   const event = await verifyWebhookSignature(body, signature, webhookSecret);
   if (!event) {
+    console.error("Webhook signature verification failed", {
+      signatureHeader: signature.substring(0, 50) + "...",
+      secretPrefix: webhookSecret.substring(0, 10) + "...",
+      bodyLength: body.length,
+    });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
