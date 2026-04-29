@@ -7,11 +7,11 @@ export default function Home() {
         </div>
 
         <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
-          Your AI reads your email.
+          Outlook, inside your AI tools.
         </h1>
 
         <p className="text-lg text-zinc-400 mb-12 max-w-lg mx-auto">
-          Connect Microsoft Outlook to Claude, Cursor, and any MCP-compatible assistant. Read, send, search emails and manage your calendar.
+          Give Claude, Cursor, and other MCP clients direct access to your Outlook email and calendar. Send, search, and manage messages without leaving your workflow.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
