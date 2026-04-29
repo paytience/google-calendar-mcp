@@ -21,8 +21,24 @@ jobs:
           npm ci
           npm run build
 
+      - name: Lint MCP server
+        run: npm run lint
+
+      - name: Audit MCP server
+        run: npm audit --audit-level=moderate
+
       - name: Typecheck web app
         run: |
           cd web
           npm ci
           npx tsc --noEmit
+
+      - name: Lint web app
+        run: |
+          cd web
+          npm run lint
+
+      - name: Audit web app
+        run: |
+          cd web
+          npm audit --audit-level=high

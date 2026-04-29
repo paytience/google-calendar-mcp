@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Suspense, useState } from "react";
 
 function PricingContent() {
@@ -28,9 +29,9 @@ function PricingContent() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen px-6">
       <div className="max-w-md w-full">
-        <a href="/" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8 block">
+        <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8 block">
           &larr; Back
-        </a>
+        </Link>
 
         {canceled && (
           <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
