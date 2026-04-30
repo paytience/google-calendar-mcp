@@ -4,8 +4,9 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { OutlookClient } from "./outlook-client.js";
 import { OAuthConfig } from "./auth.js";
-import { getAccounts, removeAccount } from "./config.js";
+import { getAccounts, removeAccount, addAccount } from "./config.js";
 import { setupAccount } from "./setup.js";
+import { fetchTokens } from "./token-store.js";
 
 const oauthConfig: OAuthConfig = {
   clientId: "bd342cd6-3cef-481a-8afb-2e7a7b7a24f0",
@@ -16,6 +17,14 @@ const oauthConfig: OAuthConfig = {
 
 async function main() {
   let accounts = getAccounts();
+
+  // If API key is set via env var and no local accounts exist, bootstrap from remote
+  const envApiKey = process.env.OUTLOOK_MCP_API_KEY;
+  if (accounts.length === 0 && envApiKey) {
+    const remote = await fetchTokens(envApiKey);
+    addAccount({ email: remote.email, displayName: remote.displayName, apiKey: envApiKey });
+    accounts = getAccounts();
+  }
 
   if (accounts.length === 0) {
     await setupAccount();
