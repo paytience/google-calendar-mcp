@@ -22,6 +22,21 @@ export async function fetchTokens(apiKey: string): Promise<RemoteAccount> {
   return response.json();
 }
 
+export async function refreshTokensRemote(apiKey: string): Promise<TokenSet> {
+  const response = await fetch(`${EDGE_FUNCTION_URL}/refresh`, {
+    method: "POST",
+    headers: { "x-api-key": apiKey },
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Failed to refresh tokens (${response.status}): ${body}`);
+  }
+
+  const data = await response.json();
+  return data.tokens;
+}
+
 export async function updateTokens(apiKey: string, tokens: TokenSet): Promise<void> {
   const response = await fetch(EDGE_FUNCTION_URL, {
     method: "PUT",

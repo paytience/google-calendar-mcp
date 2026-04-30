@@ -32,10 +32,9 @@ vi.mock("../token-store.js", () => ({
   fetchTokens: vi.fn(() => Promise.resolve({
     tokens: { accessToken: "test-token", refreshToken: "test-refresh", expiresAt: Date.now() + 3600000 },
   })),
-  updateTokens: vi.fn(),
-}));
-vi.mock("../auth.js", () => ({
-  refreshAccessToken: vi.fn(),
+  refreshTokensRemote: vi.fn(() => Promise.resolve({
+    accessToken: "refreshed-token", refreshToken: "new-refresh", expiresAt: Date.now() + 3600000,
+  })),
 }));
 
 import { OutlookClient } from "../outlook-client.js";

@@ -41,9 +41,6 @@ export async function GET(request: Request) {
 
   const { encrypted, iv, tag } = await encryptTokens(JSON.stringify(tokens));
 
-  const apiKey = `omk_${randomBytes(32).toString("base64url")}`;
-  const apiKeyHash = createHash("sha256").update(apiKey).digest("hex");
-
   await supabase.from("mcp_tokens").upsert({
     session_id: sessionId,
     user_email: profile.email,
@@ -54,28 +51,51 @@ export async function GET(request: Request) {
     token_expires_at: tokens.expiresAt,
   });
 
-  await supabase.from("mcp_api_keys").insert({
-    api_key_hash: apiKeyHash,
-    session_id: sessionId,
-    user_email: profile.email,
-  });
+  // Reuse existing API key if one exists for this session+email
+  const { data: existingKey } = await supabase
+    .from("mcp_api_keys")
+    .select("api_key_hash")
+    .eq("session_id", sessionId)
+    .eq("user_email", profile.email)
+    .eq("is_active", true)
+    .limit(1)
+    .single();
+
+  let apiKey: string;
+  if (existingKey) {
+    // Tokens refreshed, keep existing key (we can't recover the plaintext, so show a message instead)
+    apiKey = "";
+  } else {
+    apiKey = `omk_${randomBytes(32).toString("base64url")}`;
+    const apiKeyHash = createHash("sha256").update(apiKey).digest("hex");
+
+    await supabase.from("mcp_api_keys").insert({
+      api_key_hash: apiKeyHash,
+      session_id: sessionId,
+      user_email: profile.email,
+    });
+  }
 
   await supabase
     .from("mcp_sessions")
     .update({
       status: "completed",
       user_email: profile.email,
-      display_name: `${profile.displayName}|${apiKey}`,
+      display_name: apiKey ? `${profile.displayName}|${apiKey}` : profile.displayName,
       completed_at: new Date().toISOString(),
     })
     .eq("session_id", sessionId);
 
-  // Send API key via email
-  try {
-    await sendApiKeyEmail(profile.email, apiKey, profile.displayName);
-  } catch (e) {
-    console.error("Failed to send API key email:", e);
+  if (apiKey) {
+    try {
+      await sendApiKeyEmail(profile.email, apiKey, profile.displayName);
+    } catch (e) {
+      console.error("Failed to send API key email:", e);
+    }
   }
 
-  return NextResponse.redirect(new URL(`/setup?session=${sessionId}&key=${encodeURIComponent(apiKey)}`, request.url));
+  const redirectUrl = apiKey
+    ? `/setup?session=${sessionId}&key=${encodeURIComponent(apiKey)}`
+    : `/setup?session=${sessionId}&reconnected=true`;
+  return NextResponse.redirect(new URL(redirectUrl, request.url));
 }

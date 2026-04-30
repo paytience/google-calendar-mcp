@@ -9,6 +9,7 @@ function SetupContent() {
   const sessionId = params.get("session");
   const apiKey = params.get("key");
   const error = params.get("error");
+  const reconnected = params.get("reconnected") === "true";
 
   const [status, setStatus] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
@@ -59,7 +60,7 @@ function SetupContent() {
     );
   }
 
-  const isCompleted = status === "completed" || !!apiKey;
+  const isCompleted = status === "completed" || !!apiKey || reconnected;
   const isPaid = status === "pending" || status === "paid";
 
   const copyKey = () => {
@@ -174,6 +175,8 @@ function SetupContent() {
                 </div>
                 <p className="text-xs text-zinc-500 mt-2">This key was also sent to your email.</p>
               </div>
+            ) : reconnected ? (
+              <p className="text-sm text-emerald-400 mt-2">Account reconnected successfully. Your existing API key still works.</p>
             ) : isCompleted ? (
               <p className="text-sm text-zinc-500">Key was sent to your email. Check your inbox.</p>
             ) : (

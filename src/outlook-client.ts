@@ -1,7 +1,7 @@
 import { Client } from "@microsoft/microsoft-graph-client";
 import "isomorphic-fetch";
-import { refreshAccessToken, OAuthConfig, TokenSet } from "./auth.js";
-import { fetchTokens, updateTokens } from "./token-store.js";
+import { OAuthConfig, TokenSet } from "./auth.js";
+import { fetchTokens, refreshTokensRemote } from "./token-store.js";
 import { AccountConfig } from "./config.js";
 import { withRetry } from "./retry.js";
 
@@ -42,9 +42,8 @@ export class OutlookClient {
       return this.tokens.accessToken;
     }
 
-    const newTokens = await refreshAccessToken(this.oauthConfig, this.tokens.refreshToken);
+    const newTokens = await refreshTokensRemote(this.currentAccount.apiKey);
     this.tokens = newTokens;
-    await updateTokens(this.currentAccount.apiKey, newTokens);
     return newTokens.accessToken;
   }
 

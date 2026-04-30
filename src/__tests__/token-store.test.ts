@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
 
-import { fetchTokens, updateTokens } from "../token-store.js";
+import { fetchTokens, updateTokens, refreshTokensRemote } from "../token-store.js";
 
 describe("token-store", () => {
   beforeEach(() => {
@@ -45,32 +45,34 @@ describe("token-store", () => {
     });
   });
 
-  describe("updateTokens", () => {
-    it("sends PUT with tokens", async () => {
-      mockFetch.mockResolvedValue({ ok: true });
-
+  describe("refreshTokensRemote", () => {
+    it("calls refresh endpoint and returns tokens", async () => {
       const tokens = { accessToken: "new-at", refreshToken: "new-rt", expiresAt: 999 };
-      await updateTokens("api-key-123", tokens);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ tokens }),
+      });
+
+      const result = await refreshTokensRemote("api-key-123");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("mcp-tokens"),
+        expect.stringContaining("mcp-tokens/refresh"),
         expect.objectContaining({
-          method: "PUT",
-          headers: { "x-api-key": "api-key-123", "Content-Type": "application/json" },
-          body: JSON.stringify({ tokens }),
+          method: "POST",
+          headers: { "x-api-key": "api-key-123" },
         })
       );
+      expect(result).toEqual(tokens);
     });
 
     it("throws on non-ok response", async () => {
       mockFetch.mockResolvedValue({
         ok: false,
-        status: 500,
-        text: () => Promise.resolve("Internal error"),
+        status: 401,
+        text: () => Promise.resolve("Invalid API key"),
       });
 
-      const tokens = { accessToken: "at", refreshToken: "rt", expiresAt: 0 };
-      await expect(updateTokens("key", tokens)).rejects.toThrow("Failed to update tokens (500): Internal error");
+      await expect(refreshTokensRemote("bad-key")).rejects.toThrow("Failed to refresh tokens (401): Invalid API key");
     });
   });
 });

@@ -5,7 +5,7 @@ Connect Microsoft Outlook to AI assistants via the Model Context Protocol. Read,
 ## Quick Start
 
 ```bash
-npx outlook-mcp
+npx @paytience/outlook-mcp
 ```
 
 On first run, your browser opens to complete payment ($5 one-time) and connect your Microsoft account. After that, the MCP server starts automatically.
@@ -21,7 +21,7 @@ Add to your MCP client settings:
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "outlook-mcp"]
+      "args": ["-y", "@paytience/outlook-mcp"]
     }
   }
 }
@@ -36,7 +36,7 @@ Add to `.cursor/mcp.json`:
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "outlook-mcp"]
+      "args": ["-y", "@paytience/outlook-mcp"]
     }
   }
 }
