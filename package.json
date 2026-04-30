@@ -1,6 +1,6 @@
 {
-  "name": "outlook-mcp",
-  "version": "2.0.1",
+  "name": "@paytience/outlook-mcp",
+  "version": "1.0.1",
   "description": "MCP server for Microsoft Outlook email and calendar",
   "main": "dist/index.js",
   "bin": {

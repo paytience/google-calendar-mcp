@@ -5,12 +5,12 @@ import { useState } from "react";
 const configs = [
   {
     name: "Claude Code",
-    file: "~/.claude/settings.json",
+    file: "~/.claude.json",
     npx: `{
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "outlook-mcp"],
+      "args": ["-y", "@paytience/outlook-mcp"],
       "env": {
         "OUTLOOK_MCP_API_KEY": "<your-api-key>"
       }
@@ -21,7 +21,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"],
+      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"]
     }
   }
 }`,
@@ -33,7 +33,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "outlook-mcp"],
+      "args": ["-y", "@paytience/outlook-mcp"],
       "env": {
         "OUTLOOK_MCP_API_KEY": "<your-api-key>"
       }
@@ -44,7 +44,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"],
+      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"]
     }
   }
 }`,
@@ -56,7 +56,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "outlook-mcp"],
+      "args": ["-y", "@paytience/outlook-mcp"],
       "env": {
         "OUTLOOK_MCP_API_KEY": "<your-api-key>"
       }
@@ -67,7 +67,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"],
+      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"]
     }
   }
 }`,
