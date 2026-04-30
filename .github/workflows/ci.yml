@@ -21,6 +21,9 @@ jobs:
           npm ci
           npm run build
 
+      - name: Test MCP server
+        run: npm test
+
       - name: Lint MCP server
         run: npm run lint
 
