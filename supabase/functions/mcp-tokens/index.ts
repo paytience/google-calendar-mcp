@@ -89,13 +89,15 @@ Deno.serve(async (req: Request) => {
   const isRefresh = url.pathname.endsWith("/refresh");
 
   if (req.method === "POST" && isRefresh) {
-    const { data: tokenRow, error: tokenError } = await supabase
+    const { data: tokenRows, error: tokenError } = await supabase
       .from("mcp_tokens")
       .select("*")
       .eq("session_id", keyRow.session_id)
       .eq("user_email", keyRow.user_email)
-      .single();
+      .order("token_expires_at", { ascending: false })
+      .limit(1);
 
+    const tokenRow = tokenRows?.[0];
     if (tokenError || !tokenRow) {
       return new Response(JSON.stringify({ error: "No tokens found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
@@ -156,13 +158,15 @@ Deno.serve(async (req: Request) => {
   }
 
   if (req.method === "GET") {
-    const { data: tokenRow, error: tokenError } = await supabase
+    const { data: tokenRows, error: tokenError } = await supabase
       .from("mcp_tokens")
       .select("*")
       .eq("session_id", keyRow.session_id)
       .eq("user_email", keyRow.user_email)
-      .single();
+      .order("token_expires_at", { ascending: false })
+      .limit(1);
 
+    const tokenRow = tokenRows?.[0];
     if (tokenError || !tokenRow) {
       return new Response(JSON.stringify({ error: "No tokens found" }), { status: 404, headers: { "Content-Type": "application/json" } });
     }
