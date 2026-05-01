@@ -21,7 +21,10 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"]
+      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "env": {
+        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+      }
     }
   }
 }`,
@@ -44,7 +47,10 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"]
+      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "env": {
+        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+      }
     }
   }
 }`,
@@ -67,7 +73,10 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY=<your-api-key>", "ghcr.io/paytience/outlook-mcp:latest"]
+      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "env": {
+        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+      }
     }
   }
 }`,
