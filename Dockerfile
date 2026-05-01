@@ -20,3 +20,5 @@ RUN npm install --omit=dev
 COPY --from=builder /app/dist ./dist
 
 RUN mkdir -p /data
+
+CMD ["node", "dist/index.js"]
