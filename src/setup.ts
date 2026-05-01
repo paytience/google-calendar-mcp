@@ -6,38 +6,67 @@ const AUTH_BASE_URL = process.env.OUTLOOK_MCP_AUTH_URL || "https://mcpoutlook.co
 const POLL_INTERVAL = 2000;
 const POLL_TIMEOUT = 600000; // 10 minutes
 
-export async function setupAccount(): Promise<{ email: string; displayName: string }> {
-  // If user already has an API key, try to re-auth using their existing session
-  const apiKey = process.env.OUTLOOK_MCP_API_KEY;
+export interface SetupDeps {
+  getApiKey: () => string | undefined;
+  fetchTokens: (apiKey: string) => ReturnType<typeof fetchTokens>;
+  refreshTokens: (apiKey: string) => ReturnType<typeof refreshTokensRemote>;
+  openUrl: (url: string) => Promise<void>;
+  sleep: (ms: number) => Promise<void>;
+  getAccounts: typeof getAccounts;
+  addAccount: typeof addAccount;
+  now: () => number;
+  authBaseUrl: string;
+  pollInterval: number;
+  pollTimeout: number;
+}
+
+const defaultDeps: SetupDeps = {
+  getApiKey: () => process.env.OUTLOOK_MCP_API_KEY,
+  fetchTokens,
+  refreshTokens: refreshTokensRemote,
+  openUrl: async (url: string) => {
+    const open = await import("open");
+    await open.default(url);
+  },
+  sleep: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
+  getAccounts,
+  addAccount,
+  now: () => Date.now(),
+  authBaseUrl: AUTH_BASE_URL,
+  pollInterval: POLL_INTERVAL,
+  pollTimeout: POLL_TIMEOUT,
+};
+
+export async function setupAccount(deps: SetupDeps = defaultDeps): Promise<{ email: string; displayName: string }> {
+  const apiKey = deps.getApiKey();
   if (apiKey) {
     try {
-      const remote = await fetchTokens(apiKey);
-      // Verify tokens are actually usable by attempting a refresh
-      if (remote.tokens.expiresAt > Date.now()) {
+      const remote = await deps.fetchTokens(apiKey);
+      if (remote.tokens.expiresAt > deps.now()) {
         return { email: remote.email, displayName: remote.displayName };
       }
       // Tokens expired, try refreshing
-      await refreshTokensRemote(apiKey);
-      return { email: remote.email, displayName: remote.displayName };
+      await deps.refreshTokens(apiKey);
+      const refreshed = await deps.fetchTokens(apiKey);
+      return { email: refreshed.email, displayName: refreshed.displayName };
     } catch {
       // Tokens revoked/invalid, need full re-authentication via OAuth
-      return await reauthAccount(apiKey);
+      return await reauthAccount(apiKey, deps);
     }
   }
 
   // New user: go through pricing flow
   const sessionId = randomUUID();
-  const pricingUrl = `${AUTH_BASE_URL}/pricing?session_id=${sessionId}`;
+  const pricingUrl = `${deps.authBaseUrl}/pricing?session_id=${sessionId}`;
 
   console.error(`Opening browser to set up Outlook MCP...`);
   console.error(`If it doesn't open, visit: ${pricingUrl}`);
 
-  const open = await import("open");
-  await open.default(pricingUrl);
+  await deps.openUrl(pricingUrl);
 
-  const result = await pollForCompletion(sessionId);
+  const result = await pollForCompletion(sessionId, deps);
 
-  addAccount({
+  deps.addAccount({
     email: result.user_email,
     displayName: result.display_name,
     apiKey: result.api_key,
@@ -47,28 +76,21 @@ export async function setupAccount(): Promise<{ email: string; displayName: stri
   return { email: result.user_email, displayName: result.display_name };
 }
 
-async function reauthAccount(apiKey: string): Promise<{ email: string; displayName: string }> {
-  // Look up the session for this API key via the status endpoint
-  const accounts = getAccounts();
-  const account = accounts.find((a) => a.apiKey === apiKey);
-
-  // Use the login endpoint which handles re-auth for existing sessions
-  const loginUrl = `${AUTH_BASE_URL}/api/auth/reauth?api_key=${encodeURIComponent(apiKey)}`;
+export async function reauthAccount(apiKey: string, deps: SetupDeps = defaultDeps): Promise<{ email: string; displayName: string }> {
+  const loginUrl = `${deps.authBaseUrl}/api/auth/reauth?api_key=${encodeURIComponent(apiKey)}`;
 
   console.error(`Re-authenticating your Microsoft account...`);
   console.error(`If the browser doesn't open, visit: ${loginUrl}`);
 
-  const open = await import("open");
-  await open.default(loginUrl);
+  await deps.openUrl(loginUrl);
 
   // Poll until tokens are refreshed
-  const deadline = Date.now() + POLL_TIMEOUT;
-  while (Date.now() < deadline) {
-    await sleep(POLL_INTERVAL);
+  const deadline = deps.now() + deps.pollTimeout;
+  while (deps.now() < deadline) {
+    await deps.sleep(deps.pollInterval);
     try {
-      const remote = await fetchTokens(apiKey);
-      // Check if tokens are now valid (not expired)
-      if (remote.tokens.expiresAt > Date.now()) {
+      const remote = await deps.fetchTokens(apiKey);
+      if (remote.tokens.expiresAt > deps.now()) {
         console.error(`Reconnected: ${remote.displayName} (${remote.email})`);
         return { email: remote.email, displayName: remote.displayName };
       }
@@ -80,16 +102,16 @@ async function reauthAccount(apiKey: string): Promise<{ email: string; displayNa
   throw new Error("Re-authentication timed out. Please try again.");
 }
 
-async function pollForCompletion(sessionId: string): Promise<{
+async function pollForCompletion(sessionId: string, deps: SetupDeps): Promise<{
   user_email: string;
   display_name: string;
   api_key: string;
 }> {
-  const statusUrl = `${AUTH_BASE_URL}/api/auth/status?session_id=${sessionId}`;
-  const deadline = Date.now() + POLL_TIMEOUT;
+  const statusUrl = `${deps.authBaseUrl}/api/auth/status?session_id=${sessionId}`;
+  const deadline = deps.now() + deps.pollTimeout;
 
-  while (Date.now() < deadline) {
-    await sleep(POLL_INTERVAL);
+  while (deps.now() < deadline) {
+    await deps.sleep(deps.pollInterval);
 
     try {
       const response = await fetch(statusUrl);
@@ -108,8 +130,4 @@ async function pollForCompletion(sessionId: string): Promise<{
   }
 
   throw new Error("Authentication timed out. Please try again.");
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
