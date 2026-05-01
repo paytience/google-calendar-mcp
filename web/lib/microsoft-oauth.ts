@@ -5,6 +5,9 @@ const SCOPES = [
   "Mail.ReadWrite",
   "Calendars.Read",
   "Calendars.ReadWrite",
+  "Contacts.Read",
+  "Contacts.ReadWrite",
+  "MailboxSettings.ReadWrite",
   "User.Read",
 ];
 
