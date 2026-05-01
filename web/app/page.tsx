@@ -1,8 +1,37 @@
 import { ConfigSnippets } from "./components/config-snippets";
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Outlook MCP",
+  description:
+    "MCP server that connects Microsoft Outlook email and calendar to AI assistants like Claude Code, Cursor, and Windsurf.",
+  url: "https://mcpoutlook.com",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Cross-platform",
+  offers: {
+    "@type": "Offer",
+    price: "5.00",
+    priceCurrency: "USD",
+    availability: "https://schema.org/InStock",
+  },
+  author: {
+    "@type": "Organization",
+    name: "Paytience",
+    url: "https://github.com/paytience",
+  },
+  softwareRequirements: "Node.js, MCP-compatible client",
+  keywords:
+    "outlook mcp, mcp server, outlook ai, claude email, cursor email, windsurf email, model context protocol",
+};
+
 export default function Home() {
   return (
     <main className="flex flex-col items-center px-6 py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="max-w-3xl w-full text-center">
         {/* Hero */}
         <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 text-sm font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">

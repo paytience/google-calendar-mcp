@@ -10,7 +10,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp"],
+      "args": ["-y", "@paytience/outlook-mcp@latest"],
       "env": {
         "OUTLOOK_MCP_API_KEY": "<your-api-key>"
       }
@@ -33,7 +33,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp"],
+      "args": ["-y", "@paytience/outlook-mcp@latest"],
       "env": {
         "OUTLOOK_MCP_API_KEY": "<your-api-key>"
       }
@@ -56,7 +56,7 @@ const configs = [
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp"],
+      "args": ["-y", "@paytience/outlook-mcp@latest"],
       "env": {
         "OUTLOOK_MCP_API_KEY": "<your-api-key>"
       }

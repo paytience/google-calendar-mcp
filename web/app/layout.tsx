@@ -3,8 +3,52 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Outlook MCP",
-  description: "Connect Microsoft Outlook to AI assistants via MCP",
+  metadataBase: new URL("https://mcpoutlook.com"),
+  title: {
+    default: "Outlook MCP: Connect Microsoft Outlook to AI Assistants",
+    template: "%s | Outlook MCP",
+  },
+  description:
+    "Give Claude, Cursor, and Windsurf direct access to your Outlook email and calendar via MCP. Read, send, search, and manage messages without leaving your AI workflow.",
+  keywords: [
+    "outlook mcp",
+    "mcp server",
+    "outlook ai",
+    "claude outlook",
+    "cursor outlook",
+    "windsurf outlook",
+    "microsoft outlook mcp",
+    "model context protocol",
+    "outlook email ai",
+    "outlook calendar ai",
+    "mcp email",
+    "ai email assistant",
+    "claude code email",
+    "outlook integration",
+    "microsoft graph mcp",
+  ],
+  openGraph: {
+    title: "Outlook MCP: Connect Microsoft Outlook to AI Assistants",
+    description:
+      "Give Claude, Cursor, and Windsurf direct access to your Outlook email and calendar. Read, send, and manage messages without leaving your AI workflow.",
+    url: "https://mcpoutlook.com",
+    siteName: "Outlook MCP",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Outlook MCP: Connect Microsoft Outlook to AI Assistants",
+    description:
+      "Give Claude, Cursor, and Windsurf direct access to your Outlook email and calendar via MCP.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "https://mcpoutlook.com",
+  },
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

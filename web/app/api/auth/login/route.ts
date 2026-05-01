@@ -22,9 +22,17 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL(`/pricing?session_id=${sessionId}`, request.url));
   }
 
-  // Accept pending or paid sessions (pending handles race with webhook)
+  // Accept pending, paid, or completed sessions (completed = re-auth)
+  if (existing.status === "expired") {
+    return NextResponse.redirect(new URL(`/pricing?session_id=${sessionId}`, request.url));
+  }
+
+  // For completed sessions doing re-auth, reset to pending so callback accepts it
   if (existing.status === "completed") {
-    return NextResponse.redirect(new URL(`/setup?session=${sessionId}`, request.url));
+    await supabase
+      .from("mcp_sessions")
+      .update({ status: "pending" })
+      .eq("session_id", sessionId);
   }
 
   const authUrl = getAuthorizationUrl(sessionId);

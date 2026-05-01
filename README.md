@@ -21,7 +21,7 @@ Add to your MCP client settings:
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp"]
+      "args": ["-y", "@paytience/outlook-mcp@latest"]
     }
   }
 }
@@ -36,7 +36,7 @@ Add to `.cursor/mcp.json`:
   "mcpServers": {
     "outlook": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp"]
+      "args": ["-y", "@paytience/outlook-mcp@latest"]
     }
   }
 }
