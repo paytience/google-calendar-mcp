@@ -51,6 +51,31 @@ const jsonLd = {
     "outlook mcp, mcp server, outlook ai, claude email, cursor email, windsurf email, model context protocol",
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Outlook MCP",
+  description:
+    "MCP server that connects Microsoft Outlook email and calendar to AI assistants like Claude Code, Cursor, and Windsurf.",
+  url: "https://mcpoutlook.com",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Cross-platform",
+  offers: {
+    "@type": "Offer",
+    price: "5.00",
+    priceCurrency: "USD",
+    availability: "https://schema.org/InStock",
+  },
+  author: {
+    "@type": "Organization",
+    name: "Paytience",
+    url: "https://github.com/paytience",
+  },
+  softwareRequirements: "Node.js, MCP-compatible client",
+  keywords:
+    "outlook mcp, mcp server, outlook ai, claude email, cursor email, windsurf email, model context protocol",
+};
+
 export default function Home() {
   return (
     <main className="flex flex-col items-center px-6 py-20">
