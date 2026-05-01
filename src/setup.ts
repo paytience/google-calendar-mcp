@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { addAccount, getAccounts } from "./config.js";
-import { fetchTokens } from "./token-store.js";
+import { fetchTokens, refreshTokensRemote } from "./token-store.js";
 
 const AUTH_BASE_URL = process.env.OUTLOOK_MCP_AUTH_URL || "https://mcpoutlook.com";
 const POLL_INTERVAL = 2000;
@@ -12,10 +12,15 @@ export async function setupAccount(): Promise<{ email: string; displayName: stri
   if (apiKey) {
     try {
       const remote = await fetchTokens(apiKey);
-      // Tokens are valid, just return existing account info
+      // Verify tokens are actually usable by attempting a refresh
+      if (remote.tokens.expiresAt > Date.now()) {
+        return { email: remote.email, displayName: remote.displayName };
+      }
+      // Tokens expired, try refreshing
+      await refreshTokensRemote(apiKey);
       return { email: remote.email, displayName: remote.displayName };
     } catch {
-      // Tokens expired/invalid, need to re-authenticate via OAuth
+      // Tokens revoked/invalid, need full re-authentication via OAuth
       return await reauthAccount(apiKey);
     }
   }
