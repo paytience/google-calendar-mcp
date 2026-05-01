@@ -11,9 +11,20 @@
   }
 }
 
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 .animate-fade-in-1 { animation: fadeInUp 0.5s ease-out 0.5s both; }
 .animate-fade-in-2 { animation: fadeInUp 0.5s ease-out 1.2s both; }
 .animate-fade-in-3 { animation: fadeInUp 0.5s ease-out 2.0s both; }
 .animate-fade-in-4 { animation: fadeInUp 0.5s ease-out 3.0s both; }
 .animate-fade-in-5 { animation: fadeInUp 0.5s ease-out 3.7s both; }
 .animate-fade-in-6 { animation: fadeInUp 0.5s ease-out 4.5s both; }
+
+.demo-cursor {
+  animation: blink 0.8s step-end infinite;
+  color: #60a5fa;
+  font-weight: 300;
+}

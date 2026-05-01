@@ -1,4 +1,30 @@
 import { ConfigSnippets } from "./components/config-snippets";
+import { AnimatedDemo } from "./components/demo/animated-demo";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Outlook MCP",
+  description:
+    "MCP server that connects Microsoft Outlook email and calendar to AI assistants like Claude Code, Cursor, and Windsurf.",
+  url: "https://mcpoutlook.com",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Cross-platform",
+  offers: {
+    "@type": "Offer",
+    price: "5.00",
+    priceCurrency: "USD",
+    availability: "https://schema.org/InStock",
+  },
+  author: {
+    "@type": "Organization",
+    name: "Paytience",
+    url: "https://github.com/paytience",
+  },
+  softwareRequirements: "Node.js, MCP-compatible client",
+  keywords:
+    "outlook mcp, mcp server, outlook ai, claude email, cursor email, windsurf email, model context protocol",
+};
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -55,34 +81,9 @@ export default function Home() {
           </a>
         </div>
 
-        {/* Terminal demo */}
-        <div className="mb-20 w-full rounded-xl bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl shadow-blue-500/5">
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800">
-            <div className="w-3 h-3 rounded-full bg-red-500/60"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500/60"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500/60"></div>
-            <span className="ml-2 text-xs text-zinc-500">Claude Code</span>
-          </div>
-          <div className="p-6 md:p-8 font-mono text-sm md:text-base text-left space-y-4">
-            <div className="animate-fade-in-1">
-              <span className="text-zinc-500">&gt;</span> <span className="text-zinc-200">Check my inbox for anything urgent</span>
-            </div>
-            <div className="animate-fade-in-2 pl-4 text-zinc-400 text-xs md:text-sm">
-              <span className="text-blue-400">tool:</span> list_emails (filter: isRead eq false, top: 5)
-            </div>
-            <div className="animate-fade-in-3 pl-4 text-zinc-500 text-xs md:text-sm">
-              Found 3 unread emails. 1 flagged as high importance from Sarah Chen re: &quot;Q3 Budget Review&quot;
-            </div>
-            <div className="animate-fade-in-4 mt-4">
-              <span className="text-zinc-500">&gt;</span> <span className="text-zinc-200">Reply to Sarah that I&apos;ll review it by EOD</span>
-            </div>
-            <div className="animate-fade-in-5 pl-4 text-zinc-400 text-xs md:text-sm">
-              <span className="text-blue-400">tool:</span> reply_to_email (messageId: ..., body: &quot;Hi Sarah, I&apos;ll review the Q3 budget by end of day...&quot;)
-            </div>
-            <div className="animate-fade-in-6 pl-4 text-green-400 text-xs md:text-sm">
-              Reply sent successfully.
-            </div>
-          </div>
+        {/* Animated demo */}
+        <div className="mb-20 w-full">
+          <AnimatedDemo />
         </div>
 
         {/* Features */}

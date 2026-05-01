@@ -16,11 +16,21 @@
   },
   "keywords": [
     "mcp",
+    "mcp-server",
     "outlook",
     "email",
     "calendar",
-    "microsoft-graph"
+    "contacts",
+    "microsoft-graph",
+    "model-context-protocol",
+    "claude",
+    "cursor",
+    "windsurf",
+    "ai-assistant",
+    "outlook-api",
+    "microsoft-365"
   ],
+  "homepage": "https://mcpoutlook.com",
   "license": "MIT",
   "repository": {
     "type": "git",
