@@ -84,8 +84,8 @@ export async function reauthAccount(apiKey: string, deps: SetupDeps = defaultDep
 
   await deps.openUrl(loginUrl);
 
-  // Poll until tokens are refreshed
-  const deadline = deps.now() + deps.pollTimeout;
+  // Poll with a short timeout (80s) to stay within MCP tool call limits
+  const deadline = deps.now() + Math.min(deps.pollTimeout, 80000);
   while (deps.now() < deadline) {
     await deps.sleep(deps.pollInterval);
     try {
@@ -99,7 +99,36 @@ export async function reauthAccount(apiKey: string, deps: SetupDeps = defaultDep
     }
   }
 
-  throw new Error("Re-authentication timed out. Please try again.");
+  // Instead of a generic timeout error, give actionable instructions
+  throw new Error(
+    `Authentication is pending. A browser window was opened for Microsoft sign-in. ` +
+    `After completing sign-in in the browser, call add_account again to verify the connection. ` +
+    `If no browser opened, visit: ${loginUrl}`
+  );
+}
+
+/**
+ * Verify that tokens are valid after a reauth flow.
+ * Returns quickly without opening a browser.
+ */
+export async function verifyAccount(deps: SetupDeps = defaultDeps): Promise<{ email: string; displayName: string } | null> {
+  const apiKey = deps.getApiKey();
+  if (!apiKey) return null;
+
+  try {
+    const remote = await deps.fetchTokens(apiKey);
+    if (remote.tokens.expiresAt > deps.now()) {
+      return { email: remote.email, displayName: remote.displayName };
+    }
+    await deps.refreshTokens(apiKey);
+    const refreshed = await deps.fetchTokens(apiKey);
+    if (refreshed.tokens.expiresAt > deps.now()) {
+      return { email: refreshed.email, displayName: refreshed.displayName };
+    }
+  } catch {
+    // Still invalid
+  }
+  return null;
 }
 
 async function pollForCompletion(sessionId: string, deps: SetupDeps): Promise<{
