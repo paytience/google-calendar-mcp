@@ -176,7 +176,13 @@ function SetupContent() {
                 <p className="text-xs text-zinc-500 mt-2">This key was also sent to your email.</p>
               </div>
             ) : reconnected ? (
-              <p className="text-sm text-emerald-400 mt-2">Account reconnected successfully. Your existing API key still works.</p>
+              <div>
+                <p className="text-sm text-emerald-400 mt-2">Account reconnected successfully. Your existing API key still works.</p>
+                <div className="mt-4 p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                  <p className="text-sm text-emerald-300 font-medium">You can close this window and return to your terminal.</p>
+                  <p className="text-xs text-zinc-500 mt-1">Your CLI will detect the reconnection automatically.</p>
+                </div>
+              </div>
             ) : isCompleted ? (
               <p className="text-sm text-zinc-500">Key was sent to your email. Check your inbox.</p>
             ) : (
