@@ -71,6 +71,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="pt-14">
           {children}
         </div>
+        <footer className="border-t border-zinc-800/50 px-6 py-8 text-center text-xs text-zinc-500">
+          <p>
+            Need help?{" "}
+            <a href="mailto:hellomcpoutlook@gmail.com" className="text-zinc-400 hover:text-white transition-colors">
+              hellomcpoutlook@gmail.com
+            </a>
+          </p>
+        </footer>
         <Analytics />
         <SpeedInsights />
       </body>
