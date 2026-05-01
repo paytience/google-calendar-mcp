@@ -13,36 +13,65 @@ export async function GET(request: Request) {
 
   const sessionId = state || "";
 
+  console.log("[callback] start", { sessionId, hasCode: !!code, hasError: !!error });
+
   if (error) {
     const description = url.searchParams.get("error_description");
+    console.log("[callback] OAuth error", { error, description });
     return NextResponse.redirect(
       new URL(`/setup?session=${sessionId}&error=${encodeURIComponent(description || error)}`, request.url)
     );
   }
 
   if (!code || !state) {
+    console.log("[callback] missing code or state");
     return NextResponse.json({ error: "Missing code or state" }, { status: 400 });
   }
 
   const supabase = getSupabase();
 
-  const { data: session } = await supabase
+  const { data: session, error: sessionError } = await supabase
     .from("mcp_sessions")
     .select("*")
     .eq("session_id", sessionId)
     .single();
 
+  console.log("[callback] session lookup", { found: !!session, status: session?.status, sessionError: sessionError?.message });
+
   if (!session || !["pending", "paid"].includes(session.status)) {
-    return NextResponse.json({ error: "Invalid or expired session" }, { status: 400 });
+    console.log("[callback] session rejected", { status: session?.status });
+    return NextResponse.json({ error: `Invalid or expired session (status: ${session?.status || "not found"})` }, { status: 400 });
   }
 
-  const tokens = await exchangeCodeForTokens(code);
-  const profile = await fetchUserProfile(tokens.accessToken);
+  console.log("[callback] exchanging code for tokens...");
+  let tokens;
+  try {
+    tokens = await exchangeCodeForTokens(code);
+    console.log("[callback] token exchange success", { expiresAt: tokens.expiresAt, hasRefreshToken: !!tokens.refreshToken });
+  } catch (e) {
+    console.error("[callback] token exchange FAILED", e);
+    return NextResponse.redirect(
+      new URL(`/setup?session=${sessionId}&error=${encodeURIComponent("Token exchange failed: " + (e as Error).message)}`, request.url)
+    );
+  }
+
+  console.log("[callback] fetching user profile...");
+  let profile;
+  try {
+    profile = await fetchUserProfile(tokens.accessToken);
+    console.log("[callback] profile fetched", { email: profile.email, displayName: profile.displayName });
+  } catch (e) {
+    console.error("[callback] profile fetch FAILED", e);
+    return NextResponse.redirect(
+      new URL(`/setup?session=${sessionId}&error=${encodeURIComponent("Failed to fetch profile: " + (e as Error).message)}`, request.url)
+    );
+  }
 
   const { encrypted, iv, tag } = await encryptTokens(JSON.stringify(tokens));
+  console.log("[callback] tokens encrypted", { encryptedLength: encrypted.length });
 
   // Update existing token row or insert new one
-  const { data: existingToken } = await supabase
+  const { data: existingToken, error: lookupError } = await supabase
     .from("mcp_tokens")
     .select("id")
     .eq("session_id", sessionId)
@@ -50,8 +79,10 @@ export async function GET(request: Request) {
     .limit(1)
     .single();
 
+  console.log("[callback] token row lookup", { existingId: existingToken?.id, lookupError: lookupError?.message });
+
   if (existingToken) {
-    await supabase
+    const { error: updateError } = await supabase
       .from("mcp_tokens")
       .update({
         display_name: profile.displayName,
@@ -62,8 +93,16 @@ export async function GET(request: Request) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", existingToken.id);
+
+    console.log("[callback] token UPDATE", { id: existingToken.id, error: updateError?.message || "none" });
+
+    if (updateError) {
+      return NextResponse.redirect(
+        new URL(`/setup?session=${sessionId}&error=${encodeURIComponent("Failed to update tokens: " + updateError.message)}`, request.url)
+      );
+    }
   } else {
-    await supabase.from("mcp_tokens").insert({
+    const { error: insertError } = await supabase.from("mcp_tokens").insert({
       session_id: sessionId,
       user_email: profile.email,
       display_name: profile.displayName,
@@ -72,6 +111,14 @@ export async function GET(request: Request) {
       encryption_tag: tag,
       token_expires_at: tokens.expiresAt,
     });
+
+    console.log("[callback] token INSERT", { error: insertError?.message || "none" });
+
+    if (insertError) {
+      return NextResponse.redirect(
+        new URL(`/setup?session=${sessionId}&error=${encodeURIComponent("Failed to insert tokens: " + insertError.message)}`, request.url)
+      );
+    }
   }
 
   // Reuse existing API key if one exists for this session+email
@@ -84,9 +131,10 @@ export async function GET(request: Request) {
     .limit(1)
     .single();
 
+  console.log("[callback] api key lookup", { hasExistingKey: !!existingKey });
+
   let apiKey: string;
   if (existingKey) {
-    // Tokens refreshed, keep existing key (we can't recover the plaintext, so show a message instead)
     apiKey = "";
   } else {
     apiKey = `omk_${randomBytes(32).toString("base64url")}`;
@@ -97,6 +145,7 @@ export async function GET(request: Request) {
       session_id: sessionId,
       user_email: profile.email,
     });
+    console.log("[callback] new API key created");
   }
 
   await supabase
@@ -109,16 +158,20 @@ export async function GET(request: Request) {
     })
     .eq("session_id", sessionId);
 
+  console.log("[callback] session marked completed");
+
   if (apiKey) {
     try {
       await sendApiKeyEmail(profile.email, apiKey, profile.displayName);
+      console.log("[callback] API key email sent");
     } catch (e) {
-      console.error("Failed to send API key email:", e);
+      console.error("[callback] email send failed:", e);
     }
   }
 
   const redirectUrl = apiKey
     ? `/setup?session=${sessionId}&key=${encodeURIComponent(apiKey)}`
     : `/setup?session=${sessionId}&reconnected=true`;
+  console.log("[callback] DONE, redirecting to", redirectUrl);
   return NextResponse.redirect(new URL(redirectUrl, request.url));
 }
