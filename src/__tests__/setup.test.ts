@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { setupAccount, reauthAccount, SetupDeps } from "../setup.js";
+import { setupAccount, reauthAccount, verifyAccount, SetupDeps } from "../setup.js";
 
 function createMockDeps(overrides: Partial<SetupDeps> = {}): SetupDeps {
   return {
@@ -163,7 +163,7 @@ describe("reauthAccount", () => {
     expect(deps.sleep).toHaveBeenCalledTimes(3);
   });
 
-  it("times out when tokens never refresh", async () => {
+  it("times out with actionable error message", async () => {
     let time = 1000000;
     const deps = createMockDeps({
       fetchTokens: vi.fn().mockResolvedValue({
@@ -179,7 +179,7 @@ describe("reauthAccount", () => {
     });
 
     await expect(reauthAccount("omk_test123", deps)).rejects.toThrow(
-      "Re-authentication timed out"
+      "Authentication is pending"
     );
   });
 
@@ -203,5 +203,45 @@ describe("reauthAccount", () => {
 
     expect(result).toEqual({ email: "user@example.com", displayName: "Test User" });
     expect(deps.sleep).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("verifyAccount", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it("returns account when tokens are valid", async () => {
+    const deps = createMockDeps({
+      getApiKey: () => "omk_test123",
+      fetchTokens: vi.fn().mockResolvedValue({
+        email: "user@example.com",
+        displayName: "Test User",
+        tokens: { accessToken: "at", refreshToken: "rt", expiresAt: 2000000 },
+      }),
+    });
+
+    const result = await verifyAccount(deps);
+
+    expect(result).toEqual({ email: "user@example.com", displayName: "Test User" });
+    expect(deps.openUrl).not.toHaveBeenCalled();
+  });
+
+  it("returns null when no API key", async () => {
+    const deps = createMockDeps({ getApiKey: () => undefined });
+    const result = await verifyAccount(deps);
+    expect(result).toBeNull();
+  });
+
+  it("returns null when tokens are invalid", async () => {
+    const deps = createMockDeps({
+      getApiKey: () => "omk_test123",
+      fetchTokens: vi.fn().mockRejectedValue(new Error("invalid")),
+      refreshTokens: vi.fn().mockRejectedValue(new Error("invalid")),
+    });
+
+    const result = await verifyAccount(deps);
+    expect(result).toBeNull();
+    expect(deps.openUrl).not.toHaveBeenCalled();
   });
 });

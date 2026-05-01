@@ -5,7 +5,7 @@ import { z } from "zod";
 import { OutlookClient } from "./outlook-client.js";
 import { OAuthConfig } from "./auth.js";
 import { getAccounts, removeAccount, addAccount } from "./config.js";
-import { setupAccount } from "./setup.js";
+import { setupAccount, verifyAccount } from "./setup.js";
 import { fetchTokens } from "./token-store.js";
 
 const oauthConfig: OAuthConfig = {
@@ -65,7 +65,16 @@ async function main() {
     }
   );
 
-  server.tool("add_account", "Connect a new Outlook account", {}, async () => {
+  server.tool("add_account", "Connect a new Outlook account or re-authenticate an existing one. If sign-in was recently completed in the browser, this will verify the connection without opening a new browser window.", {}, async () => {
+    // First try to verify without opening browser (handles post-reauth retry)
+    const verified = await verifyAccount();
+    if (verified) {
+      const account = getAccounts().find((a) => a.email === verified.email);
+      if (account) outlook.switchAccount(account);
+      return { content: [{ type: "text", text: `Connected: ${verified.displayName} (${verified.email})` }] };
+    }
+
+    // Need full setup/reauth flow
     const { email, displayName } = await setupAccount();
     const account = getAccounts().find((a) => a.email === email);
     if (account) outlook.switchAccount(account);
