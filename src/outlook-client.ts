@@ -10,6 +10,7 @@ export class OutlookClient {
   private oauthConfig: OAuthConfig;
   private currentAccount: AccountConfig | null = null;
   private tokens: TokenSet | null = null;
+  private userTimeZone: string | null = null;
 
   constructor(oauthConfig: OAuthConfig) {
     this.oauthConfig = oauthConfig;
@@ -50,6 +51,7 @@ export class OutlookClient {
   switchAccount(account: AccountConfig): void {
     this.currentAccount = account;
     this.tokens = null;
+    this.userTimeZone = null;
     this.initClient();
   }
 
@@ -62,6 +64,25 @@ export class OutlookClient {
       throw new Error("No account selected. Use switch_account to select one.");
     }
     return this.client;
+  }
+
+  async getUserTimeZone(): Promise<string> {
+    if (this.userTimeZone) return this.userTimeZone;
+    const client = this.ensureClient();
+    try {
+      const settings = await withRetry(async () => client.api("/me/mailboxSettings").select("timeZone").get());
+      this.userTimeZone = settings.timeZone || "UTC";
+    } catch {
+      this.userTimeZone = "UTC";
+    }
+    return this.userTimeZone!;
+  }
+
+  private getTeamsProvider(): string {
+    const email = this.currentAccount?.email || "";
+    const personalDomains = ["gmail.com", "outlook.com", "hotmail.com", "live.com", "yahoo.com"];
+    const isPersonal = personalDomains.some((d) => email.endsWith(`@${d}`));
+    return isPersonal ? "teamsForConsumer" : "teamsForBusiness";
   }
 
   async listMessages(options?: {
@@ -164,10 +185,11 @@ export class OutlookClient {
     isOnlineMeeting?: boolean;
   }) {
     const client = this.ensureClient();
+    const tz = options.timeZone || await this.getUserTimeZone();
     const event: Record<string, unknown> = {
       subject: options.subject,
-      start: { dateTime: options.start, timeZone: options.timeZone || "UTC" },
-      end: { dateTime: options.end, timeZone: options.timeZone || "UTC" },
+      start: { dateTime: options.start, timeZone: tz },
+      end: { dateTime: options.end, timeZone: tz },
     };
     if (options.body) event.body = { contentType: "HTML", content: options.body };
     if (options.attendees) {
@@ -176,7 +198,7 @@ export class OutlookClient {
     if (options.location) event.location = { displayName: options.location };
     if (options.isOnlineMeeting) {
       event.isOnlineMeeting = true;
-      event.onlineMeetingProvider = "teamsForBusiness";
+      event.onlineMeetingProvider = this.getTeamsProvider();
     }
 
     return withRetry(async () => client.api("/me/events").post(event));
@@ -264,8 +286,11 @@ export class OutlookClient {
     const update: Record<string, unknown> = {};
     if (options.subject) update.subject = options.subject;
     if (options.body) update.body = { contentType: "HTML", content: options.body };
-    if (options.start) update.start = { dateTime: options.start, timeZone: options.timeZone || "UTC" };
-    if (options.end) update.end = { dateTime: options.end, timeZone: options.timeZone || "UTC" };
+    if (options.start || options.end) {
+      const tz = options.timeZone || await this.getUserTimeZone();
+      if (options.start) update.start = { dateTime: options.start, timeZone: tz };
+      if (options.end) update.end = { dateTime: options.end, timeZone: tz };
+    }
     if (options.location) update.location = { displayName: options.location };
     return withRetry(async () => client.api(`/me/events/${eventId}`).patch(update));
   }
@@ -283,6 +308,39 @@ export class OutlookClient {
       return client.api(`/me/messages/${messageId}`).patch({
         flag: { flagStatus },
       });
+    });
+  }
+
+  // Calendar search and availability
+
+  async searchCalendarEvents(query: string, options?: { top?: number; startDateTime?: string; endDateTime?: string }) {
+    const client = this.ensureClient();
+    const top = options?.top || 10;
+    let url = `/me/events?$filter=contains(subject,'${query.replace(/'/g, "''")}')&$top=${top}&$select=id,subject,start,end,location,organizer,attendees,isOnlineMeeting,onlineMeetingUrl,bodyPreview&$orderby=start/dateTime desc`;
+    return withRetry(async () => {
+      const response = await client.api(url).get();
+      return response.value;
+    });
+  }
+
+  async getSchedule(options: {
+    schedules: string[];
+    startTime: string;
+    endTime: string;
+    timeZone?: string;
+    availabilityViewInterval?: number;
+  }) {
+    const client = this.ensureClient();
+    const tz = options.timeZone || await this.getUserTimeZone();
+    const body = {
+      schedules: options.schedules,
+      startTime: { dateTime: options.startTime, timeZone: tz },
+      endTime: { dateTime: options.endTime, timeZone: tz },
+      availabilityViewInterval: options.availabilityViewInterval || 30,
+    };
+    return withRetry(async () => {
+      const response = await client.api("/me/calendar/getSchedule").post(body);
+      return response.value;
     });
   }
 

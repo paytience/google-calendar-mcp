@@ -170,7 +170,7 @@ async function main() {
       subject: z.string().describe("Event subject/title"),
       start: z.string().describe("Start date/time in ISO format"),
       end: z.string().describe("End date/time in ISO format"),
-      timeZone: z.string().optional().describe("Time zone (default: UTC)"),
+      timeZone: z.string().optional().describe("Time zone (defaults to your mailbox timezone)"),
       body: z.string().optional().describe("Event body/description"),
       attendees: z.array(z.string()).optional().describe("List of attendee email addresses"),
       location: z.string().optional().describe("Event location"),
@@ -291,6 +291,35 @@ async function main() {
     async ({ eventId, subject, body, start, end, timeZone, location }) => {
       const result = await outlook.updateCalendarEvent(eventId, { subject, body, start, end, timeZone, location });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "search_calendar_events",
+    "Search calendar events by subject text",
+    {
+      query: z.string().describe("Search text to match in event subjects"),
+      count: z.number().optional().describe("Number of results (default: 10)"),
+    },
+    async ({ query, count }) => {
+      const events = await outlook.searchCalendarEvents(query, { top: count });
+      return { content: [{ type: "text", text: JSON.stringify(events, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    "get_free_busy",
+    "Check availability/free-busy status for one or more people",
+    {
+      emails: z.array(z.string()).describe("Email addresses to check availability for"),
+      startTime: z.string().describe("Start of time range in ISO format"),
+      endTime: z.string().describe("End of time range in ISO format"),
+      timeZone: z.string().optional().describe("Time zone (defaults to your mailbox timezone)"),
+      interval: z.number().optional().describe("Availability interval in minutes (default: 30)"),
+    },
+    async ({ emails, startTime, endTime, timeZone, interval }) => {
+      const schedule = await outlook.getSchedule({ schedules: emails, startTime, endTime, timeZone, availabilityViewInterval: interval });
+      return { content: [{ type: "text", text: JSON.stringify(schedule, null, 2) }] };
     }
   );
 
