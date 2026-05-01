@@ -41,15 +41,38 @@ export async function GET(request: Request) {
 
   const { encrypted, iv, tag } = await encryptTokens(JSON.stringify(tokens));
 
-  await supabase.from("mcp_tokens").upsert({
-    session_id: sessionId,
-    user_email: profile.email,
-    display_name: profile.displayName,
-    encrypted_tokens: encrypted,
-    encryption_iv: iv,
-    encryption_tag: tag,
-    token_expires_at: tokens.expiresAt,
-  });
+  // Update existing token row or insert new one
+  const { data: existingToken } = await supabase
+    .from("mcp_tokens")
+    .select("id")
+    .eq("session_id", sessionId)
+    .eq("user_email", profile.email)
+    .limit(1)
+    .single();
+
+  if (existingToken) {
+    await supabase
+      .from("mcp_tokens")
+      .update({
+        display_name: profile.displayName,
+        encrypted_tokens: encrypted,
+        encryption_iv: iv,
+        encryption_tag: tag,
+        token_expires_at: tokens.expiresAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existingToken.id);
+  } else {
+    await supabase.from("mcp_tokens").insert({
+      session_id: sessionId,
+      user_email: profile.email,
+      display_name: profile.displayName,
+      encrypted_tokens: encrypted,
+      encryption_iv: iv,
+      encryption_tag: tag,
+      token_expires_at: tokens.expiresAt,
+    });
+  }
 
   // Reuse existing API key if one exists for this session+email
   const { data: existingKey } = await supabase
