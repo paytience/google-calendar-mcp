@@ -13,7 +13,6 @@ export function AnimatedDemo() {
   const { phase } = useDemoSequence(isInView, reducedMotion);
 
   const showCalendar = phase === "transition" || phase === "calendar" || phase === "hold";
-  const showPulse = phase === "transition";
 
   // Static fallback for reduced motion
   if (reducedMotion) {
@@ -54,30 +53,6 @@ export function AnimatedDemo() {
           <ChatPanel phase={phase} />
         </motion.div>
 
-        {/* Data flow pulse */}
-        {showPulse && (
-          <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0] }}
-            transition={{ duration: 0.7, times: [0, 0.5, 1] }}
-          >
-            <div className="w-8 h-8 rounded-full bg-blue-500/30 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.6)]" />
-            </div>
-          </motion.div>
-        )}
-        {showPulse && (
-          <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: [0, 2.5], opacity: [0.4, 0] }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-          >
-            <div className="w-8 h-8 rounded-full border border-blue-400/40" />
-          </motion.div>
-        )}
-
         {/* Calendar panel */}
         <motion.div
           className="absolute inset-0 p-3 md:p-4"
@@ -96,20 +71,16 @@ export function AnimatedDemo() {
 
         {/* Phase indicator dots */}
         <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {(["typing", "tool-call", "calendar"] as const).map((p) => (
-            <div
-              key={p}
-              className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
-                (p === "typing" && (phase === "typing" || phase === "tool-call"))
-                  ? "bg-blue-400"
-                  : (p === "tool-call" && phase === "transition")
-                    ? "bg-blue-400"
-                    : (p === "calendar" && (phase === "calendar" || phase === "hold"))
-                      ? "bg-blue-400"
-                      : "bg-zinc-700"
-              }`}
-            />
-          ))}
+          <div
+            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+              !showCalendar ? "bg-blue-400" : "bg-zinc-700"
+            }`}
+          />
+          <div
+            className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+              showCalendar ? "bg-blue-400" : "bg-zinc-700"
+            }`}
+          />
         </div>
       </div>
     </div>

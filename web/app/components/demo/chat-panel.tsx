@@ -6,11 +6,20 @@ import type { DemoPhase } from "./use-demo-sequence";
 
 const MESSAGE = "Schedule a meeting with Sarah tomorrow at 2pm";
 
-const TOOL_PARAMS = `{
+function getTomorrowDate(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split("T")[0];
+}
+
+function getToolParams(): string {
+  const date = getTomorrowDate();
+  return `{
   subject: "Meeting with Sarah",
-  start: "2025-05-02T14:00:00",
-  end: "2025-05-02T15:00:00"
+  start: "${date}T14:00:00",
+  end: "${date}T15:00:00"
 }`;
+}
 
 function getTypingDelay(): number {
   const base = 45;
@@ -99,7 +108,7 @@ export function ChatPanel({ phase }: { phase: DemoPhase }) {
               <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-500/10 border border-blue-500/20">
                 <span className="text-[10px] md:text-[11px] text-blue-400 font-medium">create_calendar_event</span>
               </div>
-              <pre className="mt-2 text-[10px] md:text-[11px] text-zinc-500 leading-relaxed">{TOOL_PARAMS}</pre>
+              <pre className="mt-2 text-[10px] md:text-[11px] text-zinc-500 leading-relaxed">{getToolParams()}</pre>
             </motion.div>
           </motion.div>
         )}

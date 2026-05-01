@@ -4,9 +4,25 @@ import { motion } from "motion/react";
 import type { DemoPhase } from "./use-demo-sequence";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-const DATES = ["5", "6", "7", "8", "9"];
 const HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17];
 const MOBILE_HOURS = [10, 11, 12, 13, 14, 15, 16];
+
+function getWeekDates(): string[] {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  return Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return String(d.getDate());
+  });
+}
+
+function getMonthYear(): string {
+  const now = new Date();
+  return now.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
 
 const EXISTING_EVENTS = [
   { day: 0, hour: 9, duration: 0.5, label: "Standup", muted: true },
@@ -26,6 +42,8 @@ function formatHour(h: number) {
 
 export function CalendarPanel({ phase, mobile }: { phase: DemoPhase; mobile?: boolean }) {
   const showNewEvent = phase === "calendar" || phase === "hold";
+  const dates = getWeekDates();
+  const monthYear = getMonthYear();
 
   return (
     <div className="w-full h-full flex flex-col rounded-xl bg-zinc-900/80 border border-zinc-800 overflow-hidden">
@@ -37,7 +55,7 @@ export function CalendarPanel({ phase, mobile }: { phase: DemoPhase; mobile?: bo
           </svg>
           <span className="text-[11px] font-medium text-zinc-300">Outlook Calendar</span>
         </div>
-        <span className="text-[10px] text-zinc-500">May 2025</span>
+        <span className="text-[10px] text-zinc-500">{monthYear}</span>
       </div>
 
       {/* Calendar grid */}
@@ -110,7 +128,7 @@ export function CalendarPanel({ phase, mobile }: { phase: DemoPhase; mobile?: bo
               >
                 <span className="text-[9px] text-zinc-500 uppercase">{day}</span>
                 <span className={`text-[11px] font-medium ${i === 2 ? "text-blue-400" : "text-zinc-400"}`}>
-                  {DATES[i]}
+                  {dates[i]}
                 </span>
               </div>
             ))}
