@@ -316,7 +316,7 @@ export class OutlookClient {
   async searchCalendarEvents(query: string, options?: { top?: number; startDateTime?: string; endDateTime?: string }) {
     const client = this.ensureClient();
     const top = options?.top || 10;
-    let url = `/me/events?$filter=contains(subject,'${query.replace(/'/g, "''")}')&$top=${top}&$select=id,subject,start,end,location,organizer,attendees,isOnlineMeeting,onlineMeetingUrl,bodyPreview&$orderby=start/dateTime desc`;
+    const url = `/me/events?$filter=contains(subject,'${query.replace(/'/g, "''")}')&$top=${top}&$select=id,subject,start,end,location,organizer,attendees,isOnlineMeeting,onlineMeetingUrl,bodyPreview&$orderby=start/dateTime desc`;
     return withRetry(async () => {
       const response = await client.api(url).get();
       return response.value;

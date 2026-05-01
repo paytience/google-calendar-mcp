@@ -115,7 +115,7 @@ describe.skipIf(!API_KEY)("e2e: Outlook MCP Server", () => {
     expect(calendars.length).toBeGreaterThan(0);
   });
 
-  it("create and delete calendar event (timezone test)", async () => {
+  it("create and delete calendar event (timezone test)", { timeout: 15000 }, async () => {
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const start = tomorrow.toISOString().split("T")[0] + "T10:00:00";
     const end = tomorrow.toISOString().split("T")[0] + "T10:30:00";
