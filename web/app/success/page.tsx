@@ -1,13 +1,20 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { track } from "@vercel/analytics";
 
 function SuccessContent() {
   const params = useSearchParams();
   const email = params.get("email");
   const error = params.get("error");
   const apiKey = params.get("key");
+
+  useEffect(() => {
+    if (!error && apiKey) {
+      track("purchase_complete");
+    }
+  }, [error, apiKey]);
 
   if (error) {
     return (
@@ -101,11 +108,25 @@ args: ["-y", "outlook-mcp"]`}
             <div>read_email</div>
             <div>send_email</div>
             <div>reply_to_email</div>
+            <div>forward_email</div>
             <div>search_emails</div>
             <div>move_email</div>
+            <div>delete_email</div>
+            <div>mark_email_read</div>
+            <div>flag_email</div>
+            <div>list_mail_folders</div>
             <div>list_calendar_events</div>
             <div>create_calendar_event</div>
-            <div>list_mail_folders</div>
+            <div>update_calendar_event</div>
+            <div>delete_calendar_event</div>
+            <div>search_calendar_events</div>
+            <div>get_free_busy</div>
+            <div>list_calendars</div>
+            <div>list_contacts</div>
+            <div>get_contact</div>
+            <div>create_contact</div>
+            <div>update_contact</div>
+            <div>delete_contact</div>
             <div>list_accounts</div>
             <div>switch_account</div>
             <div>add_account</div>
