@@ -81,6 +81,32 @@ const configs = [
   }
 }`,
   },
+  {
+    name: "Kiro",
+    file: ".kiro/settings/mcp.json",
+    npx: `{
+  "mcpServers": {
+    "outlook": {
+      "command": "npx",
+      "args": ["-y", "@paytience/outlook-mcp@latest"],
+      "env": {
+        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+      }
+    }
+  }
+}`,
+    docker: `{
+  "mcpServers": {
+    "outlook": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "env": {
+        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+      }
+    }
+  }
+}`,
+  },
 ];
 
 function CopyIcon({ className }: { className?: string }) {

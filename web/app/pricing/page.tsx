@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Suspense, useState, useEffect } from "react";
 import { track } from "@vercel/analytics";
 import { AnimatedDemo } from "../components/demo/animated-demo";
+import { logEvent } from "@/lib/analytics";
 
 function PricingContent() {
   const params = useSearchParams();
@@ -14,11 +15,13 @@ function PricingContent() {
 
   useEffect(() => {
     track("pricing_page_view");
+    logEvent("pricing_view");
   }, []);
 
   async function handleCheckout() {
     setLoading(true);
     track("checkout_start");
+    logEvent("checkout_click");
     const sid = sessionId || crypto.randomUUID();
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",
@@ -64,7 +67,7 @@ function PricingContent() {
               "Create meetings, check availability, manage calendars",
               "Manage contacts and address book",
               "Connect unlimited Outlook accounts",
-              "Works with Claude Code, Cursor, Windsurf",
+              "Works with Claude Code, Cursor, Windsurf, Kiro",
               "Lifetime updates",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3 text-sm text-zinc-300">
@@ -103,6 +106,34 @@ function PricingContent() {
               Full refund anytime
             </p>
           </div>
+        </div>
+
+        {/* Trust badges */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12 text-xs text-zinc-500">
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            OAuth 2.0
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            No passwords stored
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+            </svg>
+            Encrypted tokens
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            Works with enterprise M365
+          </span>
         </div>
 
         {/* Demo */}

@@ -11,14 +11,17 @@ export const metadata: Metadata = {
     template: "%s | Outlook MCP",
   },
   description:
-    "Give Claude, Cursor, and Windsurf direct access to your Outlook email and calendar via MCP. Read, send, search, and manage messages without leaving your AI workflow.",
+    "Let your AI agent control Outlook. Give Claude, Cursor, Kiro, and Windsurf direct access to your Outlook email and calendar via MCP. Read, send, search, and manage messages without leaving your AI workflow.",
   keywords: [
     "outlook mcp",
     "mcp server",
     "outlook ai",
+    "ai agent outlook",
+    "ai agent control outlook",
     "claude outlook",
     "cursor outlook",
     "windsurf outlook",
+    "kiro outlook",
     "microsoft outlook mcp",
     "model context protocol",
     "outlook email ai",
@@ -28,6 +31,8 @@ export const metadata: Metadata = {
     "claude code email",
     "outlook integration",
     "microsoft graph mcp",
+    "ai coding assistant email",
+    "outlook automation ai",
   ],
   openGraph: {
     title: "Outlook MCP: Connect Microsoft Outlook to AI Assistants",

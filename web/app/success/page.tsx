@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { track } from "@vercel/analytics";
+import { ConfigSnippets } from "../components/config-snippets";
 
 function SuccessContent() {
   const params = useSearchParams();
@@ -60,44 +61,7 @@ function SuccessContent() {
           )}
 
           <div className="space-y-5">
-            <div>
-              <h3 className="text-sm font-medium text-zinc-300 mb-2">Claude Code</h3>
-              <p className="text-xs text-zinc-500 mb-2">Add to your MCP settings:</p>
-              <pre className="text-xs bg-zinc-950 rounded-lg p-3 overflow-x-auto text-zinc-300 border border-zinc-800">
-{`{
-  "mcpServers": {
-    "outlook": {
-      "command": "npx",
-      "args": ["-y", "outlook-mcp"]
-    }
-  }
-}`}
-              </pre>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-zinc-300 mb-2">Cursor</h3>
-              <p className="text-xs text-zinc-500 mb-2">Add to <code className="text-zinc-400">.cursor/mcp.json</code>:</p>
-              <pre className="text-xs bg-zinc-950 rounded-lg p-3 overflow-x-auto text-zinc-300 border border-zinc-800">
-{`{
-  "mcpServers": {
-    "outlook": {
-      "command": "npx",
-      "args": ["-y", "outlook-mcp"]
-    }
-  }
-}`}
-              </pre>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-zinc-300 mb-2">Windsurf / Other MCP Clients</h3>
-              <p className="text-xs text-zinc-500 mb-2">Same configuration format. Point to:</p>
-              <pre className="text-xs bg-zinc-950 rounded-lg p-3 overflow-x-auto text-zinc-300 border border-zinc-800">
-{`command: npx
-args: ["-y", "outlook-mcp"]`}
-              </pre>
-            </div>
+            <ConfigSnippets />
           </div>
         </div>
 
