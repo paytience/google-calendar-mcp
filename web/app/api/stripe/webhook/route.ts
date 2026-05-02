@@ -36,6 +36,12 @@ export async function POST(request: Request) {
     const customerEmail = session.customer_details?.email;
     const mcpSessionId = session.metadata?.session_id;
 
+    await supabase.from("analytics_events").insert({
+      event: "checkout_complete",
+      session_id: mcpSessionId,
+      metadata: { email: customerEmail, stripe_session: session.id },
+    });
+
     await supabase.from("mcp_customers").upsert({
       stripe_customer_id: customerId,
       stripe_session_id: session.id,

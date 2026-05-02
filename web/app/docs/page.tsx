@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Documentation",
+  title: "Docs: Setup, Tools & Permissions",
   description:
     "Setup guides, supported accounts, permissions, and enterprise compatibility for Outlook MCP.",
 };
@@ -11,7 +11,8 @@ export default function DocsPage() {
     <main className="max-w-3xl mx-auto px-6 py-20">
       <h1 className="text-3xl font-bold mb-2">Documentation</h1>
       <p className="text-zinc-400 mb-12">
-        Everything you need to know about setting up and using Outlook MCP.
+        Everything you need to set up Outlook MCP and let your AI agent control Microsoft Outlook.
+        Works with Claude Code, Cursor, Windsurf, Kiro, and any MCP-compatible client.
       </p>
 
       {/* Tools */}
