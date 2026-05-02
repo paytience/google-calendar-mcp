@@ -62,13 +62,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="bg-zinc-950 text-white antialiased">
       <body className="min-h-screen">
-        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/50">
-          <Link href="/" className="text-sm font-semibold">Outlook MCP</Link>
-          <nav className="flex items-center gap-4">
+        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3.5 bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-800/40">
+          <Link href="/" className="flex items-center gap-2 text-sm font-semibold">
+            <svg className="w-4.5 h-4.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+            </svg>
+            Outlook MCP
+          </Link>
+          <nav className="flex items-center gap-5">
             <Link href="/docs" className="text-sm text-zinc-400 hover:text-white transition-colors">
               Docs
             </Link>
-            <Link href="/pricing" className="px-4 py-1.5 text-sm font-medium bg-white text-zinc-900 rounded-md hover:bg-zinc-200 transition-colors">
+            <Link
+              href="/pricing"
+              className="px-4 py-1.5 text-sm font-medium bg-white text-zinc-900 rounded-md hover:bg-zinc-100 transition-all duration-200 shadow-sm shadow-white/10"
+            >
               Get Started
             </Link>
           </nav>
@@ -76,13 +84,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="pt-14">
           {children}
         </div>
-        <footer className="border-t border-zinc-800/50 px-6 py-8 text-center text-xs text-zinc-500">
-          <p>
-            Need help?{" "}
-            <a href="mailto:hellomcpoutlook@gmail.com" className="text-zinc-400 hover:text-white transition-colors">
-              hellomcpoutlook@gmail.com
-            </a>
-          </p>
+        <footer className="border-t border-zinc-800/40 px-6 py-10">
+          <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
+            <div className="text-center md:text-left">
+              <Link href="/" className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors">
+                Outlook MCP
+              </Link>
+              <p className="text-xs text-zinc-600 mt-1.5">MCP server for Microsoft Outlook</p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-8 text-xs text-zinc-500">
+              <div className="flex flex-col gap-2">
+                <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Product</span>
+                <Link href="/pricing" className="hover:text-zinc-300 transition-colors">Pricing</Link>
+                <Link href="/docs" className="hover:text-zinc-300 transition-colors">Documentation</Link>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Support</span>
+                <a href="mailto:hellomcpoutlook@gmail.com" className="hover:text-zinc-300 transition-colors">Email Support</a>
+              </div>
+            </div>
+          </div>
+          <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-zinc-800/30 text-center text-xs text-zinc-600">
+            Built by <a href="https://github.com/paytience" className="hover:text-zinc-400 transition-colors">Paytience</a>
+          </div>
         </footer>
         <Analytics />
         <SpeedInsights />
