@@ -16,6 +16,10 @@ function SetupContent() {
   const [copied, setCopied] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [refunding, setRefunding] = useState(false);
+  const [refunded, setRefunded] = useState(false);
+  const [showRefundForm, setShowRefundForm] = useState(false);
+  const [refundReason, setRefundReason] = useState("");
 
   useEffect(() => {
     if (!sessionId) return;
@@ -86,6 +90,38 @@ function SetupContent() {
     }
     setSending(false);
   };
+
+  const handleRefund = async () => {
+    if (refunding || !sessionId || !refundReason) return;
+    setRefunding(true);
+    try {
+      const res = await fetch("/api/stripe/refund", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, reason: refundReason }),
+      });
+      if (res.ok) {
+        setRefunded(true);
+      }
+    } catch {
+      // ignore
+    }
+    setRefunding(false);
+  };
+
+  if (refunded) {
+    return (
+      <div className="text-center max-w-md">
+        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-green-500/10 flex items-center justify-center">
+          <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold mb-2">Refund Processed</h1>
+        <p className="text-zinc-400">Your payment has been refunded. The refund will appear on your statement within 5-10 business days.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-lg">
@@ -199,6 +235,57 @@ function SetupContent() {
           <ConfigSnippets />
         </div>
       )}
+
+      {/* Refund */}
+      <div className="text-center pt-6 border-t border-zinc-800/50">
+        {!showRefundForm ? (
+          <button
+            onClick={() => setShowRefundForm(true)}
+            className="text-xs text-zinc-500 hover:text-red-400 transition-colors"
+          >
+            Request refund
+          </button>
+        ) : (
+          <div className="max-w-sm mx-auto text-left">
+            <p className="text-sm text-zinc-300 mb-3">Why would you like a refund?</p>
+            <div className="space-y-2 mb-4">
+              {[
+                "Could not connect my account",
+                "Does not work with my organization",
+                "Missing features I need",
+                "Other",
+              ].map((reason) => (
+                <label key={reason} className="flex items-center gap-2 text-sm text-zinc-400 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="refund-reason"
+                    value={reason}
+                    checked={refundReason === reason}
+                    onChange={(e) => setRefundReason(e.target.value)}
+                    className="accent-red-400"
+                  />
+                  {reason}
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRefund}
+                disabled={refunding || !refundReason}
+                className="px-4 py-2 text-xs font-medium rounded-md bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {refunding ? "Processing..." : "Confirm refund"}
+              </button>
+              <button
+                onClick={() => { setShowRefundForm(false); setRefundReason(""); }}
+                className="px-4 py-2 text-xs font-medium rounded-md bg-zinc-800 text-zinc-400 hover:bg-zinc-700 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

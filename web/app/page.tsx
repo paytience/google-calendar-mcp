@@ -1,5 +1,6 @@
 import { ConfigSnippets } from "./components/config-snippets";
 import { AnimatedDemo } from "./components/demo/animated-demo";
+import { TrackedCTA } from "./components/tracked-cta";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -48,12 +49,9 @@ export default function Home() {
         </p>
 
         <div className="flex justify-center mb-14">
-          <a
-            href="/pricing"
-            className="px-8 py-3 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-200 transition-colors"
-          >
+          <TrackedCTA href="/pricing" source="hero">
             Get Started
-          </a>
+          </TrackedCTA>
         </div>
 
         {/* Animated demo */}
