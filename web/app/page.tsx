@@ -1,6 +1,7 @@
 import { ConfigSnippets } from "./components/config-snippets";
 import { AnimatedDemo } from "./components/demo/animated-demo";
 import { TrackedCTA } from "./components/tracked-cta";
+import { GlowCard } from "./components/glow-card";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -27,148 +28,245 @@ const jsonLd = {
     "outlook mcp, mcp server, outlook ai, claude email, cursor email, windsurf email, model context protocol",
 };
 
+const features = [
+  {
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+      </svg>
+    ),
+    title: "Email",
+    description: "Read, send, reply, forward, search, flag, categorize, and organize your inbox.",
+    color: "text-blue-400",
+  },
+  {
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+      </svg>
+    ),
+    title: "Calendar",
+    description: "View events, create meetings, RSVP to invitations, and manage multiple calendars.",
+    color: "text-purple-400",
+  },
+  {
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+      </svg>
+    ),
+    title: "Contacts",
+    description: "Search, create, update, and manage your Outlook address book.",
+    color: "text-emerald-400",
+  },
+  {
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+      </svg>
+    ),
+    title: "Auto-Reply",
+    description: "Set and manage out-of-office replies with scheduled start and end times.",
+    color: "text-amber-400",
+  },
+  {
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+      </svg>
+    ),
+    title: "Focused Inbox",
+    description: "Control which senders go to Focused or Other. View and manage inbox rules.",
+    color: "text-cyan-400",
+  },
+  {
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+      </svg>
+    ),
+    title: "Secure",
+    description: "OAuth 2.0 with encrypted token storage. Your credentials never touch disk.",
+    color: "text-rose-400",
+  },
+];
+
+const steps = [
+  {
+    title: "Purchase & Get API Key",
+    description: "Pay once, sign in with Microsoft, and receive your personal API key instantly.",
+  },
+  {
+    title: "Add the config",
+    description: "Paste the MCP config into your AI tool with your API key. Takes 30 seconds.",
+  },
+  {
+    title: "Ask your AI",
+    description: "\"Check my inbox\", \"Send a reply\", \"Schedule a meeting for tomorrow at 2pm\"",
+  },
+];
+
 export default function Home() {
   return (
-    <main className="flex flex-col items-center px-6 py-20">
+    <main className="flex flex-col items-center">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="max-w-3xl w-full text-center">
-        {/* Hero */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 text-sm font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-          MCP Server for Outlook
+
+      {/* Hero */}
+      <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-24 pb-16 md:pt-32 md:pb-24">
+        <div className="relative z-10 max-w-4xl w-full text-center">
+          <div className="animate-fade-in-1">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-8 text-xs font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+              MCP Server for Microsoft Outlook
+            </div>
+          </div>
+
+          <h1 className="animate-fade-in-2 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 gradient-text-animated leading-tight">
+            Outlook, inside your AI tools
+          </h1>
+
+          <p className="animate-fade-in-3 text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Give your AI agent direct access to Outlook. Send, search, and manage email and calendar without leaving your workflow.
+          </p>
+
+          <div className="animate-fade-in-4 flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
+            <TrackedCTA href="/pricing" source="hero" variant="primary">
+              Get Started
+            </TrackedCTA>
+            <TrackedCTA href="/docs" source="hero" variant="secondary">
+              View Documentation
+            </TrackedCTA>
+          </div>
+
+          {/* Supported tools */}
+          <div className="animate-fade-in-5 flex flex-wrap items-center justify-center gap-3 text-xs">
+            <span className="text-zinc-400 mr-1">Works with</span>
+            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Claude Code</span>
+            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Cursor</span>
+            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Windsurf</span>
+            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Kiro</span>
+          </div>
         </div>
+      </section>
 
-        <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
-          Outlook, inside your AI tools.
-        </h1>
-
-        <p className="text-lg text-zinc-400 mb-10 max-w-lg mx-auto">
-          Let your AI agent control Outlook. Send, search, and manage email and calendar without leaving your workflow.
-        </p>
-
-        <div className="flex justify-center mb-14">
-          <TrackedCTA href="/pricing" source="hero">
-            Get Started
-          </TrackedCTA>
-        </div>
-
-        {/* Animated demo */}
-        <div className="mb-20 w-full">
+      {/* Demo */}
+      <section className="w-full max-w-4xl px-6 pb-20 md:pb-28">
+        <p className="text-center text-sm text-zinc-500 mb-6">See it in action</p>
+        <div className="relative">
+          <div className="absolute inset-0 -m-4 rounded-2xl bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none"></div>
           <AnimatedDemo />
         </div>
+      </section>
 
-        {/* Features */}
-        <h2 className="text-2xl font-bold mb-8">What you can do</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-left mb-20">
-          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
-            <div className="text-2xl mb-2">📬</div>
-            <h3 className="font-semibold mb-1">Email</h3>
-            <p className="text-sm text-zinc-400">Read, send, reply, forward, search, flag, categorize, and organize your inbox.</p>
-          </div>
-          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
-            <div className="text-2xl mb-2">📅</div>
-            <h3 className="font-semibold mb-1">Calendar</h3>
-            <p className="text-sm text-zinc-400">View events, create meetings, RSVP to invitations, and manage multiple calendars.</p>
-          </div>
-          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
-            <div className="text-2xl mb-2">👤</div>
-            <h3 className="font-semibold mb-1">Contacts</h3>
-            <p className="text-sm text-zinc-400">Search, create, update, and manage your Outlook address book.</p>
-          </div>
-          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
-            <div className="text-2xl mb-2">✈️</div>
-            <h3 className="font-semibold mb-1">Auto-Reply</h3>
-            <p className="text-sm text-zinc-400">Set and manage out-of-office replies with scheduled start and end times.</p>
-          </div>
-          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
-            <div className="text-2xl mb-2">🎯</div>
-            <h3 className="font-semibold mb-1">Focused Inbox</h3>
-            <p className="text-sm text-zinc-400">Control which senders go to Focused or Other. View and manage inbox rules.</p>
-          </div>
-          <div className="p-5 rounded-xl bg-zinc-900 border border-zinc-800">
-            <div className="text-2xl mb-2">🔐</div>
-            <h3 className="font-semibold mb-1">Secure</h3>
-            <p className="text-sm text-zinc-400">OAuth 2.0 with encrypted token storage. Your credentials never touch disk.</p>
+      <div className="section-divider w-full max-w-3xl mx-auto"></div>
+
+      {/* Features */}
+      <section className="w-full max-w-5xl px-6 py-20 md:py-28">
+        <div className="text-center mb-14">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Everything you need</h2>
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto">26 tools covering email, calendar, and contacts. Full control over your Outlook from any AI assistant.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {features.map((feature) => (
+            <GlowCard key={feature.title} className="flex flex-col gap-3">
+              <div className={`${feature.color}`}>{feature.icon}</div>
+              <h3 className="font-semibold text-white">{feature.title}</h3>
+              <p className="text-sm text-zinc-400 leading-relaxed">{feature.description}</p>
+            </GlowCard>
+          ))}
+        </div>
+      </section>
+
+      <div className="section-divider w-full max-w-3xl mx-auto"></div>
+
+      {/* How it works */}
+      <section className="w-full max-w-4xl px-6 py-20 md:py-28">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Up and running in minutes</h2>
+          <p className="text-zinc-400 text-lg">Three steps to connect your Outlook to AI.</p>
+        </div>
+
+        {/* Steps */}
+        <div className="relative max-w-lg mx-auto mb-16">
+          {/* Vertical connecting line */}
+          <div className="absolute left-5 top-10 bottom-10 w-px bg-gradient-to-b from-blue-500/40 via-blue-500/20 to-transparent"></div>
+
+          <div className="space-y-12">
+            {steps.map((step, i) => (
+              <div key={step.title} className="flex items-start gap-5">
+                <div className="relative z-10 w-10 h-10 rounded-full bg-zinc-900 border border-blue-500/30 flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-blue-400">{i + 1}</span>
+                </div>
+                <div className="pt-1.5">
+                  <h3 className="font-semibold text-white mb-1.5">{step.title}</h3>
+                  <p className="text-sm text-zinc-400 leading-relaxed">{step.description}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* SEO copy */}
-        <p className="text-sm text-zinc-500 text-center max-w-2xl mx-auto mb-20">
-          Outlook MCP is a Model Context Protocol server that lets your AI agent control Microsoft Outlook.
-          Connect any MCP client to read, send, and organize emails, schedule meetings, and manage contacts
-          across personal and enterprise Microsoft 365 accounts.
-        </p>
+        {/* Config snippets */}
+        <ConfigSnippets />
+      </section>
 
-        {/* How it works + Config */}
-        <h2 className="text-2xl font-bold mb-10">How it works</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">1</div>
-            <h3 className="font-semibold mb-2">Purchase &amp; Get API Key</h3>
-            <p className="text-sm text-zinc-400">Pay once, sign in with Microsoft, and receive your personal API key.</p>
-          </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">2</div>
-            <h3 className="font-semibold mb-2">Add the config</h3>
-            <p className="text-sm text-zinc-400">Paste the MCP config into Claude Code, Cursor, Windsurf, or Kiro with your API key.</p>
-          </div>
-          <div className="flex flex-col items-center text-center">
-            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400 mb-4">3</div>
-            <h3 className="font-semibold mb-2">Ask your AI</h3>
-            <p className="text-sm text-zinc-400">&ldquo;Check my inbox&rdquo;, &ldquo;Send a reply&rdquo;, &ldquo;What&apos;s on my calendar?&rdquo;</p>
-          </div>
-        </div>
-
-        <div className="mb-20 w-full">
-          <ConfigSnippets />
-        </div>
-
-        {/* Trust badges */}
-        <div className="flex flex-wrap justify-center gap-4 mb-20 text-xs text-zinc-500">
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+      {/* Trust / Security */}
+      <section className="w-full px-6 py-12">
+        <div className="flex flex-wrap justify-center gap-3 text-xs text-zinc-500">
+          <span className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-800 bg-zinc-900/50">
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
             OAuth 2.0
           </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+          <span className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-800 bg-zinc-900/50">
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             No passwords stored
           </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+          <span className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-800 bg-zinc-900/50">
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
             </svg>
-            Encrypted tokens
+            AES-256 encrypted tokens
           </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/50">
+          <span className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-800 bg-zinc-900/50">
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            Works with enterprise M365
+            Personal &amp; enterprise M365
           </span>
         </div>
+      </section>
 
-        {/* Final CTA */}
-        <div className="py-12 border-t border-zinc-800 w-full">
-          <h2 className="text-2xl font-bold mb-4">Ready to connect Outlook?</h2>
-          <p className="text-zinc-400 mb-6">One-time purchase. No subscription.</p>
-          <a
-            href="/pricing"
-            className="inline-block px-8 py-3 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-200 transition-colors"
-          >
-            Get Started
-          </a>
+      {/* Final CTA */}
+      <section className="w-full px-6 py-20 md:py-24">
+        <div className="max-w-3xl mx-auto text-center relative">
+          <div className="absolute inset-0 -m-8 bg-gradient-to-t from-blue-500/5 via-transparent to-transparent rounded-3xl pointer-events-none"></div>
+          <div className="relative rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-950 px-8 py-14 md:px-14">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Ready to connect Outlook?</h2>
+            <p className="text-zinc-400 text-lg mb-8">One-time purchase. No subscription. Full refund anytime.</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <TrackedCTA href="/pricing" source="bottom_cta" variant="primary">
+                Get Started for $5
+              </TrackedCTA>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <footer className="mt-12 pb-8 text-xs text-zinc-600">
-        Built by <a href="https://github.com/paytience" className="hover:text-zinc-400 transition-colors">Paytience</a>
-      </footer>
+      {/* SEO text */}
+      <section className="w-full max-w-3xl mx-auto px-6 pb-12 text-center">
+        <p className="text-xs text-zinc-600 max-w-2xl mx-auto leading-relaxed">
+          Outlook MCP is a Model Context Protocol server that lets your AI agent control Microsoft Outlook.
+          Connect any MCP client to read, send, and organize emails, schedule meetings, and manage contacts
+          across personal and enterprise Microsoft 365 accounts.
+        </p>
+      </section>
     </main>
   );
 }
