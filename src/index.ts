@@ -2,24 +2,63 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { OutlookClient } from "./outlook-client.js";
+import { GoogleCalendarClient } from "./google-calendar-client.js";
 import { OAuthConfig } from "./auth.js";
 import { getAccounts, removeAccount, addAccount } from "./config.js";
-import { setupAccount } from "./setup.js";
+import { setupAccount, verifyAccount } from "./setup.js";
 import { fetchTokens } from "./token-store.js";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+const formatEvent = (e: any) => ({
+  id: e.id,
+  summary: e.summary,
+  start: e.start?.dateTime || e.start?.date,
+  end: e.end?.dateTime || e.end?.date,
+  timeZone: e.start?.timeZone,
+  location: e.location,
+  description: e.description,
+  organizer: e.organizer?.email,
+  attendees: e.attendees?.map((a: any) => ({
+    email: a.email,
+    name: a.displayName,
+    response: a.responseStatus,
+    organizer: a.organizer,
+    self: a.self,
+  })),
+  hangoutLink: e.hangoutLink,
+  conferenceData: e.conferenceData?.entryPoints?.map((ep: any) => ({
+    type: ep.entryPointType,
+    uri: ep.uri,
+  })),
+  status: e.status,
+  htmlLink: e.htmlLink,
+  recurrence: e.recurrence,
+  colorId: e.colorId,
+});
+
+const formatCalendar = (c: any) => ({
+  id: c.id,
+  summary: c.summary,
+  description: c.description,
+  primary: c.primary,
+  timeZone: c.timeZone,
+  accessRole: c.accessRole,
+  backgroundColor: c.backgroundColor,
+});
+
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
 const oauthConfig: OAuthConfig = {
-  clientId: "bd342cd6-3cef-481a-8afb-2e7a7b7a24f0",
-  clientSecret: "",
-  tenantId: "common",
-  redirectUri: "https://mcpoutlook.com/api/auth/callback",
+  clientId: process.env.GOOGLE_CLIENT_ID || "",
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+  redirectUri: process.env.GOOGLE_REDIRECT_URI || "https://mcpcalendar.com/api/auth/callback",
 };
 
 async function main() {
   let accounts = getAccounts();
 
-  // If API key is set via env var and no local accounts exist, bootstrap from remote
-  const envApiKey = process.env.OUTLOOK_MCP_API_KEY;
+  const envApiKey = process.env.GOOGLE_CALENDAR_MCP_API_KEY;
   if (accounts.length === 0 && envApiKey) {
     const remote = await fetchTokens(envApiKey);
     addAccount({ email: remote.email, displayName: remote.displayName, apiKey: envApiKey });
@@ -35,46 +74,55 @@ async function main() {
     }
   }
 
-  const outlook = new OutlookClient(oauthConfig);
-  outlook.switchAccount(accounts[0]);
+  const gcal = new GoogleCalendarClient(oauthConfig);
+  gcal.switchAccount(accounts[0]);
 
   const server = new McpServer({
-    name: "outlook-mcp",
-    version: "2.1.0",
+    name: "google-calendar-mcp",
+    version: "1.0.0",
   });
 
-  server.tool("list_accounts", "List all connected Outlook accounts", {}, async () => {
+  // Account management
+
+  server.tool("list_accounts", "List all connected Google accounts", {}, async () => {
     const all = getAccounts();
     const result = all.map((a) => ({
       email: a.email,
       displayName: a.displayName,
-      active: outlook.getCurrentAccount() === a.email,
+      active: gcal.getCurrentAccount() === a.email,
     }));
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   });
 
   server.tool(
     "switch_account",
-    "Switch to a different connected Outlook account",
+    "Switch to a different connected Google account",
     { email: z.string().describe("Email address of the account to switch to") },
     async ({ email }) => {
       const account = getAccounts().find((a) => a.email === email);
       if (!account) return { content: [{ type: "text", text: `Account not found: ${email}` }], isError: true };
-      outlook.switchAccount(account);
+      gcal.switchAccount(account);
       return { content: [{ type: "text", text: `Switched to: ${email}` }] };
     }
   );
 
-  server.tool("add_account", "Connect a new Outlook account", {}, async () => {
+  server.tool("add_account", "Connect a new Google account or re-authenticate an existing one. If sign-in was recently completed in the browser, this will verify the connection without opening a new browser window.", {}, async () => {
+    const verified = await verifyAccount();
+    if (verified) {
+      const account = getAccounts().find((a) => a.email === verified.email);
+      if (account) gcal.switchAccount(account);
+      return { content: [{ type: "text", text: `Connected: ${verified.displayName} (${verified.email})` }] };
+    }
+
     const { email, displayName } = await setupAccount();
     const account = getAccounts().find((a) => a.email === email);
-    if (account) outlook.switchAccount(account);
+    if (account) gcal.switchAccount(account);
     return { content: [{ type: "text", text: `Connected: ${displayName} (${email})` }] };
   });
 
   server.tool(
     "remove_account",
-    "Remove a connected Outlook account",
+    "Remove a connected Google account",
     { email: z.string().describe("Email address of the account to remove") },
     async ({ email }) => {
       const success = removeAccount(email);
@@ -83,404 +131,186 @@ async function main() {
     }
   );
 
-  server.tool(
-    "list_emails",
-    "List emails from a mailbox folder",
-    {
-      folder: z.string().optional().describe("Mail folder (default: inbox)"),
-      count: z.number().optional().describe("Number of emails to return (default: 10)"),
-      skip: z.number().optional().describe("Number of emails to skip for pagination"),
-      filter: z.string().optional().describe("OData filter expression"),
-      search: z.string().optional().describe("Search query string"),
-    },
-    async ({ folder, count, skip, filter, search }) => {
-      const messages = await outlook.listMessages({ folder, top: count || 10, skip, filter, search });
-      return { content: [{ type: "text", text: JSON.stringify(messages, null, 2) }] };
-    }
-  );
+  // Calendar operations
 
-  server.tool(
-    "read_email",
-    "Read the full content of a specific email",
-    { messageId: z.string().describe("The ID of the email message to read") },
-    async ({ messageId }) => {
-      const message = await outlook.getMessage(messageId);
-      return { content: [{ type: "text", text: JSON.stringify(message, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "send_email",
-    "Send a new email",
-    {
-      to: z.array(z.string()).describe("List of recipient email addresses"),
-      cc: z.array(z.string()).optional().describe("List of CC email addresses"),
-      bcc: z.array(z.string()).optional().describe("List of BCC email addresses"),
-      subject: z.string().describe("Email subject"),
-      body: z.string().describe("Email body content"),
-      bodyType: z.enum(["HTML", "Text"]).optional().describe("Body content type (default: HTML)"),
-    },
-    async ({ to, cc, bcc, subject, body, bodyType }) => {
-      const result = await outlook.sendMessage({ to, cc, bcc, subject, body, bodyType });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "reply_to_email",
-    "Reply to an existing email",
-    {
-      messageId: z.string().describe("The ID of the email to reply to"),
-      body: z.string().describe("Reply body content"),
-      replyAll: z.boolean().optional().describe("Whether to reply all (default: false)"),
-    },
-    async ({ messageId, body, replyAll }) => {
-      const result = await outlook.replyToMessage(messageId, { body, replyAll });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "list_calendar_events",
-    "List upcoming calendar events",
-    {
-      startDateTime: z.string().optional().describe("Start date/time in ISO format (default: now)"),
-      endDateTime: z.string().optional().describe("End date/time in ISO format (default: 7 days from now)"),
-      count: z.number().optional().describe("Number of events to return (default: 25)"),
-    },
-    async ({ startDateTime, endDateTime, count }) => {
-      const events = await outlook.listCalendarEvents({ startDateTime, endDateTime, top: count });
-      return { content: [{ type: "text", text: JSON.stringify(events, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "create_calendar_event",
-    "Create a new calendar event",
-    {
-      subject: z.string().describe("Event subject/title"),
-      start: z.string().describe("Start date/time in ISO format"),
-      end: z.string().describe("End date/time in ISO format"),
-      timeZone: z.string().optional().describe("Time zone (default: UTC)"),
-      body: z.string().optional().describe("Event body/description"),
-      attendees: z.array(z.string()).optional().describe("List of attendee email addresses"),
-      location: z.string().optional().describe("Event location"),
-      isOnlineMeeting: z.boolean().optional().describe("Create as Teams meeting"),
-    },
-    async ({ subject, start, end, timeZone, body, attendees, location, isOnlineMeeting }) => {
-      const event = await outlook.createCalendarEvent({ subject, start, end, timeZone, body, attendees, location, isOnlineMeeting });
-      return { content: [{ type: "text", text: JSON.stringify(event, null, 2) }] };
-    }
-  );
-
-  server.tool("list_mail_folders", "List all mail folders in the mailbox", {}, async () => {
-    const folders = await outlook.listMailFolders();
-    return { content: [{ type: "text", text: JSON.stringify(folders, null, 2) }] };
+  server.tool("list_calendars", "List all calendars accessible by this account", {}, async () => {
+    const calendars = await gcal.listCalendars();
+    return { content: [{ type: "text", text: JSON.stringify(calendars.map(formatCalendar), null, 2) }] };
   });
 
   server.tool(
-    "move_email",
-    "Move an email to a different folder",
+    "list_events",
+    "List upcoming calendar events within a time range",
     {
-      messageId: z.string().describe("The ID of the email to move"),
-      destinationFolderId: z.string().describe("The ID of the destination folder"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
+      timeMin: z.string().optional().describe("Start of time range in ISO format (default: now)"),
+      timeMax: z.string().optional().describe("End of time range in ISO format (default: 7 days from now)"),
+      maxResults: z.number().optional().describe("Maximum number of events to return (default: 25)"),
+      pageToken: z.string().optional().describe("Token for fetching the next page of results"),
     },
-    async ({ messageId, destinationFolderId }) => {
-      const result = await outlook.moveMessage(messageId, destinationFolderId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    async ({ calendarId, timeMin, timeMax, maxResults, pageToken }) => {
+      const result = await gcal.listEvents({ calendarId, timeMin, timeMax, maxResults, pageToken });
+      const output = {
+        events: result.items.map(formatEvent),
+        nextPageToken: result.nextPageToken,
+      };
+      return { content: [{ type: "text", text: JSON.stringify(output, null, 2) }] };
     }
   );
 
   server.tool(
-    "search_emails",
-    "Search emails by keyword",
+    "get_event",
+    "Get full details of a specific calendar event",
     {
-      query: z.string().describe("Search query"),
-      count: z.number().optional().describe("Number of results (default: 10)"),
+      eventId: z.string().describe("The event ID"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
     },
-    async ({ query, count }) => {
-      const messages = await outlook.searchMessages(query, count);
-      return { content: [{ type: "text", text: JSON.stringify(messages, null, 2) }] };
+    async ({ eventId, calendarId }) => {
+      const event = await gcal.getEvent(eventId, calendarId);
+      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
     }
   );
 
   server.tool(
-    "delete_email",
-    "Delete an email",
-    { messageId: z.string().describe("The ID of the email to delete") },
-    async ({ messageId }) => {
-      const result = await outlook.deleteMessage(messageId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "mark_email_read",
-    "Mark an email as read or unread",
+    "create_event",
+    "Create a new calendar event",
     {
-      messageId: z.string().describe("The ID of the email"),
-      isRead: z.boolean().describe("true to mark as read, false for unread"),
+      summary: z.string().describe("Event title"),
+      start: z.string().describe("Start date/time in ISO format"),
+      end: z.string().describe("End date/time in ISO format"),
+      timeZone: z.string().optional().describe("Time zone (e.g., America/New_York)"),
+      description: z.string().optional().describe("Event description"),
+      attendees: z.array(z.string()).optional().describe("List of attendee email addresses"),
+      location: z.string().optional().describe("Event location"),
+      conferenceData: z.boolean().optional().describe("Create a Google Meet link"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
+      recurrence: z.array(z.string()).optional().describe("RRULE recurrence rules (e.g., ['RRULE:FREQ=WEEKLY;COUNT=5'])"),
+      colorId: z.string().optional().describe("Color ID for the event"),
+      visibility: z.enum(["default", "public", "private", "confidential"]).optional().describe("Event visibility"),
+      reminders: z.array(z.object({ method: z.string(), minutes: z.number() })).optional().describe("Custom reminders"),
     },
-    async ({ messageId, isRead }) => {
-      const result = await outlook.markMessageRead(messageId, isRead);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    async ({ summary, start, end, timeZone, description, attendees, location, conferenceData, calendarId, recurrence, colorId, visibility, reminders }) => {
+      const event = await gcal.createEvent({
+        calendarId, summary, start, end, timeZone, description, attendees, location, conferenceData, recurrence, colorId, visibility, reminders,
+      });
+      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
     }
   );
 
   server.tool(
-    "forward_email",
-    "Forward an email to other recipients",
-    {
-      messageId: z.string().describe("The ID of the email to forward"),
-      to: z.array(z.string()).describe("List of recipient email addresses"),
-      comment: z.string().optional().describe("Optional comment to include"),
-    },
-    async ({ messageId, to, comment }) => {
-      const result = await outlook.forwardMessage(messageId, to, comment);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "create_draft",
-    "Create an email draft without sending",
-    {
-      to: z.array(z.string()).describe("List of recipient email addresses"),
-      cc: z.array(z.string()).optional().describe("List of CC email addresses"),
-      subject: z.string().describe("Email subject"),
-      body: z.string().describe("Email body content"),
-      bodyType: z.enum(["HTML", "Text"]).optional().describe("Body content type (default: HTML)"),
-    },
-    async ({ to, cc, subject, body, bodyType }) => {
-      const result = await outlook.createDraft({ to, cc, subject, body, bodyType });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "delete_calendar_event",
-    "Delete a calendar event",
-    { eventId: z.string().describe("The ID of the event to delete") },
-    async ({ eventId }) => {
-      const result = await outlook.deleteCalendarEvent(eventId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "update_calendar_event",
+    "update_event",
     "Update an existing calendar event",
     {
-      eventId: z.string().describe("The ID of the event to update"),
-      subject: z.string().optional().describe("New subject"),
-      body: z.string().optional().describe("New body/description"),
+      eventId: z.string().describe("The event ID to update"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
+      summary: z.string().optional().describe("New title"),
+      description: z.string().optional().describe("New description"),
       start: z.string().optional().describe("New start date/time in ISO format"),
       end: z.string().optional().describe("New end date/time in ISO format"),
       timeZone: z.string().optional().describe("Time zone"),
       location: z.string().optional().describe("New location"),
+      attendees: z.array(z.string()).optional().describe("Updated attendee email addresses"),
+      colorId: z.string().optional().describe("Color ID"),
+      visibility: z.enum(["default", "public", "private", "confidential"]).optional().describe("Event visibility"),
+      recurrence: z.array(z.string()).optional().describe("Updated RRULE recurrence rules"),
     },
-    async ({ eventId, subject, body, start, end, timeZone, location }) => {
-      const result = await outlook.updateCalendarEvent(eventId, { subject, body, start, end, timeZone, location });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    async ({ eventId, calendarId, summary, description, start, end, timeZone, location, attendees, colorId, visibility, recurrence }) => {
+      const event = await gcal.updateEvent(eventId, { calendarId, summary, description, start, end, timeZone, location, attendees, colorId, visibility, recurrence });
+      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
     }
   );
 
   server.tool(
-    "get_attachment",
-    "Download an email attachment",
+    "delete_event",
+    "Delete a calendar event",
     {
-      messageId: z.string().describe("The ID of the email"),
-      attachmentId: z.string().describe("The ID of the attachment"),
+      eventId: z.string().describe("The event ID to delete"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
     },
-    async ({ messageId, attachmentId }) => {
-      const result = await outlook.getAttachment(messageId, attachmentId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    async ({ eventId, calendarId }) => {
+      await gcal.deleteEvent(eventId, calendarId);
+      return { content: [{ type: "text", text: "Event deleted." }] };
     }
   );
 
   server.tool(
-    "flag_email",
-    "Flag or unflag an email",
+    "search_events",
+    "Search calendar events by text query",
     {
-      messageId: z.string().describe("The ID of the email"),
-      status: z.enum(["flagged", "complete", "notFlagged"]).describe("Flag status"),
+      query: z.string().describe("Search text to match in event fields"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
+      maxResults: z.number().optional().describe("Maximum results (default: 10)"),
     },
-    async ({ messageId, status }) => {
-      const result = await outlook.flagMessage(messageId, status);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    async ({ query, calendarId, maxResults }) => {
+      const events = await gcal.searchEvents(query, { calendarId, maxResults });
+      return { content: [{ type: "text", text: JSON.stringify(events.map(formatEvent), null, 2) }] };
     }
   );
-
-  // Contacts
-
-  server.tool(
-    "list_contacts",
-    "List contacts from your address book",
-    {
-      count: z.number().optional().describe("Number of contacts to return (default: 25)"),
-      skip: z.number().optional().describe("Number of contacts to skip for pagination"),
-      search: z.string().optional().describe("Search query to filter contacts"),
-    },
-    async ({ count, skip, search }) => {
-      const contacts = await outlook.listContacts({ top: count || 25, skip, search });
-      return { content: [{ type: "text", text: JSON.stringify(contacts, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "get_contact",
-    "Get details of a specific contact",
-    { contactId: z.string().describe("The ID of the contact") },
-    async ({ contactId }) => {
-      const contact = await outlook.getContact(contactId);
-      return { content: [{ type: "text", text: JSON.stringify(contact, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "create_contact",
-    "Create a new contact",
-    {
-      givenName: z.string().optional().describe("First name"),
-      surname: z.string().optional().describe("Last name"),
-      displayName: z.string().optional().describe("Display name"),
-      email: z.string().optional().describe("Email address"),
-      mobilePhone: z.string().optional().describe("Mobile phone number"),
-      companyName: z.string().optional().describe("Company name"),
-      jobTitle: z.string().optional().describe("Job title"),
-    },
-    async ({ givenName, surname, displayName, email, mobilePhone, companyName, jobTitle }) => {
-      const emailAddresses = email ? [{ address: email, name: displayName || "" }] : undefined;
-      const result = await outlook.createContact({ givenName, surname, displayName, emailAddresses, mobilePhone, companyName, jobTitle });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "update_contact",
-    "Update an existing contact",
-    {
-      contactId: z.string().describe("The ID of the contact to update"),
-      givenName: z.string().optional().describe("First name"),
-      surname: z.string().optional().describe("Last name"),
-      displayName: z.string().optional().describe("Display name"),
-      email: z.string().optional().describe("Email address"),
-      mobilePhone: z.string().optional().describe("Mobile phone number"),
-      companyName: z.string().optional().describe("Company name"),
-      jobTitle: z.string().optional().describe("Job title"),
-    },
-    async ({ contactId, givenName, surname, displayName, email, mobilePhone, companyName, jobTitle }) => {
-      const emailAddresses = email ? [{ address: email, name: displayName || "" }] : undefined;
-      const result = await outlook.updateContact(contactId, { givenName, surname, displayName, emailAddresses, mobilePhone, companyName, jobTitle });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  server.tool(
-    "delete_contact",
-    "Delete a contact",
-    { contactId: z.string().describe("The ID of the contact to delete") },
-    async ({ contactId }) => {
-      const result = await outlook.deleteContact(contactId);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  // Calendar
-
-  server.tool("list_calendars", "List all calendars in the account", {}, async () => {
-    const calendars = await outlook.listCalendars();
-    return { content: [{ type: "text", text: JSON.stringify(calendars, null, 2) }] };
-  });
 
   server.tool(
     "respond_to_event",
-    "Accept, tentatively accept, or decline a calendar event invitation",
+    "RSVP to a calendar event (accept, tentative, or decline)",
     {
-      eventId: z.string().describe("The ID of the event"),
-      response: z.enum(["accept", "tentativelyAccept", "decline"]).describe("Your response"),
-      message: z.string().optional().describe("Optional message to include with your response"),
+      eventId: z.string().describe("The event ID"),
+      response: z.enum(["accepted", "tentative", "declined"]).describe("Your response"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
     },
-    async ({ eventId, response, message }) => {
-      const result = await outlook.respondToEvent(eventId, response, message);
+    async ({ eventId, response, calendarId }) => {
+      await gcal.respondToEvent(eventId, response, calendarId);
+      return { content: [{ type: "text", text: `Response "${response}" sent.` }] };
+    }
+  );
+
+  server.tool(
+    "get_free_busy",
+    "Check free/busy status for one or more people within a time range",
+    {
+      emails: z.array(z.string()).describe("Email addresses to check availability for"),
+      timeMin: z.string().describe("Start of time range in ISO format"),
+      timeMax: z.string().describe("End of time range in ISO format"),
+      timeZone: z.string().optional().describe("Time zone (default: UTC)"),
+    },
+    async ({ emails, timeMin, timeMax, timeZone }) => {
+      const result = await gcal.getFreeBusy({ emails, timeMin, timeMax, timeZone });
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     }
   );
 
-  // Categories
+  server.tool(
+    "quick_add_event",
+    "Create an event using natural language (e.g., 'Dinner with Alice tomorrow at 7pm')",
+    {
+      text: z.string().describe("Natural language event description"),
+      calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
+    },
+    async ({ text, calendarId }) => {
+      const event = await gcal.quickAdd(text, calendarId);
+      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+    }
+  );
 
-  server.tool("list_categories", "List all available email categories", {}, async () => {
-    const categories = await outlook.listCategories();
-    return { content: [{ type: "text", text: JSON.stringify(categories, null, 2) }] };
+  server.tool("get_colors", "Get available event and calendar color options", {}, async () => {
+    const colors = await gcal.getColors();
+    return { content: [{ type: "text", text: JSON.stringify(colors, null, 2) }] };
   });
 
   server.tool(
-    "set_message_categories",
-    "Set categories on an email message",
+    "move_event",
+    "Move an event to a different calendar",
     {
-      messageId: z.string().describe("The ID of the email"),
-      categories: z.array(z.string()).describe("List of category names to apply"),
+      eventId: z.string().describe("The event ID to move"),
+      destinationCalendarId: z.string().describe("Target calendar ID"),
+      sourceCalendarId: z.string().optional().describe("Source calendar ID (default: primary)"),
     },
-    async ({ messageId, categories }) => {
-      const result = await outlook.setMessageCategories(messageId, categories);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+    async ({ eventId, destinationCalendarId, sourceCalendarId }) => {
+      const event = await gcal.moveEvent(eventId, destinationCalendarId, sourceCalendarId);
+      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
     }
   );
-
-  // Auto-reply
-
-  server.tool("get_auto_reply", "Get current automatic reply (out-of-office) settings", {}, async () => {
-    const settings = await outlook.getAutoReplySettings();
-    return { content: [{ type: "text", text: JSON.stringify(settings, null, 2) }] };
-  });
-
-  server.tool(
-    "set_auto_reply",
-    "Configure automatic reply (out-of-office) settings",
-    {
-      status: z.enum(["disabled", "alwaysEnabled", "scheduled"]).describe("Auto-reply status"),
-      internalReplyMessage: z.string().optional().describe("Reply message for people in your organization (HTML)"),
-      externalReplyMessage: z.string().optional().describe("Reply message for external senders (HTML)"),
-      scheduledStartDateTime: z.string().optional().describe("Start date/time in ISO format (for scheduled status)"),
-      scheduledEndDateTime: z.string().optional().describe("End date/time in ISO format (for scheduled status)"),
-      externalAudience: z.enum(["none", "contactsOnly", "all"]).optional().describe("Who receives external reply"),
-    },
-    async ({ status, internalReplyMessage, externalReplyMessage, scheduledStartDateTime, scheduledEndDateTime, externalAudience }) => {
-      const result = await outlook.setAutoReply({ status, internalReplyMessage, externalReplyMessage, scheduledStartDateTime, scheduledEndDateTime, externalAudience });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  // Focused inbox
-
-  server.tool("get_focused_inbox_overrides", "List senders that are always routed to Focused or Other inbox", {}, async () => {
-    const overrides = await outlook.getFocusedInboxOverrides();
-    return { content: [{ type: "text", text: JSON.stringify(overrides, null, 2) }] };
-  });
-
-  server.tool(
-    "set_focused_inbox_override",
-    "Always route a sender's emails to Focused or Other inbox",
-    {
-      senderEmail: z.string().describe("The sender's email address"),
-      classifyAs: z.enum(["focused", "other"]).describe("Where to route the sender's messages"),
-    },
-    async ({ senderEmail, classifyAs }) => {
-      const result = await outlook.setFocusedInboxOverride(senderEmail, classifyAs);
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-    }
-  );
-
-  // Mail rules
-
-  server.tool("list_mail_rules", "List inbox mail rules", {}, async () => {
-    const rules = await outlook.listMailRules();
-    return { content: [{ type: "text", text: JSON.stringify(rules, null, 2) }] };
-  });
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error(`Outlook MCP server running. Active account: ${outlook.getCurrentAccount()}`);
+  console.error(`Google Calendar MCP server running. Active account: ${gcal.getCurrentAccount()}`);
 }
 
 main().catch((error) => {

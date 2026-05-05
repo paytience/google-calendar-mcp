@@ -1,5 +1,5 @@
 {
-  "name": "outlook-mcp-web",
+  "name": "google-calendar-mcp-web",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,6 +11,9 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.0",
     "@tailwindcss/postcss": "^4.2.4",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "motion": "^12.38.0",
     "next": "^15.3.0",
     "postcss": "^8.5.12",
     "react": "^19.0.0",
@@ -21,7 +24,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@next/eslint-plugin-next": "^16.2.4",
-    "@types/node": "^22.0.0",
+    "@types/node": "^25.6.0",
     "@types/react": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.59.1",
     "@typescript-eslint/parser": "^8.59.1",

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { sendSetupLinkEmail } from "@/lib/email";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mcpoutlook.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mcpcalendar.com";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -35,6 +35,12 @@ export async function POST(request: Request) {
     const customerId = session.customer;
     const customerEmail = session.customer_details?.email;
     const mcpSessionId = session.metadata?.session_id;
+
+    await supabase.from("analytics_events").insert({
+      event: "checkout_complete",
+      session_id: mcpSessionId,
+      metadata: { email: customerEmail, stripe_session: session.id },
+    });
 
     await supabase.from("mcp_customers").upsert({
       stripe_customer_id: customerId,

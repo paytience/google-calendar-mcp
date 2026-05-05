@@ -1,9 +1,6 @@
-import "isomorphic-fetch";
-
 export interface OAuthConfig {
   clientId: string;
   clientSecret: string;
-  tenantId: string;
   redirectUri: string;
 }
 
@@ -13,30 +10,24 @@ export interface TokenSet {
   expiresAt: number;
 }
 
-const SCOPES = [
-  "offline_access",
-  "Mail.Read",
-  "Mail.Send",
-  "Mail.ReadWrite",
-  "Calendars.Read",
-  "Calendars.ReadWrite",
-  "Contacts.Read",
-  "Contacts.ReadWrite",
-  "MailboxSettings.ReadWrite",
-  "User.Read",
+export const SCOPES = [
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/calendar.events",
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/userinfo.profile",
 ];
 
 export async function refreshAccessToken(
   config: OAuthConfig,
   refreshToken: string
 ): Promise<TokenSet> {
-  const tokenUrl = `https://login.microsoftonline.com/${config.tenantId}/oauth2/v2.0/token`;
+  const tokenUrl = "https://oauth2.googleapis.com/token";
 
   const params = new URLSearchParams({
     client_id: config.clientId,
+    client_secret: config.clientSecret,
     refresh_token: refreshToken,
     grant_type: "refresh_token",
-    scope: SCOPES.join(" "),
   });
 
   const response = await fetch(tokenUrl, {

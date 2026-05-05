@@ -1,37 +1,10 @@
 services:
-  auth:
-    build: .
-    command: ["node", "dist/auth-server.js"]
-    container_name: outlook-mcp-auth
-    ports:
-      - "3333:3333"
-    environment:
-      - OUTLOOK_CLIENT_ID=${OUTLOOK_CLIENT_ID}
-      - OUTLOOK_CLIENT_SECRET=${OUTLOOK_CLIENT_SECRET}
-      - OUTLOOK_TENANT_ID=${OUTLOOK_TENANT_ID:-common}
-      - OUTLOOK_REDIRECT_URI=${OUTLOOK_REDIRECT_URI:-http://localhost:3333/callback}
-      - OUTLOOK_TOKEN_FILE=/data/tokens.json
-      - AUTH_PORT=3333
-    volumes:
-      - token-data:/data
-    restart: unless-stopped
-
   mcp:
     build: .
     command: ["node", "dist/index.js"]
-    container_name: outlook-mcp
+    container_name: google-calendar-mcp
     environment:
-      - OUTLOOK_CLIENT_ID=${OUTLOOK_CLIENT_ID}
-      - OUTLOOK_CLIENT_SECRET=${OUTLOOK_CLIENT_SECRET}
-      - OUTLOOK_TENANT_ID=${OUTLOOK_TENANT_ID:-common}
-      - OUTLOOK_REDIRECT_URI=${OUTLOOK_REDIRECT_URI:-http://localhost:3333/callback}
-      - OUTLOOK_TOKEN_FILE=/data/tokens.json
-    volumes:
-      - token-data:/data
+      - GOOGLE_CALENDAR_MCP_API_KEY=${GOOGLE_CALENDAR_MCP_API_KEY}
     stdin_open: true
-    depends_on:
-      - auth
     restart: unless-stopped
 
-volumes:
-  token-data:

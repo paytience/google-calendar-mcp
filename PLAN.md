@@ -1,123 +1,98 @@
-# Outlook MCP: Commercial Architecture Plan
+# Google Calendar MCP: Remaining Steps
 
-## Context
-The outlook-mcp project currently works locally with flat-file token storage and a localhost auth server. To make it commercial, we need hosted auth (HTTPS), secure token storage, and easy distribution via npm. The Azure AD app is already registered (multi-tenant), and Supabase + Vercel are available.
+Code conversion from Outlook MCP is complete. The following manual/infrastructure tasks remain.
 
-## Architecture Overview
+## 1. Google Cloud Console Setup
 
-**Three components:**
-1. **Vercel auth app** (mcpoutlook.com): Handles OAuth callback, stores encrypted tokens in Supabase
-2. **Supabase backend**: Stores encrypted tokens + API keys. Edge Function decrypts tokens for authorized clients.
-3. **npm package** (outlook-mcp): Local MCP server that fetches tokens from Supabase via API key
+1. Create a Google Cloud project (or reuse existing)
+2. Enable the **Google Calendar API**
+3. Create OAuth 2.0 credentials (Web application type):
+   - Authorized redirect URI: `https://mcpcalendar.com/api/auth/callback`
+4. Set the OAuth consent screen:
+   - Scopes: `calendar`, `calendar.events`, `userinfo.email`, `userinfo.profile`
+   - App name: "Google Calendar MCP"
+5. Submit for Google verification (required for production; can test with < 100 users before approval)
+6. Note the Client ID and Client Secret for env vars
 
-## Phase 1: Supabase Schema
+## 2. Vercel Project
 
-Create tables in project `xinunseqsgmktmbrzahw`:
+1. Create a Vercel project for the `web/` directory
+2. Link to GitHub repo `paytience/google-calendar-mcp`
+3. Set root directory to `web`
+4. Add environment variables:
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+   - `GOOGLE_REDIRECT_URI` = `https://mcpcalendar.com/api/auth/callback`
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `ENCRYPTION_KEY`
+   - `STRIPE_SECRET_KEY`
+   - `STRIPE_WEBHOOK_SECRET`
+   - `STRIPE_PRICE_ID`
+   - `RESEND_API_KEY`
 
-```sql
-CREATE TABLE public.mcp_sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id TEXT NOT NULL UNIQUE,
-  user_email TEXT,
-  display_name TEXT,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'expired')),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  completed_at TIMESTAMPTZ,
-  expires_at TIMESTAMPTZ NOT NULL DEFAULT (now() + interval '10 minutes')
-);
+## 3. Domain & DNS
 
-CREATE TABLE public.mcp_tokens (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  session_id TEXT NOT NULL REFERENCES public.mcp_sessions(session_id),
-  user_email TEXT NOT NULL,
-  display_name TEXT NOT NULL,
-  encrypted_tokens TEXT NOT NULL,
-  encryption_iv TEXT NOT NULL,
-  encryption_tag TEXT NOT NULL,
-  token_expires_at BIGINT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE(session_id, user_email)
-);
+1. Register or configure `mcpcalendar.com`
+2. Point DNS to Vercel
+3. Add domain in Vercel project settings
+4. Verify SSL is working
 
-CREATE TABLE public.mcp_api_keys (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  api_key_hash TEXT NOT NULL UNIQUE,
-  session_id TEXT NOT NULL REFERENCES public.mcp_sessions(session_id),
-  user_email TEXT NOT NULL,
-  is_active BOOLEAN NOT NULL DEFAULT true,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  last_used_at TIMESTAMPTZ
-);
-```
+## 4. Supabase
 
-Deploy Edge Function `mcp-tokens` that validates API keys and returns decrypted tokens.
+The existing Supabase project + edge functions can be reused (token storage is provider agnostic).
+- Confirm the `mcp_sessions`, `mcp_tokens`, `mcp_api_keys` tables exist
+- The edge function for token refresh needs updating to use `https://oauth2.googleapis.com/token` instead of Microsoft token endpoint
+- Update the edge function's env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
-## Phase 2: Vercel Auth App
+## 5. Stripe
 
-New Next.js app deployed to mcpoutlook.com:
+1. Create a new product "Google Calendar MCP" in Stripe
+2. Create a price ($5 one-time)
+3. Update the `STRIPE_PRICE_ID` env var
+4. Set up webhook endpoint: `https://mcpcalendar.com/api/stripe/webhook`
 
-```
-outlook-mcp-web/
-  app/
-    api/auth/login/route.ts      -- Redirect to Microsoft OAuth
-    api/auth/callback/route.ts   -- Exchange code, encrypt tokens, store in Supabase
-    api/auth/status/route.ts     -- Polling endpoint for local CLI
-    page.tsx                     -- Landing page
-    success/page.tsx             -- Post-auth success
-  lib/
-    encryption.ts                -- AES-256-GCM helpers
-    supabase.ts                  -- Admin client
-    microsoft-oauth.ts           -- OAuth helpers
-```
+## 6. Resend (Email)
 
-- `/api/auth/login?session_id=X`: Redirects to Microsoft
-- `/api/auth/callback`: Stores encrypted tokens, issues API key, marks session complete
-- `/api/auth/status?session_id=X`: Returns `{ ready, api_key, user_email }` when done
+1. Add `mcpcalendar.com` domain to Resend
+2. Verify DNS records (SPF, DKIM)
+3. Update `RESEND_API_KEY` if using a different key
 
-## Phase 3: Refactor npm Package
+## 7. NPM Publish
 
-Files to modify in `/Users/caspernilsen/Dropbox/Projects/outlook-mcp/src/`:
+1. Run `npm install` to install `googleapis` and update lockfile
+2. Run `npm run build` to verify the build succeeds
+3. Run `npm publish --access public` to publish `@paytience/google-calendar-mcp`
 
-- **Remove**: `auth-server.ts` (replaced by Vercel)
-- **Remove**: `AccountStore` class from `auth.ts`
-- **Add**: `src/token-store.ts` (fetches tokens from Supabase Edge Function via API key)
-- **Add**: `src/setup.ts` (first-run: opens browser, polls for completion, saves API key)
-- **Add**: `src/config.ts` (manages `~/.outlook-mcp/config.json`)
-- **Add**: `src/retry.ts` (exponential backoff for Graph API 429/5xx)
-- **Add**: `bin/outlook-mcp.ts` (CLI entry point)
-- **Modify**: `outlook-client.ts` (use SupabaseTokenStore instead of AccountStore)
-- **Modify**: `index.ts` (use setup flow, remove filesystem deps)
-- **Modify**: `package.json` (add `bin`, `open` dep, remove `dotenv`)
+## 8. Docker / GHCR
 
-## Phase 4: End-to-end User Flow
+1. Build: `docker build -t ghcr.io/paytience/google-calendar-mcp:latest .`
+2. Push: `docker push ghcr.io/paytience/google-calendar-mcp:latest`
+3. Make package public in GitHub packages settings
 
-1. `npx outlook-mcp` (first run)
-2. Opens browser: `https://mcpoutlook.com/api/auth/login?session_id=abc123`
-3. User signs in with Microsoft, consents
-4. Callback stores encrypted tokens in Supabase
-5. CLI poll detects completion, receives API key
-6. Saves API key to `~/.outlook-mcp/config.json`
-7. MCP server starts, fetches tokens via Edge Function
+## 9. Testing
 
-## Phase 5: Security
+1. Run unit tests: `npm test`
+2. Set `GOOGLE_CALENDAR_MCP_API_KEY` and run e2e: `npm run test:e2e`
+3. Manually test the full purchase flow on staging
 
-- AES-256-GCM encryption key lives only on Vercel/Supabase (never on user machine)
-- Client secret lives only on Vercel (not in npm package)
-- API keys: `omk_` + 32 random bytes, only hash stored server-side
-- RLS enabled on all tables, no anon access
-- Sessions expire after 10 minutes
+## 10. GitHub Repo
 
-## Phase 6: Azure AD Updates
+- Update repo description: "MCP server for Google Calendar"
+- Add topics: `mcp`, `google-calendar`, `ai`, `claude`, `cursor`
+- Ensure Actions/CI are set up if desired
 
-- Add redirect URI: `https://mcpoutlook.com/api/auth/callback`
-- Publisher verification via MPN ID
+## Summary of Key Env Vars
 
-## Verification
-
-1. Run Supabase migration, verify tables created
-2. Deploy Vercel app, visit mcpoutlook.com
-3. Run `npx outlook-mcp`, verify browser opens and auth completes
-4. Use `list_emails` tool to confirm Graph API access works
-5. Kill and restart MCP server, verify tokens persist via Supabase
-6. Test token refresh (wait for expiry or force-expire)
+| Variable | Where | Purpose |
+|----------|-------|---------|
+| `GOOGLE_CLIENT_ID` | Vercel, Supabase edge fn | OAuth client |
+| `GOOGLE_CLIENT_SECRET` | Vercel, Supabase edge fn | OAuth client |
+| `GOOGLE_REDIRECT_URI` | Vercel | OAuth callback URL |
+| `GOOGLE_CALENDAR_MCP_API_KEY` | User's local env | Per-user API key |
+| `SUPABASE_URL` | Vercel | Token storage |
+| `SUPABASE_SERVICE_ROLE_KEY` | Vercel | Token storage admin |
+| `ENCRYPTION_KEY` | Vercel, Supabase edge fn | AES-256 token encryption |
+| `STRIPE_SECRET_KEY` | Vercel | Payment processing |
+| `STRIPE_PRICE_ID` | Vercel | Product price |
+| `RESEND_API_KEY` | Vercel | Transactional email |
