@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Docs: Setup, Tools & Permissions",
   description:
-    "Setup guides, supported accounts, permissions, and enterprise compatibility for Outlook MCP.",
+    "Setup guides, supported accounts, permissions, and tools for Google Calendar MCP.",
 };
 
 export default function DocsPage() {
@@ -11,7 +11,7 @@ export default function DocsPage() {
     <main className="max-w-3xl mx-auto px-6 py-20">
       <h1 className="text-3xl font-bold mb-2">Documentation</h1>
       <p className="text-zinc-400 mb-12">
-        Everything you need to set up Outlook MCP and let your AI agent control Microsoft Outlook.
+        Everything you need to set up Google Calendar MCP and let your AI agent manage your calendar.
         Works with Claude Code, Cursor, Windsurf, Kiro, and any MCP-compatible client.
       </p>
 
@@ -35,47 +35,22 @@ export default function DocsPage() {
             </thead>
             <tbody className="divide-y divide-zinc-800">
               {[
-                ["list_emails", "List emails from a mailbox folder"],
-                ["read_email", "Read the full content of a specific email"],
-                ["send_email", "Send a new email"],
-                ["reply_to_email", "Reply to an existing email"],
-                ["forward_email", "Forward an email to other recipients"],
-                ["search_emails", "Search emails by keyword"],
-                ["list_mail_folders", "List all mail folders"],
-                ["move_email", "Move an email to a different folder"],
-                ["delete_email", "Delete an email"],
-                ["mark_email_read", "Mark an email as read or unread"],
-                ["flag_email", "Flag or unflag an email"],
-                [
-                  "list_calendar_events",
-                  "List upcoming calendar events",
-                ],
-                [
-                  "create_calendar_event",
-                  "Create a new event (auto-detects timezone)",
-                ],
-                [
-                  "update_calendar_event",
-                  "Update an existing calendar event",
-                ],
-                ["delete_calendar_event", "Delete a calendar event"],
-                [
-                  "search_calendar_events",
-                  "Search events by subject text",
-                ],
-                [
-                  "get_free_busy",
-                  "Check availability for attendees",
-                ],
-                ["list_calendars", "List all calendars in the account"],
-                ["list_contacts", "List contacts from your address book"],
-                ["get_contact", "Get details of a specific contact"],
-                ["create_contact", "Create a new contact"],
-                ["update_contact", "Update an existing contact"],
-                ["delete_contact", "Delete a contact"],
-                ["list_accounts", "List connected Outlook accounts"],
+                ["list_events", "List upcoming calendar events within a time range"],
+                ["get_event", "Get full details of a specific event"],
+                ["create_event", "Create a new event with attendees, Meet link, recurrence"],
+                ["update_event", "Update an existing calendar event"],
+                ["delete_event", "Delete a calendar event"],
+                ["search_events", "Search events by text query"],
+                ["quick_add_event", "Create an event using natural language"],
+                ["respond_to_event", "RSVP to an event (accept, tentative, decline)"],
+                ["get_free_busy", "Check free/busy status for people"],
+                ["list_calendars", "List all accessible calendars"],
+                ["move_event", "Move an event to a different calendar"],
+                ["get_colors", "Get available event color options"],
+                ["list_accounts", "List connected Google accounts"],
                 ["switch_account", "Switch active account"],
-                ["add_account", "Connect another Outlook account"],
+                ["add_account", "Connect another Google account"],
+                ["remove_account", "Disconnect an account"],
               ].map(([tool, desc]) => (
                 <tr key={tool} className="text-zinc-300">
                   <td className="px-4 py-2 font-mono text-xs text-blue-400">
@@ -113,24 +88,24 @@ export default function DocsPage() {
             <tbody className="divide-y divide-zinc-800 text-zinc-400">
               <tr>
                 <td className="px-4 py-2">
-                  Personal Microsoft (outlook.com, hotmail.com, live.com)
+                  Personal Google accounts (gmail.com)
                 </td>
                 <td className="px-4 py-2 text-emerald-400">
                   Fully supported
                 </td>
               </tr>
               <tr>
-                <td className="px-4 py-2">Microsoft 365 / Work accounts</td>
-                <td className="px-4 py-2 text-yellow-400">
-                  Supported (may require admin consent)
+                <td className="px-4 py-2">Google Workspace accounts</td>
+                <td className="px-4 py-2 text-emerald-400">
+                  Fully supported
                 </td>
               </tr>
               <tr>
                 <td className="px-4 py-2">
-                  Gmail linked to Microsoft (personal)
+                  Google Workspace with restricted API access
                 </td>
-                <td className="px-4 py-2 text-emerald-400">
-                  Fully supported
+                <td className="px-4 py-2 text-yellow-400">
+                  May require admin approval
                 </td>
               </tr>
             </tbody>
@@ -138,40 +113,28 @@ export default function DocsPage() {
         </div>
 
         <h3 className="text-base font-medium mb-3 text-zinc-200">
-          Enterprise / organizational accounts
+          Google Workspace organizations
         </h3>
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 mb-8 text-sm text-zinc-400 space-y-3">
           <p>
-            Works with Microsoft 365 enterprise accounts. Your organization's IT
-            admin may need to grant consent before you can use the app. This
-            depends on your tenant's consent policy:
+            Works with Google Workspace accounts. Some organizations restrict
+            third-party app access:
           </p>
           <ul className="list-disc pl-5 space-y-1">
             <li>
               <span className="text-zinc-200">
-                If your org allows user consent:
+                If your org allows third-party apps:
               </span>{" "}
               You can connect immediately.
             </li>
             <li>
               <span className="text-zinc-200">
-                If your org requires admin consent:
+                If your org restricts OAuth apps:
               </span>{" "}
-              Ask your IT admin to approve the app for your tenant, or grant
-              consent for your account specifically.
+              Ask your admin to allowlist the app&apos;s OAuth client ID.
             </li>
           </ul>
         </div>
-
-        <h3 className="text-base font-medium mb-3 text-zinc-200">
-          Not supported
-        </h3>
-        <ul className="list-disc pl-5 text-sm text-zinc-400 space-y-1 mb-8">
-          <li>On-premises Exchange Server (no Microsoft Graph access)</li>
-          <li>US Government Cloud (GCC, GCC High, DoD)</li>
-          <li>Shared mailboxes (require interactive login)</li>
-          <li>Accounts without Exchange Online license</li>
-        </ul>
       </section>
 
       {/* Permissions */}
@@ -180,7 +143,7 @@ export default function DocsPage() {
           Permissions
         </h2>
         <p className="text-sm text-zinc-400 mb-4">
-          The app requests these Microsoft Graph permissions (all delegated, meaning
+          The app requests these Google OAuth scopes (all delegated, meaning
           it can only access data on behalf of the signed-in user):
         </p>
         <div className="overflow-x-auto rounded-lg border border-zinc-800">
@@ -188,7 +151,7 @@ export default function DocsPage() {
             <thead className="bg-zinc-900 text-left">
               <tr>
                 <th className="px-4 py-2 font-medium text-zinc-300">
-                  Permission
+                  Scope
                 </th>
                 <th className="px-4 py-2 font-medium text-zinc-300">
                   Purpose
@@ -197,16 +160,10 @@ export default function DocsPage() {
             </thead>
             <tbody className="divide-y divide-zinc-800 text-zinc-400">
               {[
-                ["Mail.Read", "Read emails"],
-                ["Mail.Send", "Send emails"],
-                ["Mail.ReadWrite", "Move, delete, flag emails"],
-                ["Calendars.ReadWrite", "View and create calendar events"],
-                ["Contacts.ReadWrite", "View and manage contacts"],
-                [
-                  "MailboxSettings.ReadWrite",
-                  "Read timezone and auto-reply settings",
-                ],
-                ["User.Read", "Read your profile (name, email)"],
+                ["calendar", "Full read/write access to calendars and events"],
+                ["calendar.events", "Create, update, delete events"],
+                ["userinfo.email", "Read your email address for account identification"],
+                ["userinfo.profile", "Read your display name"],
               ].map(([perm, purpose]) => (
                 <tr key={perm}>
                   <td className="px-4 py-2 font-mono text-xs text-blue-400">
@@ -246,7 +203,7 @@ export default function DocsPage() {
           </li>
           <li>
             <span className="text-zinc-200">No data storage</span>{" "}
-            (emails and calendar data pass through, never persisted on our servers)
+            (calendar data passes through, never persisted on our servers)
           </li>
         </ul>
       </section>
@@ -257,9 +214,9 @@ export default function DocsPage() {
           Multi-account support
         </h2>
         <p className="text-sm text-zinc-400">
-          Connect unlimited Microsoft/Outlook accounts with a single purchase.
+          Connect unlimited Google accounts with a single purchase.
           Use the <code className="text-blue-400 text-xs">switch_account</code>{" "}
-          tool to change which account is active. All email and calendar tools
+          tool to change which account is active. All calendar tools
           operate on the currently selected account.
         </p>
       </section>

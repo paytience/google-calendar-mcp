@@ -1,6 +1,6 @@
 import { TokenSet } from "./auth.js";
 
-const EDGE_FUNCTION_URL = "https://baushlqryuckehdslhik.supabase.co/functions/v1/mcp-tokens";
+const EDGE_FUNCTION_URL = process.env.GOOGLE_CALENDAR_MCP_TOKEN_URL || "https://baushlqryuckehdslhik.supabase.co/functions/v1/mcp-tokens";
 
 export interface RemoteAccount {
   email: string;

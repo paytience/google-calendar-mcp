@@ -5,56 +5,55 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mcpoutlook.com"),
+  metadataBase: new URL("https://mcpcalendar.com"),
   title: {
-    default: "Outlook MCP: Connect Microsoft Outlook to AI Assistants",
-    template: "%s | Outlook MCP",
+    default: "Google Calendar MCP: Connect Google Calendar to AI Assistants",
+    template: "%s | Google Calendar MCP",
   },
   description:
-    "Let your AI agent control Outlook. Give Claude, Cursor, Kiro, and Windsurf direct access to your Outlook email and calendar via MCP. Read, send, search, and manage messages without leaving your AI workflow.",
+    "Let your AI agent control Google Calendar. Give Claude, Cursor, Kiro, and Windsurf direct access to your calendar via MCP. Create events, check availability, and manage schedules without leaving your AI workflow.",
   keywords: [
-    "outlook mcp",
+    "google calendar mcp",
     "mcp server",
-    "outlook ai",
-    "ai agent outlook",
-    "ai agent control outlook",
-    "claude outlook",
-    "cursor outlook",
-    "windsurf outlook",
-    "kiro outlook",
-    "microsoft outlook mcp",
+    "google calendar ai",
+    "ai agent calendar",
+    "ai agent scheduling",
+    "claude calendar",
+    "cursor calendar",
+    "windsurf calendar",
+    "kiro calendar",
+    "google calendar mcp server",
     "model context protocol",
-    "outlook email ai",
-    "outlook calendar ai",
-    "mcp email",
-    "ai email assistant",
-    "claude code email",
-    "outlook integration",
-    "microsoft graph mcp",
-    "ai coding assistant email",
-    "outlook automation ai",
+    "google calendar api",
+    "ai scheduling assistant",
+    "claude code calendar",
+    "google workspace mcp",
+    "ai calendar integration",
+    "google meet mcp",
+    "ai coding assistant calendar",
+    "calendar automation ai",
   ],
   openGraph: {
-    title: "Outlook MCP: Connect Microsoft Outlook to AI Assistants",
+    title: "Google Calendar MCP: Connect Google Calendar to AI Assistants",
     description:
-      "Give Claude, Cursor, and Windsurf direct access to your Outlook email and calendar. Read, send, and manage messages without leaving your AI workflow.",
-    url: "https://mcpoutlook.com",
-    siteName: "Outlook MCP",
+      "Give Claude, Cursor, and Windsurf direct access to your Google Calendar. Create events, check availability, and manage schedules without leaving your AI workflow.",
+    url: "https://mcpcalendar.com",
+    siteName: "Google Calendar MCP",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Outlook MCP: Connect Microsoft Outlook to AI Assistants",
+    title: "Google Calendar MCP: Connect Google Calendar to AI Assistants",
     description:
-      "Give Claude, Cursor, and Windsurf direct access to your Outlook email and calendar via MCP.",
+      "Give Claude, Cursor, and Windsurf direct access to your Google Calendar via MCP.",
   },
   robots: {
     index: true,
     follow: true,
   },
   alternates: {
-    canonical: "https://mcpoutlook.com",
+    canonical: "https://mcpcalendar.com",
   },
 };
 
@@ -65,9 +64,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-3.5 bg-zinc-950/80 backdrop-blur-lg border-b border-zinc-800/40">
           <Link href="/" className="flex items-center gap-2 text-sm font-semibold">
             <svg className="w-4.5 h-4.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
             </svg>
-            Outlook MCP
+            Google Calendar MCP
           </Link>
           <nav className="flex items-center gap-5">
             <Link href="/docs" className="text-sm text-zinc-400 hover:text-white transition-colors">
@@ -88,9 +87,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start justify-between gap-8">
             <div className="text-center md:text-left">
               <Link href="/" className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors">
-                Outlook MCP
+                Google Calendar MCP
               </Link>
-              <p className="text-xs text-zinc-600 mt-1.5">MCP server for Microsoft Outlook</p>
+              <p className="text-xs text-zinc-600 mt-1.5">MCP server for Google Calendar</p>
             </div>
             <div className="flex flex-wrap justify-center gap-8 text-xs text-zinc-500">
               <div className="flex flex-col gap-2">
@@ -100,7 +99,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Support</span>
-                <a href="mailto:hellomcpoutlook@gmail.com" className="hover:text-zinc-300 transition-colors">Email Support</a>
+                <a href="mailto:support@mcpcalendar.com" className="hover:text-zinc-300 transition-colors">Email Support</a>
               </div>
             </div>
           </div>

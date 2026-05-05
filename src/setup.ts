@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { addAccount, getAccounts } from "./config.js";
 import { fetchTokens, refreshTokensRemote } from "./token-store.js";
 
-const AUTH_BASE_URL = process.env.OUTLOOK_MCP_AUTH_URL || "https://mcpoutlook.com";
+const AUTH_BASE_URL = process.env.GOOGLE_CALENDAR_MCP_AUTH_URL || "https://mcpcalendar.com";
 const POLL_INTERVAL = 2000;
 const POLL_TIMEOUT = 600000; // 10 minutes
 
@@ -21,7 +21,7 @@ export interface SetupDeps {
 }
 
 const defaultDeps: SetupDeps = {
-  getApiKey: () => process.env.OUTLOOK_MCP_API_KEY,
+  getApiKey: () => process.env.GOOGLE_CALENDAR_MCP_API_KEY,
   fetchTokens,
   refreshTokens: refreshTokensRemote,
   openUrl: async (url: string) => {
@@ -45,21 +45,19 @@ export async function setupAccount(deps: SetupDeps = defaultDeps): Promise<{ ema
       if (remote.tokens.expiresAt > deps.now()) {
         return { email: remote.email, displayName: remote.displayName };
       }
-      // Tokens expired, try refreshing
       await deps.refreshTokens(apiKey);
       const refreshed = await deps.fetchTokens(apiKey);
       return { email: refreshed.email, displayName: refreshed.displayName };
     } catch {
-      // Tokens revoked/invalid, need full re-authentication via OAuth
       return await reauthAccount(apiKey, deps);
     }
   }
 
-  // New user: go through pricing flow
+  // New user: go through pricing/setup flow
   const sessionId = randomUUID();
   const pricingUrl = `${deps.authBaseUrl}/pricing?session_id=${sessionId}`;
 
-  console.error(`Opening browser to set up Outlook MCP...`);
+  console.error(`Opening browser to set up Google Calendar MCP...`);
   console.error(`If it doesn't open, visit: ${pricingUrl}`);
 
   await deps.openUrl(pricingUrl);
@@ -79,12 +77,11 @@ export async function setupAccount(deps: SetupDeps = defaultDeps): Promise<{ ema
 export async function reauthAccount(apiKey: string, deps: SetupDeps = defaultDeps): Promise<{ email: string; displayName: string }> {
   const loginUrl = `${deps.authBaseUrl}/api/auth/reauth?api_key=${encodeURIComponent(apiKey)}`;
 
-  console.error(`Re-authenticating your Microsoft account...`);
+  console.error(`Re-authenticating your Google account...`);
   console.error(`If the browser doesn't open, visit: ${loginUrl}`);
 
   await deps.openUrl(loginUrl);
 
-  // Poll with a short timeout (80s) to stay within MCP tool call limits
   const deadline = deps.now() + Math.min(deps.pollTimeout, 80000);
   while (deps.now() < deadline) {
     await deps.sleep(deps.pollInterval);
@@ -99,18 +96,13 @@ export async function reauthAccount(apiKey: string, deps: SetupDeps = defaultDep
     }
   }
 
-  // Instead of a generic timeout error, give actionable instructions
   throw new Error(
-    `Authentication is pending. A browser window was opened for Microsoft sign-in. ` +
+    `Authentication is pending. A browser window was opened for Google sign-in. ` +
     `After completing sign-in in the browser, call add_account again to verify the connection. ` +
     `If no browser opened, visit: ${loginUrl}`
   );
 }
 
-/**
- * Verify that tokens are valid after a reauth flow.
- * Returns quickly without opening a browser.
- */
 export async function verifyAccount(deps: SetupDeps = defaultDeps): Promise<{ email: string; displayName: string } | null> {
   const apiKey = deps.getApiKey();
   if (!apiKey) return null;

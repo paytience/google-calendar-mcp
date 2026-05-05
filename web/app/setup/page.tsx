@@ -126,7 +126,7 @@ function SetupContent() {
   return (
     <div className="w-full max-w-lg">
       <h1 className="text-3xl font-bold text-center mb-2">Setup</h1>
-      <p className="text-zinc-400 text-center mb-10">Complete these steps to connect Outlook to your AI tools.</p>
+      <p className="text-zinc-400 text-center mb-10">Complete these steps to connect Google Calendar to your AI tools.</p>
 
       <div className="space-y-4 mb-10">
         {/* Step 1: Payment */}
@@ -142,7 +142,7 @@ function SetupContent() {
           </div>
         </div>
 
-        {/* Step 2: Connect Microsoft */}
+        {/* Step 2: Connect Google */}
         <div className="flex items-start gap-4 p-5 rounded-xl bg-zinc-900 border border-zinc-800">
           {isCompleted ? (
             <div className="w-8 h-8 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center shrink-0">
@@ -156,7 +156,7 @@ function SetupContent() {
             </div>
           )}
           <div className="flex-1">
-            <h3 className="font-semibold">Connect Microsoft Account</h3>
+            <h3 className="font-semibold">Connect Google Account</h3>
             {isCompleted ? (
               <p className="text-sm text-zinc-500">{email || "Connected"}</p>
             ) : isPaid ? (
@@ -165,7 +165,7 @@ function SetupContent() {
                   href={`/api/auth/login?session_id=${sessionId}`}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-200 transition-colors text-sm"
                 >
-                  Sign in with Microsoft
+                  Sign in with Google
                 </a>
               </div>
             ) : (

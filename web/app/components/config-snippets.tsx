@@ -8,22 +8,22 @@ const configs = [
     file: "~/.claude.json",
     npx: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp@latest"],
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }
 }`,
     docker: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "args": ["run", "-i", "--rm", "-e", "GOOGLE_CALENDAR_MCP_API_KEY", "ghcr.io/paytience/google-calendar-mcp:latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }
@@ -34,22 +34,22 @@ const configs = [
     file: ".cursor/mcp.json",
     npx: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp@latest"],
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }
 }`,
     docker: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "args": ["run", "-i", "--rm", "-e", "GOOGLE_CALENDAR_MCP_API_KEY", "ghcr.io/paytience/google-calendar-mcp:latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }
@@ -60,22 +60,22 @@ const configs = [
     file: "~/.codeium/windsurf/mcp_config.json",
     npx: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp@latest"],
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }
 }`,
     docker: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "args": ["run", "-i", "--rm", "-e", "GOOGLE_CALENDAR_MCP_API_KEY", "ghcr.io/paytience/google-calendar-mcp:latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }
@@ -86,22 +86,22 @@ const configs = [
     file: ".kiro/settings/mcp.json",
     npx: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp@latest"],
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }
 }`,
     docker: `{
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "-e", "OUTLOOK_MCP_API_KEY", "ghcr.io/paytience/outlook-mcp:latest"],
+      "args": ["run", "-i", "--rm", "-e", "GOOGLE_CALENDAR_MCP_API_KEY", "ghcr.io/paytience/google-calendar-mcp:latest"],
       "env": {
-        "OUTLOOK_MCP_API_KEY": "<your-api-key>"
+        "GOOGLE_CALENDAR_MCP_API_KEY": "<your-api-key>"
       }
     }
   }

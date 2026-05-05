@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
-import { getAuthorizationUrl } from "@/lib/microsoft-oauth";
+import { getAuthorizationUrl } from "@/lib/google-oauth";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

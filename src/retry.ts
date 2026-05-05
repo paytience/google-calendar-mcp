@@ -13,12 +13,15 @@ export async function withRetry<T>(
     } catch (error) {
       lastError = error as Error;
       const message = lastError.message || "";
+      const statusCode = (error as any).statusCode || (error as any).code || 0;
 
       // Don't retry auth errors
-      if (message.includes("401") || message.includes("403")) throw lastError;
+      if (statusCode === 401 || statusCode === 403 || message.includes("401") || message.includes("403")) throw lastError;
 
-      // Retry on throttling or server errors
-      if (attempt < maxRetries && (message.includes("429") || message.includes("5"))) {
+      // Retry on throttling (429) or server errors (5xx)
+      const isThrottle = statusCode === 429 || message.includes("429") || message.includes("Rate Limit");
+      const isServerError = statusCode >= 500 || /\b5\d{2}\b/.test(message);
+      if (attempt < maxRetries && (isThrottle || isServerError)) {
         const delay = initialDelay * Math.pow(2, attempt);
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;

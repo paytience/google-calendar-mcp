@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "node:crypto";
 import { getSupabase } from "@/lib/supabase";
-import { exchangeCodeForTokens, fetchUserProfile } from "@/lib/microsoft-oauth";
+import { exchangeCodeForTokens, fetchUserProfile } from "@/lib/google-oauth";
 import { encryptTokens } from "@/lib/encryption";
 import { sendApiKeyEmail } from "@/lib/email";
 
@@ -137,7 +137,7 @@ export async function GET(request: Request) {
   if (existingKey) {
     apiKey = "";
   } else {
-    apiKey = `omk_${randomBytes(32).toString("base64url")}`;
+    apiKey = `gcmk_${randomBytes(32).toString("base64url")}`;
     const apiKeyHash = createHash("sha256").update(apiKey).digest("hex");
 
     await supabase.from("mcp_api_keys").insert({

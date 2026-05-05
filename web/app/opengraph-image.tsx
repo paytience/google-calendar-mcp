@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Outlook MCP: Connect Microsoft Outlook to AI Assistants";
+export const alt = "Google Calendar MCP: Connect Google Calendar to AI Assistants";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -49,7 +49,7 @@ export default function Image() {
           }}
         >
           <span style={{ fontSize: "14px", color: "#60a5fa" }}>
-            MCP Server for Outlook
+            MCP Server for Google Calendar
           </span>
         </div>
 
@@ -65,7 +65,7 @@ export default function Image() {
             display: "flex",
           }}
         >
-          Outlook, inside your AI tools.
+          Google Calendar, inside your AI tools.
         </div>
 
         {/* Subtitle */}
@@ -78,7 +78,7 @@ export default function Image() {
             display: "flex",
           }}
         >
-          Email and calendar for Claude Code, Cursor, and Windsurf
+          Calendar management for Claude Code, Cursor, Windsurf, and Kiro
         </div>
 
         {/* Footer */}
@@ -93,11 +93,11 @@ export default function Image() {
             color: "#71717a",
           }}
         >
-          <span>mcpoutlook.com</span>
+          <span>mcpcalendar.com</span>
           <span style={{ color: "#3f3f46" }}>|</span>
           <span>$5 one-time</span>
           <span style={{ color: "#3f3f46" }}>|</span>
-          <span>26 tools</span>
+          <span>14 tools</span>
         </div>
       </div>
     ),

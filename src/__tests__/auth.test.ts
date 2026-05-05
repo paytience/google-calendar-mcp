@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-vi.mock("isomorphic-fetch", () => ({}));
-
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
 
@@ -10,7 +8,6 @@ import { refreshAccessToken } from "../auth.js";
 const oauthConfig = {
   clientId: "client-id",
   clientSecret: "client-secret",
-  tenantId: "tenant-id",
   redirectUri: "http://localhost/callback",
 };
 
@@ -43,7 +40,7 @@ describe("auth", () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `https://login.microsoftonline.com/tenant-id/oauth2/v2.0/token`,
+        "https://oauth2.googleapis.com/token",
         expect.objectContaining({
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },

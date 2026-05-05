@@ -12,7 +12,7 @@ export interface AccountConfig {
   apiKey: string;
 }
 
-const CONFIG_DIR = path.join(os.homedir(), ".outlook-mcp");
+const CONFIG_DIR = path.join(os.homedir(), ".google-calendar-mcp");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 
 export function getConfigPath(): string {

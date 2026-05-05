@@ -11,7 +11,7 @@ vi.mock("node:os", () => ({
 
 import { loadConfig, saveConfig, addAccount, removeAccount, getAccounts, getConfigPath } from "../config.js";
 
-const CONFIG_DIR = path.join("/home/testuser", ".outlook-mcp");
+const CONFIG_DIR = path.join("/home/testuser", ".google-calendar-mcp");
 const CONFIG_FILE = path.join(CONFIG_DIR, "config.json");
 
 describe("config", () => {

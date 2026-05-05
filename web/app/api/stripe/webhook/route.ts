@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 import { sendSetupLinkEmail } from "@/lib/email";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mcpoutlook.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mcpcalendar.com";
 
 export async function POST(request: Request) {
   const body = await request.text();

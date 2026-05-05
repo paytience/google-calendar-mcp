@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/", "/setup"],
     },
-    sitemap: "https://mcpoutlook.com/sitemap.xml",
+    sitemap: "https://mcpcalendar.com/sitemap.xml",
   };
 }

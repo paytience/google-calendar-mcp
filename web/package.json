@@ -1,5 +1,5 @@
 {
-  "name": "outlook-mcp-web",
+  "name": "google-calendar-mcp-web",
   "private": true,
   "scripts": {
     "dev": "next dev",

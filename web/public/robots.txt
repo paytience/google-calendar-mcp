@@ -6,4 +6,4 @@ Disallow: /setup
 Disallow: /success
 Disallow: /api/
 
-Sitemap: https://mcpoutlook.com/sitemap.xml
+Sitemap: https://mcpcalendar.com/sitemap.xml

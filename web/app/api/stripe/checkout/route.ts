@@ -4,7 +4,7 @@ import { getSupabase } from "@/lib/supabase";
 export async function POST(request: Request) {
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
   const PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1TRXnEIvnPDvHV9e0w0KpIDI";
-  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "mcpoutlook.com";
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "mcpcalendar.com";
   const protocol = request.headers.get("x-forwarded-proto") || "https";
   const origin = `${protocol}://${host}`;
 

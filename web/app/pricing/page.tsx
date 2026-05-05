@@ -45,7 +45,7 @@ function PricingContent() {
         )}
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Get Outlook MCP</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Get Google Calendar MCP</h1>
           <p className="text-zinc-400 text-lg">One-time payment. Lifetime access. Unlimited accounts.</p>
         </div>
 
@@ -65,10 +65,10 @@ function PricingContent() {
 
           <ul className="space-y-3.5 mb-9">
             {[
-              "Read, send, search, forward, and organize emails",
-              "Create meetings, check availability, manage calendars",
-              "Manage contacts and address book",
-              "Connect unlimited Outlook accounts",
+              "Create, update, delete, and search calendar events",
+              "Check free/busy status and coordinate across attendees",
+              "Auto-create Google Meet links for video meetings",
+              "Connect unlimited Google accounts",
               "Works with Claude Code, Cursor, Windsurf, Kiro",
               "Lifetime updates included",
             ].map((item) => (
@@ -132,7 +132,7 @@ function PricingContent() {
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            Works with enterprise M365
+            Personal & Workspace accounts
           </span>
         </div>
 
@@ -144,65 +144,55 @@ function PricingContent() {
 
         {/* Tools list */}
         <div className="mb-14">
-          <h2 className="text-xl font-semibold mb-6 text-center">26 tools included</h2>
+          <h2 className="text-xl font-semibold mb-6 text-center">14 tools included</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Email */}
+            {/* Events */}
             <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
               <div className="flex items-center gap-2 mb-3">
                 <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <h3 className="font-medium text-zinc-200 text-sm">Email</h3>
-              </div>
-              <ul className="space-y-1.5 text-xs text-zinc-400">
-                <li>List emails</li>
-                <li>Read email</li>
-                <li>Send email</li>
-                <li>Reply to email</li>
-                <li>Forward email</li>
-                <li>Search emails</li>
-                <li>Move email</li>
-                <li>Delete email</li>
-                <li>Mark read/unread</li>
-                <li>Flag/unflag</li>
-                <li>List folders</li>
-              </ul>
-            </div>
-            {/* Calendar */}
-            <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
-              <div className="flex items-center gap-2 mb-3">
-                <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <h3 className="font-medium text-zinc-200 text-sm">Calendar</h3>
+                <h3 className="font-medium text-zinc-200 text-sm">Events</h3>
               </div>
               <ul className="space-y-1.5 text-xs text-zinc-400">
                 <li>List events</li>
+                <li>Get event</li>
                 <li>Create event</li>
                 <li>Update event</li>
                 <li>Delete event</li>
                 <li>Search events</li>
-                <li>Check availability</li>
-                <li>List calendars</li>
+                <li>Quick add event</li>
+                <li>Move event</li>
               </ul>
             </div>
-            {/* Contacts & Accounts */}
+            {/* Scheduling */}
+            <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="font-medium text-zinc-200 text-sm">Scheduling</h3>
+              </div>
+              <ul className="space-y-1.5 text-xs text-zinc-400">
+                <li>Check free/busy</li>
+                <li>Respond to event</li>
+                <li>List calendars</li>
+                <li>Get colors</li>
+              </ul>
+            </div>
+            {/* Accounts */}
             <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
               <div className="flex items-center gap-2 mb-3">
                 <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <h3 className="font-medium text-zinc-200 text-sm">Contacts & Accounts</h3>
+                <h3 className="font-medium text-zinc-200 text-sm">Accounts</h3>
               </div>
               <ul className="space-y-1.5 text-xs text-zinc-400">
-                <li>List contacts</li>
-                <li>Get contact</li>
-                <li>Create contact</li>
-                <li>Update contact</li>
-                <li>Delete contact</li>
                 <li>List accounts</li>
                 <li>Switch account</li>
                 <li>Add account</li>
+                <li>Remove account</li>
               </ul>
             </div>
           </div>
@@ -215,7 +205,7 @@ function PricingContent() {
             disabled={loading}
             className="py-3.5 px-8 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-white/10 hover:shadow-white/20"
           >
-            {loading ? "Redirecting..." : "Get Outlook MCP for $5"}
+            {loading ? "Redirecting..." : "Get Google Calendar MCP for $5"}
           </button>
           <p className="text-xs text-zinc-500 mt-3">One-time payment. Full refund anytime.</p>
         </div>
