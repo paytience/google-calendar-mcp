@@ -25,7 +25,7 @@ describe("setupAccount", () => {
 
   it("returns immediately when tokens are valid", async () => {
     const deps = createMockDeps({
-      getApiKey: () => "omk_test123",
+      getApiKey: () => "gcmk_test123",
       fetchTokens: vi.fn().mockResolvedValue({
         email: "user@example.com",
         displayName: "Test User",
@@ -42,7 +42,7 @@ describe("setupAccount", () => {
 
   it("refreshes expired tokens and returns", async () => {
     const deps = createMockDeps({
-      getApiKey: () => "omk_test123",
+      getApiKey: () => "gcmk_test123",
       fetchTokens: vi.fn()
         .mockResolvedValueOnce({
           email: "user@example.com",
@@ -64,14 +64,14 @@ describe("setupAccount", () => {
     const result = await setupAccount(deps);
 
     expect(result).toEqual({ email: "user@example.com", displayName: "Test User" });
-    expect(deps.refreshTokens).toHaveBeenCalledWith("omk_test123");
+    expect(deps.refreshTokens).toHaveBeenCalledWith("gcmk_test123");
     expect(deps.openUrl).not.toHaveBeenCalled();
   });
 
   it("falls through to reauth when refresh fails", async () => {
     let callCount = 0;
     const deps = createMockDeps({
-      getApiKey: () => "omk_test123",
+      getApiKey: () => "gcmk_test123",
       fetchTokens: vi.fn().mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
@@ -96,14 +96,14 @@ describe("setupAccount", () => {
 
     expect(result).toEqual({ email: "user@example.com", displayName: "Test User" });
     expect(deps.openUrl).toHaveBeenCalledWith(
-      "https://test.example.com/api/auth/reauth?api_key=omk_test123"
+      "https://test.example.com/api/auth/reauth?api_key=gcmk_test123"
     );
   });
 
   it("opens pricing page for new users without API key", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ ready: true, user_email: "new@example.com", display_name: "New User", api_key: "omk_new" }),
+      json: () => Promise.resolve({ ready: true, user_email: "new@example.com", display_name: "New User", api_key: "gcmk_new" }),
     });
     vi.stubGlobal("fetch", mockFetch);
 
@@ -120,7 +120,7 @@ describe("setupAccount", () => {
     expect(deps.addAccount).toHaveBeenCalledWith({
       email: "new@example.com",
       displayName: "New User",
-      apiKey: "omk_new",
+      apiKey: "gcmk_new",
     });
 
     vi.unstubAllGlobals();
@@ -154,11 +154,11 @@ describe("reauthAccount", () => {
       }),
     });
 
-    const result = await reauthAccount("omk_test123", deps);
+    const result = await reauthAccount("gcmk_test123", deps);
 
     expect(result).toEqual({ email: "user@example.com", displayName: "Test User" });
     expect(deps.openUrl).toHaveBeenCalledWith(
-      "https://test.example.com/api/auth/reauth?api_key=omk_test123"
+      "https://test.example.com/api/auth/reauth?api_key=gcmk_test123"
     );
     expect(deps.sleep).toHaveBeenCalledTimes(3);
   });
@@ -178,7 +178,7 @@ describe("reauthAccount", () => {
       pollTimeout: 5000,
     });
 
-    await expect(reauthAccount("omk_test123", deps)).rejects.toThrow(
+    await expect(reauthAccount("gcmk_test123", deps)).rejects.toThrow(
       "Authentication is pending"
     );
   });
@@ -199,7 +199,7 @@ describe("reauthAccount", () => {
       }),
     });
 
-    const result = await reauthAccount("omk_test123", deps);
+    const result = await reauthAccount("gcmk_test123", deps);
 
     expect(result).toEqual({ email: "user@example.com", displayName: "Test User" });
     expect(deps.sleep).toHaveBeenCalledTimes(3);
@@ -213,7 +213,7 @@ describe("verifyAccount", () => {
 
   it("returns account when tokens are valid", async () => {
     const deps = createMockDeps({
-      getApiKey: () => "omk_test123",
+      getApiKey: () => "gcmk_test123",
       fetchTokens: vi.fn().mockResolvedValue({
         email: "user@example.com",
         displayName: "Test User",
@@ -235,7 +235,7 @@ describe("verifyAccount", () => {
 
   it("returns null when tokens are invalid", async () => {
     const deps = createMockDeps({
-      getApiKey: () => "omk_test123",
+      getApiKey: () => "gcmk_test123",
       fetchTokens: vi.fn().mockRejectedValue(new Error("invalid")),
       refreshTokens: vi.fn().mockRejectedValue(new Error("invalid")),
     });
