@@ -1,14 +1,14 @@
-# Outlook MCP
+# Google Calendar MCP
 
-Connect Microsoft Outlook to AI assistants via the Model Context Protocol. Read, send, and search emails. View and create calendar events. Works with Claude Code, Cursor, Windsurf, and any MCP-compatible client.
+Connect Google Calendar to AI assistants via the Model Context Protocol. View, create, update, and search calendar events. Check availability and manage multiple calendars. Works with Claude Code, Cursor, Windsurf, Kiro, and any MCP-compatible client.
 
 ## Quick Start
 
 ```bash
-npx @paytience/outlook-mcp
+npx @paytience/google-calendar-mcp
 ```
 
-On first run, your browser opens to complete payment ($5 one-time) and connect your Microsoft account. After that, the MCP server starts automatically.
+On first run, your browser opens to complete payment ($5 one-time) and connect your Google account. After that, the MCP server starts automatically.
 
 ## Configuration
 
@@ -19,9 +19,9 @@ Add to your MCP client settings:
 ```json
 {
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp@latest"]
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"]
     }
   }
 }
@@ -34,9 +34,22 @@ Add to `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "outlook": {
+    "google-calendar": {
       "command": "npx",
-      "args": ["-y", "@paytience/outlook-mcp@latest"]
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"]
+    }
+  }
+}
+```
+
+### Docker
+
+```json
+{
+  "mcpServers": {
+    "google-calendar": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-e", "GOOGLE_CALENDAR_MCP_API_KEY", "ghcr.io/paytience/google-calendar-mcp:latest"]
     }
   }
 }
@@ -46,36 +59,22 @@ Add to `.cursor/mcp.json`:
 
 | Tool | Description |
 |------|-------------|
-| `list_emails` | List emails from a mailbox folder |
-| `read_email` | Read the full content of a specific email |
-| `send_email` | Send a new email |
-| `reply_to_email` | Reply to an existing email |
-| `forward_email` | Forward an email to other recipients |
-| `search_emails` | Search emails by keyword |
-| `list_mail_folders` | List all mail folders |
-| `move_email` | Move an email to a different folder |
-| `delete_email` | Delete an email |
-| `mark_email_read` | Mark an email as read or unread |
-| `flag_email` | Flag or unflag an email |
-| `list_calendar_events` | List upcoming calendar events |
-| `create_calendar_event` | Create a new calendar event (auto-detects timezone) |
-| `update_calendar_event` | Update an existing calendar event |
-| `delete_calendar_event` | Delete a calendar event |
-| `search_calendar_events` | Search events by subject text |
+| `list_events` | List upcoming calendar events |
+| `get_event` | Get details of a specific event |
+| `create_event` | Create a new calendar event |
+| `update_event` | Update an existing calendar event |
+| `delete_event` | Delete a calendar event |
+| `search_events` | Search events by keyword |
 | `get_free_busy` | Check availability for attendees |
 | `list_calendars` | List all calendars in the account |
-| `list_contacts` | List contacts from your address book |
-| `get_contact` | Get details of a specific contact |
-| `create_contact` | Create a new contact |
-| `update_contact` | Update an existing contact |
-| `delete_contact` | Delete a contact |
-| `list_accounts` | List connected Outlook accounts |
+| `list_accounts` | List connected Google accounts |
 | `switch_account` | Switch active account |
-| `add_account` | Connect another Outlook account |
+| `add_account` | Connect another Google account |
+| `remove_account` | Remove a connected account |
 
 ## Multi-Account Support
 
-Connect unlimited Microsoft/Outlook accounts with a single purchase. Use `switch_account` to change which account is active. All email and calendar tools operate on the currently selected account.
+Connect unlimited Google accounts with a single purchase. Use `switch_account` to change which account is active. All calendar tools operate on the currently selected account.
 
 ## Compatibility
 
@@ -83,35 +82,25 @@ Connect unlimited Microsoft/Outlook accounts with a single purchase. Use `switch
 
 | Account type | Status |
 |---|---|
-| Personal Microsoft (outlook.com, hotmail.com, live.com) | Fully supported |
-| Microsoft 365 / Work accounts | Supported (may require admin consent) |
-| Gmail linked to Microsoft (personal) | Fully supported |
+| Personal Google (gmail.com) | Fully supported |
+| Google Workspace | Supported (admin may need to allow the app) |
 
-### Enterprise / organizational accounts
+### Google Workspace
 
-Works with Microsoft 365 enterprise accounts. However, your organization's IT admin may need to grant consent before you can use the app. This depends on your tenant's consent policy:
+Works with Google Workspace accounts. If your organization restricts third-party app access, your admin may need to allow the app in the Admin Console under Security > API Controls.
 
-- **If your org allows user consent**: You can connect immediately.
-- **If your org requires admin consent**: Ask your IT admin to approve the app for your tenant, or grant consent for your account specifically.
+The app requests these Google OAuth scopes:
 
-The app requests these Microsoft Graph permissions (all delegated):
-
-| Permission | Purpose |
+| Scope | Purpose |
 |---|---|
-| `Mail.Read` | Read emails |
-| `Mail.Send` | Send emails |
-| `Mail.ReadWrite` | Move, delete, flag emails |
-| `Calendars.ReadWrite` | View and create calendar events |
-| `Contacts.ReadWrite` | View and manage contacts |
-| `MailboxSettings.ReadWrite` | Read timezone and auto-reply settings |
-| `User.Read` | Read your profile (name, email) |
+| `calendar` | Full calendar access |
+| `calendar.events` | View and manage events |
+| `userinfo.email` | Read your email address |
+| `userinfo.profile` | Read your name |
 
 ### Not supported
 
-- On-premises Exchange Server (no Microsoft Graph access)
-- US Government Cloud (GCC, GCC High, DoD)
-- Shared mailboxes (require interactive login)
-- Accounts without Exchange Online license
+- Accounts with Google Advanced Protection Program (may block third-party OAuth)
 
 ## Security
 
@@ -119,13 +108,12 @@ The app requests these Microsoft Graph permissions (all delegated):
 - Tokens encrypted at rest (AES-256-GCM)
 - Client secrets never stored on your machine
 - API keys scoped per installation
+- Refresh tokens use offline access with consent prompt
 
 ## Pricing
 
 $5 one-time payment. Lifetime access. Unlimited accounts.
 
-Purchase at [mcpoutlook.com](https://mcpoutlook.com).
-
 ## Support
 
-Open an issue on this repository or email support via mcpoutlook.com.
+Open an issue on this repository.

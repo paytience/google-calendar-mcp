@@ -79,7 +79,7 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (customer && customer.status !== "active") {
-      return new Response(JSON.stringify({ error: "Subscription inactive. Please renew at mcpoutlook.com" }), { status: 403, headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Subscription inactive" }), { status: 403, headers: { "Content-Type": "application/json" } });
     }
   }
 
@@ -110,13 +110,12 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "Failed to decrypt tokens" }), { status: 500, headers: { "Content-Type": "application/json" } });
     }
 
-    const tokenUrl = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+    const tokenUrl = "https://oauth2.googleapis.com/token";
     const params = new URLSearchParams({
       client_id: OAUTH_CLIENT_ID,
       client_secret: OAUTH_CLIENT_SECRET,
       refresh_token: currentTokens.refreshToken,
       grant_type: "refresh_token",
-      scope: "offline_access Mail.Read Mail.Send Mail.ReadWrite Calendars.Read Calendars.ReadWrite Contacts.Read Contacts.ReadWrite MailboxSettings.ReadWrite User.Read",
     });
 
     const tokenResponse = await fetch(tokenUrl, {
