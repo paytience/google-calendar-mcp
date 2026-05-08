@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const supabase = getSupabase();
 
   const { data: existing } = await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .select("*")
     .eq("session_id", sessionId)
     .single();
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   // For completed sessions doing re-auth, reset to pending so callback accepts it
   if (existing.status === "completed") {
     await supabase
-      .from("mcp_sessions")
+      .from("gcal_sessions")
       .update({ status: "pending" })
       .eq("session_id", sessionId);
   }

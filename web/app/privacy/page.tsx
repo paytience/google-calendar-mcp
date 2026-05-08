@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             <li><span className="text-zinc-200">Stripe</span> for payment processing.</li>
             <li><span className="text-zinc-200">Supabase</span> for encrypted token storage.</li>
             <li><span className="text-zinc-200">Vercel</span> for website hosting and analytics.</li>
-            <li><span className="text-zinc-200">Resend</span> for transactional email.</li>
+            <li><span className="text-zinc-200">Brevo</span> for transactional email.</li>
           </ul>
         </section>
 

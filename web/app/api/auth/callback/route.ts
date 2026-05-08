@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const supabase = getSupabase();
 
   const { data: session, error: sessionError } = await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .select("*")
     .eq("session_id", sessionId)
     .single();
@@ -72,7 +72,7 @@ export async function GET(request: Request) {
 
   // Update existing token row or insert new one
   const { data: existingToken, error: lookupError } = await supabase
-    .from("mcp_tokens")
+    .from("gcal_tokens")
     .select("id")
     .eq("session_id", sessionId)
     .eq("user_email", profile.email)
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
 
   if (existingToken) {
     const { error: updateError } = await supabase
-      .from("mcp_tokens")
+      .from("gcal_tokens")
       .update({
         display_name: profile.displayName,
         encrypted_tokens: encrypted,
@@ -102,7 +102,7 @@ export async function GET(request: Request) {
       );
     }
   } else {
-    const { error: insertError } = await supabase.from("mcp_tokens").insert({
+    const { error: insertError } = await supabase.from("gcal_tokens").insert({
       session_id: sessionId,
       user_email: profile.email,
       display_name: profile.displayName,
@@ -123,7 +123,7 @@ export async function GET(request: Request) {
 
   // Reuse existing API key if one exists for this session+email
   const { data: existingKey } = await supabase
-    .from("mcp_api_keys")
+    .from("gcal_api_keys")
     .select("api_key_hash")
     .eq("session_id", sessionId)
     .eq("user_email", profile.email)
@@ -140,7 +140,7 @@ export async function GET(request: Request) {
     apiKey = `gcmk_${randomBytes(32).toString("base64url")}`;
     const apiKeyHash = createHash("sha256").update(apiKey).digest("hex");
 
-    await supabase.from("mcp_api_keys").insert({
+    await supabase.from("gcal_api_keys").insert({
       api_key_hash: apiKeyHash,
       session_id: sessionId,
       user_email: profile.email,
@@ -149,7 +149,7 @@ export async function GET(request: Request) {
   }
 
   await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .update({
       status: "completed",
       user_email: profile.email,

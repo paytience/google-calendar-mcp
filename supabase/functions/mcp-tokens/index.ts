@@ -3,9 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const ENCRYPTION_KEY = Deno.env.get("ENCRYPTION_KEY")!;
-const OAUTH_CLIENT_ID = Deno.env.get("OAUTH_CLIENT_ID")!;
-const OAUTH_CLIENT_SECRET = Deno.env.get("OAUTH_CLIENT_SECRET")!;
+const ENCRYPTION_KEY = Deno.env.get("GCAL_ENCRYPTION_KEY")!;
+const OAUTH_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID")!;
+const OAUTH_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET")!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -63,7 +63,7 @@ Deno.serve(async (req: Request) => {
   const apiKeyHash = await hashApiKey(apiKey);
 
   const { data: keyRow, error: keyError } = await supabase
-    .from("mcp_api_keys")
+    .from("gcal_api_keys")
     .select("session_id, user_email, is_active")
     .eq("api_key_hash", apiKeyHash)
     .single();
@@ -74,14 +74,14 @@ Deno.serve(async (req: Request) => {
 
   // Check customer payment status via session
   const { data: session } = await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .select("stripe_customer_id")
     .eq("session_id", keyRow.session_id)
     .single();
 
   if (session?.stripe_customer_id) {
     const { data: customer } = await supabase
-      .from("mcp_customers")
+      .from("gcal_customers")
       .select("status")
       .eq("stripe_customer_id", session.stripe_customer_id)
       .single();
@@ -91,14 +91,14 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  await supabase.from("mcp_api_keys").update({ last_used_at: new Date().toISOString() }).eq("api_key_hash", apiKeyHash);
+  await supabase.from("gcal_api_keys").update({ last_used_at: new Date().toISOString() }).eq("api_key_hash", apiKeyHash);
 
   const url = new URL(req.url);
   const isRefresh = url.pathname.endsWith("/refresh");
 
   if (req.method === "POST" && isRefresh) {
     const { data: tokenRows, error: tokenError } = await supabase
-      .from("mcp_tokens")
+      .from("gcal_tokens")
       .select("*")
       .eq("session_id", keyRow.session_id)
       .eq("user_email", keyRow.user_email)
@@ -146,7 +146,7 @@ Deno.serve(async (req: Request) => {
 
     const { encrypted, iv, tag } = await encryptTokens(JSON.stringify(newTokens));
     const { error: updateError } = await supabase
-      .from("mcp_tokens")
+      .from("gcal_tokens")
       .update({
         encrypted_tokens: encrypted,
         encryption_iv: iv,
@@ -166,7 +166,7 @@ Deno.serve(async (req: Request) => {
 
   if (req.method === "GET") {
     const { data: tokenRows, error: tokenError } = await supabase
-      .from("mcp_tokens")
+      .from("gcal_tokens")
       .select("*")
       .eq("session_id", keyRow.session_id)
       .eq("user_email", keyRow.user_email)
@@ -197,7 +197,7 @@ Deno.serve(async (req: Request) => {
     const { encrypted, iv, tag } = await encryptTokens(JSON.stringify(tokens));
 
     const { error: updateError } = await supabase
-      .from("mcp_tokens")
+      .from("gcal_tokens")
       .update({
         encrypted_tokens: encrypted,
         encryption_iv: iv,

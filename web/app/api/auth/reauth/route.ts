@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const apiKeyHash = createHash("sha256").update(apiKey).digest("hex");
 
   const { data: keyRow } = await supabase
-    .from("mcp_api_keys")
+    .from("gcal_api_keys")
     .select("session_id, user_email, is_active")
     .eq("api_key_hash", apiKeyHash)
     .single();
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
   // Reset session to pending so the callback accepts it
   await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .update({ status: "pending" })
     .eq("session_id", keyRow.session_id);
 

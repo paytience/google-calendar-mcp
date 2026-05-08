@@ -1,20 +1,31 @@
-import { Resend } from "resend";
+const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-let resend: Resend | null = null;
+async function sendEmail(to: string, subject: string, html: string) {
+  const res = await fetch(BREVO_API_URL, {
+    method: "POST",
+    headers: {
+      "api-key": process.env.BREVO_API_KEY!,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: "Google Calendar MCP", email: "noreply@gcalmcp.com" },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
 
-function getResend() {
-  if (!resend) {
-    resend = new Resend(process.env.RESEND_API_KEY);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Brevo email failed (${res.status}): ${body}`);
   }
-  return resend;
 }
 
 export async function sendApiKeyEmail(to: string, apiKey: string, displayName: string) {
-  await getResend().emails.send({
-    from: "Google Calendar MCP <noreply@gcalmcp.com>",
+  await sendEmail(
     to,
-    subject: "Your Google Calendar MCP API Key",
-    html: `
+    "Your Google Calendar MCP API Key",
+    `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
         <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Welcome, ${displayName}!</h1>
         <p style="color: #71717a; margin-bottom: 24px;">Your Google account is now connected. Here's your API key:</p>
@@ -34,15 +45,14 @@ export async function sendApiKeyEmail(to: string, apiKey: string, displayName: s
         <p style="font-size: 12px; color: #52525b;">Keep this key safe. If you lose it, contact support for a reset.</p>
       </div>
     `,
-  });
+  );
 }
 
 export async function sendSetupLinkEmail(to: string, setupUrl: string) {
-  await getResend().emails.send({
-    from: "Google Calendar MCP <noreply@gcalmcp.com>",
+  await sendEmail(
     to,
-    subject: "Complete your Google Calendar MCP setup",
-    html: `
+    "Complete your Google Calendar MCP setup",
+    `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;">
         <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 8px;">Payment received!</h1>
         <p style="color: #71717a; margin-bottom: 24px;">Complete your setup by connecting your Google account:</p>
@@ -56,5 +66,5 @@ export async function sendSetupLinkEmail(to: string, setupUrl: string) {
         <p style="font-size: 12px; color: #52525b;">This link does not expire. You can return to it anytime to complete setup.</p>
       </div>
     `,
-  });
+  );
 }

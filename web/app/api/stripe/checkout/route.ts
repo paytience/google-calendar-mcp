@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   // Create the mcp_session record now (before payment) so the login route can find it
   const supabase = getSupabase();
-  await supabase.from("mcp_sessions").upsert({
+  await supabase.from("gcal_sessions").upsert({
     session_id: sessionId,
     status: "pending",
   }, { onConflict: "session_id" });

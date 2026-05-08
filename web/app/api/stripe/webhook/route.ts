@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       metadata: { email: customerEmail, stripe_session: session.id },
     });
 
-    await supabase.from("mcp_customers").upsert({
+    await supabase.from("gcal_customers").upsert({
       stripe_customer_id: customerId,
       stripe_session_id: session.id,
       email: customerEmail,
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
     if (mcpSessionId) {
       await supabase
-        .from("mcp_sessions")
+        .from("gcal_sessions")
         .update({
           stripe_customer_id: customerId,
           status: "paid",
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     const customerId = charge.customer;
     if (customerId) {
       await supabase
-        .from("mcp_customers")
+        .from("gcal_customers")
         .update({ status: "refunded" })
         .eq("stripe_customer_id", customerId);
     }
