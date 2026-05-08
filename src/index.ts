@@ -52,7 +52,7 @@ const formatCalendar = (c: any) => ({
 const oauthConfig: OAuthConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID || "",
   clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-  redirectUri: process.env.GOOGLE_REDIRECT_URI || "https://mcpcalendar.com/api/auth/callback",
+  redirectUri: process.env.GOOGLE_REDIRECT_URI || "https://gcalmcp.com/api/auth/callback",
 };
 
 async function main() {

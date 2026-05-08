@@ -78,7 +78,7 @@ export default function PrivacyPage() {
             <li><span className="text-zinc-200">Stripe</span> for payment processing.</li>
             <li><span className="text-zinc-200">Supabase</span> for encrypted token storage.</li>
             <li><span className="text-zinc-200">Vercel</span> for website hosting and analytics.</li>
-            <li><span className="text-zinc-200">Brevo</span> for transactional email.</li>
+            <li><span className="text-zinc-200">Resend</span> for transactional email.</li>
           </ul>
         </section>
 
@@ -115,8 +115,12 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold text-white mb-3">Contact</h2>
           <p className="text-zinc-400">
-            For privacy inquiries, data deletion requests, or questions about this policy,
-            email privacy@gcalmcp.com.
+            For privacy inquiries, data deletion requests, or questions about this policy, open
+            an issue on our{" "}
+            <a href="https://github.com/paytience/google-calendar-mcp" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
+              GitHub repository
+            </a>{" "}
+            or email privacy@gcalmcp.com.
           </p>
         </section>
 

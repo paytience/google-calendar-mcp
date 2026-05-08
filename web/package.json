@@ -15,7 +15,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "motion": "^12.38.0",
     "next": "^15.3.0",
-    "postcss": "^8.5.12",
+    "postcss": "^8.5.14",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.2.4"
@@ -26,11 +26,11 @@
     "@types/node": "^25.6.0",
     "@types/react": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.59.1",
-    "@typescript-eslint/parser": "^8.59.1",
+    "@typescript-eslint/parser": "^8.59.2",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
     "prettier": "^3.8.3",
     "typescript": "^5.7.0",
-    "typescript-eslint": "^8.59.1"
+    "typescript-eslint": "^8.59.2"
   }
 }

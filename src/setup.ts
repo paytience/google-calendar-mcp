@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { addAccount, getAccounts } from "./config.js";
 import { fetchTokens, refreshTokensRemote } from "./token-store.js";
 
-const AUTH_BASE_URL = process.env.GOOGLE_CALENDAR_MCP_AUTH_URL || "https://mcpcalendar.com";
+const AUTH_BASE_URL = process.env.GOOGLE_CALENDAR_MCP_AUTH_URL || "https://gcalmcp.com";
 const POLL_INTERVAL = 2000;
 const POLL_TIMEOUT = 600000; // 10 minutes
 
