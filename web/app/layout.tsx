@@ -108,7 +108,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-zinc-800/30 text-center text-xs text-zinc-600">
-            Built by <a href="https://github.com/paytience" className="hover:text-zinc-400 transition-colors">Paytience</a>
+            Built by Paytience
           </div>
         </footer>
         <Analytics />

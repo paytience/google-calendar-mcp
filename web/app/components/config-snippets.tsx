@@ -6,6 +6,7 @@ const configs = [
   {
     name: "Claude Code",
     file: "~/.claude.json",
+    cli: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
     npx: `{
   "mcpServers": {
     "google-calendar": {
@@ -109,42 +110,78 @@ const configs = [
   },
 ];
 
-function CopyIcon({ className }: { className?: string }) {
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-    </svg>
+    <button
+      onClick={copy}
+      className="absolute top-3 right-3 p-1.5 rounded-md bg-zinc-800 border border-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-zinc-700"
+      title="Copy to clipboard"
+    >
+      {copied ? (
+        <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      ) : (
+        <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      )}
+    </button>
   );
 }
 
-function CheckIcon({ className }: { className?: string }) {
+function CodeBlock({ code }: { code: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-    </svg>
+    <div className="relative group">
+      <CopyButton text={code} />
+      <pre className="text-xs font-mono bg-zinc-950 rounded-lg p-4 overflow-x-auto border border-zinc-800">
+        {code.split("\n").map((line, i) => {
+          if (line.includes("<your-api-key>")) {
+            const [before, after] = line.split("<your-api-key>");
+            return (
+              <div key={i} className="text-zinc-300">
+                {before}
+                <span className="text-emerald-400 border border-emerald-400/30 bg-emerald-400/5 rounded px-1 py-0.5">
+                  {"<your-api-key>"}
+                </span>
+                {after}
+              </div>
+            );
+          }
+          return (
+            <div key={i} className="text-zinc-300">
+              {line}
+            </div>
+          );
+        })}
+      </pre>
+    </div>
   );
 }
 
 export function ConfigSnippets() {
   const [active, setActive] = useState(0);
   const [method, setMethod] = useState<"npx" | "docker">("npx");
-  const [copied, setCopied] = useState(false);
 
-  const code = configs[active][method];
-
-  const copyCode = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const config = configs[active];
+  const hasCli = "cli" in config;
+  const code = config[method] as string;
 
   return (
     <div className="w-full rounded-xl bg-zinc-900/50 border border-zinc-800 overflow-hidden text-left">
       <div className="flex border-b border-zinc-800 items-center">
         <div className="flex flex-1">
-          {configs.map((config, i) => (
+          {configs.map((c, i) => (
             <button
-              key={config.name}
+              key={c.name}
               onClick={() => setActive(i)}
               className={`px-4 py-2.5 text-xs font-medium transition-colors ${
                 active === i
@@ -152,7 +189,7 @@ export function ConfigSnippets() {
                   : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              {config.name}
+              {c.name}
             </button>
           ))}
         </div>
@@ -179,43 +216,25 @@ export function ConfigSnippets() {
           </button>
         </div>
       </div>
-      <div className="p-5">
-        <p className="text-xs text-zinc-500 mb-3">
-          Add to <code className="text-zinc-400">{configs[active].file}</code>:
-        </p>
-        <div className="relative group">
-          <button
-            onClick={copyCode}
-            className="absolute top-3 right-3 p-1.5 rounded-md bg-zinc-800 border border-zinc-700 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-zinc-700"
-            title="Copy to clipboard"
-          >
-            {copied ? (
-              <CheckIcon className="w-3.5 h-3.5 text-emerald-400" />
-            ) : (
-              <CopyIcon className="w-3.5 h-3.5 text-zinc-400" />
-            )}
-          </button>
-          <pre className="text-xs font-mono bg-zinc-950 rounded-lg p-4 overflow-x-auto border border-zinc-800">
-            {code.split("\n").map((line, i) => {
-              if (line.includes("<your-api-key>")) {
-                const [before, after] = line.split("<your-api-key>");
-                return (
-                  <div key={i} className="text-zinc-300">
-                    {before}
-                    <span className="text-emerald-400 border border-emerald-400/30 bg-emerald-400/5 rounded px-1 py-0.5">
-                      {"<your-api-key>"}
-                    </span>
-                    {after}
-                  </div>
-                );
-              }
-              return (
-                <div key={i} className="text-zinc-300">
-                  {line}
-                </div>
-              );
-            })}
-          </pre>
+      <div className="p-5 space-y-4">
+        {hasCli && (
+          <>
+            <div>
+              <p className="text-xs text-zinc-500 mb-3">Run in your terminal:</p>
+              <CodeBlock code={config.cli as string} />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-zinc-800"></div>
+              <span className="text-xs text-zinc-600">or</span>
+              <div className="flex-1 h-px bg-zinc-800"></div>
+            </div>
+          </>
+        )}
+        <div>
+          <p className="text-xs text-zinc-500 mb-3">
+            Add to <code className="text-zinc-400">{config.file}</code>:
+          </p>
+          <CodeBlock code={code} />
         </div>
       </div>
     </div>

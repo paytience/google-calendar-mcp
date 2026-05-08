@@ -3,9 +3,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const ENCRYPTION_KEY = Deno.env.get("ENCRYPTION_KEY")!;
-const OAUTH_CLIENT_ID = Deno.env.get("OAUTH_CLIENT_ID")!;
-const OAUTH_CLIENT_SECRET = Deno.env.get("OAUTH_CLIENT_SECRET")!;
+const ENCRYPTION_KEY = Deno.env.get("GCAL_ENCRYPTION_KEY")!;
+const OAUTH_CLIENT_ID = Deno.env.get("GOOGLE_CLIENT_ID")!;
+const OAUTH_CLIENT_SECRET = Deno.env.get("GOOGLE_CLIENT_SECRET")!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
