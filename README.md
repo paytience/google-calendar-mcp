@@ -42,6 +42,37 @@ Add to `.cursor/mcp.json`:
 }
 ```
 
+### Windsurf
+
+Add to `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"]
+    }
+  }
+}
+```
+
+### Kiro
+
+Add to `.kiro/settings/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "google-calendar": {
+      "command": "npx",
+      "args": ["-y", "@paytience/google-calendar-mcp@latest"]
+    }
+  }
+}
+```
+
+
 ### Docker
 
 ```json
@@ -65,7 +96,12 @@ Add to `.cursor/mcp.json`:
 | `update_event` | Update an existing calendar event |
 | `delete_event` | Delete a calendar event |
 | `search_events` | Search events by keyword |
+| `quick_add_event` | Create an event using natural language |
+| `respond_to_event` | RSVP to an event (accept, tentative, decline) |
+
 | `get_free_busy` | Check availability for attendees |
+| `move_event` | Move an event to a different calendar |
+| `get_colors` | Get available event color options |
 | `list_calendars` | List all calendars in the account |
 | `list_accounts` | List connected Google accounts |
 | `switch_account` | Switch active account |
@@ -117,3 +153,11 @@ $5 one-time payment. Lifetime access. Unlimited accounts.
 ## Support
 
 Open an issue on this repository.
+
+## Privacy
+
+See our [Privacy Policy](https://mcpcalendar.com/privacy).
+
+## License
+
+[Business Source License 1.1](LICENSE). Free to use with a valid license key ($5 one-time purchase). Converts to MIT after 4 years.

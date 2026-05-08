@@ -101,6 +101,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Support</span>
                 <a href="mailto:support@mcpcalendar.com" className="hover:text-zinc-300 transition-colors">Email Support</a>
               </div>
+              <div className="flex flex-col gap-2">
+                <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Legal</span>
+                <Link href="/privacy" className="hover:text-zinc-300 transition-colors">Privacy Policy</Link>
+              </div>
             </div>
           </div>
           <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-zinc-800/30 text-center text-xs text-zinc-600">

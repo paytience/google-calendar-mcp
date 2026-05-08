@@ -9,6 +9,14 @@ const OAUTH_CLIENT_SECRET = Deno.env.get("OAUTH_CLIENT_SECRET")!;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+function hexToBytes(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
+  }
+  return bytes;
+}
+
 async function hashApiKey(apiKey: string): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(apiKey);
@@ -18,7 +26,7 @@ async function hashApiKey(apiKey: string): Promise<string> {
 }
 
 async function decryptTokens(encrypted: string, ivBase64: string, tagBase64: string): Promise<string> {
-  const keyBytes = new TextEncoder().encode(ENCRYPTION_KEY).slice(0, 32);
+  const keyBytes = hexToBytes(ENCRYPTION_KEY);
   const key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["decrypt"]);
   const iv = Uint8Array.from(atob(ivBase64), (c) => c.charCodeAt(0));
   const ciphertext = Uint8Array.from(atob(encrypted), (c) => c.charCodeAt(0));
@@ -31,7 +39,7 @@ async function decryptTokens(encrypted: string, ivBase64: string, tagBase64: str
 }
 
 async function encryptTokens(plaintext: string): Promise<{ encrypted: string; iv: string; tag: string }> {
-  const keyBytes = new TextEncoder().encode(ENCRYPTION_KEY).slice(0, 32);
+  const keyBytes = hexToBytes(ENCRYPTION_KEY);
   const key = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["encrypt"]);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const encoded = new TextEncoder().encode(plaintext);

@@ -15,7 +15,7 @@ function getTomorrowDate(): string {
 function getToolParams(): string {
   const date = getTomorrowDate();
   return `{
-  subject: "Meeting with Sarah",
+  summary: "Meeting with Sarah",
   start: "${date}T14:00:00",
   end: "${date}T15:00:00"
 }`;
@@ -106,7 +106,7 @@ export function ChatPanel({ phase }: { phase: DemoPhase }) {
               transition={{ delay: 0.8, duration: 0.3 }}
             >
               <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-500/10 border border-blue-500/20">
-                <span className="text-[10px] md:text-[11px] text-blue-400 font-medium">create_calendar_event</span>
+                <span className="text-[10px] md:text-[11px] text-blue-400 font-medium">create_event</span>
               </div>
               <pre className="mt-2 text-[10px] md:text-[11px] text-zinc-500 leading-relaxed">{getToolParams()}</pre>
             </motion.div>
