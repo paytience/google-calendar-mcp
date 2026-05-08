@@ -139,19 +139,22 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function CodeBlock({ code }: { code: string }) {
+function CodeBlock({ code, highlight }: { code: string; highlight?: string }) {
+  const token = highlight || "<your-api-key>";
   return (
     <div className="relative group">
       <CopyButton text={code} />
       <pre className="text-xs font-mono bg-zinc-950 rounded-lg p-4 overflow-x-auto border border-zinc-800">
         {code.split("\n").map((line, i) => {
-          if (line.includes("<your-api-key>")) {
-            const [before, after] = line.split("<your-api-key>");
+          if (line.includes(token)) {
+            const idx = line.indexOf(token);
+            const before = line.slice(0, idx);
+            const after = line.slice(idx + token.length);
             return (
               <div key={i} className="text-zinc-300">
                 {before}
                 <span className="text-emerald-400 border border-emerald-400/30 bg-emerald-400/5 rounded px-1 py-0.5">
-                  {"<your-api-key>"}
+                  {token}
                 </span>
                 {after}
               </div>
@@ -225,7 +228,7 @@ export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
           <>
             <div>
               <p className="text-xs text-zinc-500 mb-3">Run in your terminal:</p>
-              <CodeBlock code={replaceKey((config as Record<string, string>)[cliKey])} />
+              <CodeBlock code={replaceKey((config as Record<string, string>)[cliKey])} highlight={apiKey} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-zinc-800"></div>
@@ -238,7 +241,7 @@ export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
           <p className="text-xs text-zinc-500 mb-3">
             Add to <code className="text-zinc-400">{config.file}</code>:
           </p>
-          <CodeBlock code={code} />
+          <CodeBlock code={code} highlight={apiKey} />
         </div>
       </div>
     </div>
