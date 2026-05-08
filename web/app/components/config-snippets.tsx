@@ -6,8 +6,8 @@ const configs = [
   {
     name: "Claude Code",
     file: "~/.claude.json",
-    cliNpx: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
-    cliDocker: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- docker run -i --rm -e GOOGLE_CALENDAR_MCP_API_KEY ghcr.io/paytience/google-calendar-mcp:latest`,
+    cliNpx: `claude mcp add google-calendar -s user -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
+    cliDocker: `claude mcp add google-calendar -s user -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- docker run -i --rm -e GOOGLE_CALENDAR_MCP_API_KEY ghcr.io/paytience/google-calendar-mcp:latest`,
     npx: `{
   "mcpServers": {
     "google-calendar": {
