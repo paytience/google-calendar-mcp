@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
   const supabase = getSupabase();
   const { data: session } = await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .select("status, user_email")
     .eq("session_id", sessionId)
     .single();

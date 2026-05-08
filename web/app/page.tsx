@@ -9,7 +9,7 @@ const jsonLd = {
   name: "Google Calendar MCP",
   description:
     "MCP server that connects Google Calendar to AI assistants like Claude Code, Cursor, Windsurf, and Kiro.",
-  url: "https://mcpcalendar.com",
+  url: "https://gcalmcp.com",
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Cross-platform",
   offers: {

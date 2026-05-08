@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   }
 
   const { data: session } = await getSupabase()
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .select("*")
     .eq("session_id", sessionId)
     .single();

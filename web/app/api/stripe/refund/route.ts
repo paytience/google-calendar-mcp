@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
   // Look up session to get stripe customer ID
   const { data: session } = await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .select("stripe_customer_id, status")
     .eq("session_id", session_id)
     .single();
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
 
   // Mark customer as refunded
   await supabase
-    .from("mcp_customers")
+    .from("gcal_customers")
     .update({ status: "refunded" })
     .eq("stripe_customer_id", session.stripe_customer_id);
 
