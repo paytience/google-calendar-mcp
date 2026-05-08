@@ -25,7 +25,7 @@ describe("token-store", () => {
       const result = await fetchTokens("api-key-123");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("mcp-tokens"),
+        expect.stringContaining("gcal-tokens"),
         expect.objectContaining({
           method: "GET",
           headers: { "x-api-key": "api-key-123" },
@@ -56,7 +56,7 @@ describe("token-store", () => {
       const result = await refreshTokensRemote("api-key-123");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining("mcp-tokens/refresh"),
+        expect.stringContaining("gcal-tokens/refresh"),
         expect.objectContaining({
           method: "POST",
           headers: { "x-api-key": "api-key-123" },
