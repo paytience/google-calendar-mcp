@@ -5,6 +5,7 @@ import { Suspense, useState, useEffect } from "react";
 import { track } from "@vercel/analytics";
 import { AnimatedDemo } from "../components/demo/animated-demo";
 import { logEvent } from "@/lib/analytics";
+import { trackInitiateCheckout } from "@/lib/track";
 
 function PricingContent() {
   const params = useSearchParams();
@@ -21,6 +22,7 @@ function PricingContent() {
     setLoading(true);
     track("checkout_start");
     logEvent("checkout_click");
+    trackInitiateCheckout(5);
     const sid = sessionId || crypto.randomUUID();
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",

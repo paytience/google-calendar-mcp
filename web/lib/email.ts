@@ -36,10 +36,12 @@ export async function sendApiKeyEmail(to: string, apiKey: string, displayName: s
         </div>
 
         <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Quick Setup</h2>
-        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 8px;">Add this to your MCP config (Claude Code, Cursor, Windsurf, or Kiro):</p>
+        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 8px;">Run this in your terminal:</p>
         <div style="background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 12px; margin-bottom: 24px;">
-          <code style="font-size: 13px; color: #e4e4e7;">"GOOGLE_CALENDAR_MCP_API_KEY": "${apiKey}"</code>
+          <code style="font-size: 12px; color: #e4e4e7; word-break: break-all;">claude mcp add google-calendar -s user -e GOOGLE_CALENDAR_MCP_API_KEY=${apiKey} -- npx -y @paytience/google-calendar-mcp@latest</code>
         </div>
+
+        <p style="color: #a1a1aa; font-size: 14px; margin-bottom: 24px;">For other editors (Cursor, Windsurf, Kiro), see <a href="https://gcalmcp.com/setup" style="color: #4ade80; text-decoration: underline;">full setup instructions</a>.</p>
 
         <hr style="border: none; border-top: 1px solid #27272a; margin: 32px 0;" />
         <p style="font-size: 12px; color: #52525b;">Keep this key safe. If you lose it, contact support for a reset.</p>
