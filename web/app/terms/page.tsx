@@ -107,11 +107,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-semibold text-white mb-3">10. Contact</h2>
           <p className="text-zinc-400">
-            For questions about these terms, open an issue on our{" "}
-            <a href="https://github.com/paytience/google-calendar-mcp" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
-              GitHub repository
-            </a>{" "}
-            or email support@gcalmcp.com.
+            For questions about these terms, email support@gcalmcp.com.
           </p>
         </section>
       </div>

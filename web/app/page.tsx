@@ -21,7 +21,7 @@ const jsonLd = {
   author: {
     "@type": "Organization",
     name: "Paytience",
-    url: "https://github.com/paytience",
+    url: "https://gcalmcp.com",
   },
   softwareRequirements: "Node.js, MCP-compatible client",
   keywords:
