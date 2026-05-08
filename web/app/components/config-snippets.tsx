@@ -6,7 +6,8 @@ const configs = [
   {
     name: "Claude Code",
     file: "~/.claude.json",
-    cli: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
+    cliNpx: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
+    cliDocker: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- docker run -i --rm -e GOOGLE_CALENDAR_MCP_API_KEY ghcr.io/paytience/google-calendar-mcp:latest`,
     npx: `{
   "mcpServers": {
     "google-calendar": {
@@ -172,7 +173,8 @@ export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
   const [method, setMethod] = useState<"npx" | "docker">("npx");
 
   const config = configs[active];
-  const hasCli = "cli" in config;
+  const cliKey = method === "npx" ? "cliNpx" : "cliDocker";
+  const hasCli = cliKey in config;
   const placeholder = "<your-api-key>";
   const replaceKey = (s: string) => apiKey ? s.replace(new RegExp(placeholder.replace(/[<>-]/g, "\\$&"), "g"), apiKey) : s;
   const code = replaceKey(config[method] as string);
@@ -223,7 +225,7 @@ export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
           <>
             <div>
               <p className="text-xs text-zinc-500 mb-3">Run in your terminal:</p>
-              <CodeBlock code={replaceKey(config.cli as string)} />
+              <CodeBlock code={replaceKey((config as Record<string, string>)[cliKey])} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-zinc-800"></div>

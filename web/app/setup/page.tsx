@@ -124,7 +124,7 @@ function SetupContent() {
   }
 
   return (
-    <div className="w-full max-w-lg">
+    <div className="w-full max-w-2xl">
       <h1 className="text-3xl font-bold text-center mb-2">Setup</h1>
       <p className="text-zinc-400 text-center mb-10">Complete these steps to connect Google Calendar to your AI tools.</p>
 
