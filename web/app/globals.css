@@ -76,7 +76,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gcal-shift 8s ease infinite;
+  animation: gcal-shift 14s ease infinite;
 }
 
 @keyframes gcal-shift {
