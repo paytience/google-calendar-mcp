@@ -155,7 +155,7 @@ export default function Home() {
 
       {/* Demo */}
       <section className="w-full max-w-4xl px-6 pb-20 md:pb-28">
-        <p className="text-center text-sm text-zinc-500 mb-6">See it in action</p>
+        <p className="text-center text-sm text-zinc-400 mb-6">See it in action</p>
         <div className="relative">
           <div className="absolute inset-0 -m-4 rounded-2xl bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none"></div>
           <AnimatedDemo />
@@ -216,7 +216,7 @@ export default function Home() {
 
       {/* Trust / Security */}
       <section className="w-full px-6 py-12">
-        <div className="flex flex-wrap justify-center gap-3 text-xs text-zinc-500">
+        <div className="flex flex-wrap justify-center gap-3 text-xs text-zinc-400">
           <span className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-800 bg-zinc-900/50">
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -262,7 +262,7 @@ export default function Home() {
 
       {/* SEO text */}
       <section className="w-full max-w-3xl mx-auto px-6 pb-12 text-center">
-        <p className="text-xs text-zinc-600 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xs text-zinc-500 max-w-2xl mx-auto leading-relaxed">
           Google Calendar MCP is a Model Context Protocol server that lets your AI agent control Google Calendar.
           Connect any MCP client to create events, check availability, manage schedules, and coordinate meetings
           across personal and Google Workspace accounts.

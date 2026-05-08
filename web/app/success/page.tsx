@@ -28,7 +28,7 @@ function SuccessContent() {
           </div>
           <h1 className="text-2xl font-bold mb-2">Authorization Failed</h1>
           <p className="text-zinc-400 mb-6">{error}</p>
-          <p className="text-sm text-zinc-500">Close this window and try again from your terminal.</p>
+          <p className="text-sm text-zinc-400">Close this window and try again from your terminal.</p>
         </div>
       </main>
     );
@@ -54,9 +54,9 @@ function SuccessContent() {
 
           {apiKey && (
             <div className="mb-5 p-4 rounded-lg bg-zinc-950 border border-zinc-800">
-              <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2 font-medium">Your API Key</p>
+              <p className="text-xs text-zinc-400 uppercase tracking-wider mb-2 font-medium">Your API Key</p>
               <code className="block text-xs text-green-400 font-mono break-all select-all">{apiKey}</code>
-              <p className="text-xs text-zinc-500 mt-2">Save this key. It won&apos;t be shown again.</p>
+              <p className="text-xs text-zinc-400 mt-2">Save this key. It won&apos;t be shown again.</p>
             </div>
           )}
 
@@ -85,8 +85,8 @@ function SuccessContent() {
           </div>
         </div>
 
-        <p className="text-xs text-zinc-600 text-center mt-6">
-          If you ran <code className="text-zinc-500">npx @paytience/google-calendar-mcp</code> from your terminal, it should now be connected automatically.
+        <p className="text-xs text-zinc-500 text-center mt-6">
+          If you ran <code className="text-zinc-400">npx @paytience/google-calendar-mcp</code> from your terminal, it should now be connected automatically.
         </p>
       </div>
     </main>
