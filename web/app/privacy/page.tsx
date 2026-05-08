@@ -120,7 +120,7 @@ export default function PrivacyPage() {
             <a href="https://github.com/paytience/google-calendar-mcp" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
               GitHub repository
             </a>{" "}
-            or email privacy@mcpcalendar.com.
+            or email privacy@gcalmcp.com.
           </p>
         </section>
 
