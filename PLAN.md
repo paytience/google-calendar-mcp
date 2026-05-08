@@ -4,7 +4,7 @@ Code conversion is complete. Build and tests pass. The following tasks require m
 
 ## Done (automated)
 
-- [x] Stripe product created: `prod_USaHAVqgd6nwPM` (Google Calendar MCP, $5 one-time, `price_1TTf7KIvnPDvHV9e2uvplEBa`) on existing outlookmcp account
+- [x] Stripe product created (Google Calendar MCP, $5 one-time) on existing account
 - [x] GitHub repo: `paytience/google-calendar-mcp` (public, code pushed, PR merged to main)
 - [x] All source code converted, 35 unit tests passing
 
@@ -40,7 +40,7 @@ Regardless of option:
 - Update the token-refresh edge function to use `https://oauth2.googleapis.com/token`
 - Update edge function env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
-Existing project ID: `baushlqryuckehdslhik`
+Existing project ID: (see Supabase dashboard)
 
 ## 4. Vercel (new project, manual)
 

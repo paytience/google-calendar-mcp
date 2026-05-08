@@ -134,8 +134,12 @@ async function main() {
   // Calendar operations
 
   server.tool("list_calendars", "List all calendars accessible by this account", {}, async () => {
-    const calendars = await gcal.listCalendars();
-    return { content: [{ type: "text", text: JSON.stringify(calendars.map(formatCalendar), null, 2) }] };
+    try {
+      const calendars = await gcal.listCalendars();
+      return { content: [{ type: "text", text: JSON.stringify(calendars.map(formatCalendar), null, 2) }] };
+    } catch (e: any) {
+      return { content: [{ type: "text", text: `Error listing calendars: ${e.message}` }], isError: true };
+    }
   });
 
   server.tool(
@@ -149,12 +153,16 @@ async function main() {
       pageToken: z.string().optional().describe("Token for fetching the next page of results"),
     },
     async ({ calendarId, timeMin, timeMax, maxResults, pageToken }) => {
-      const result = await gcal.listEvents({ calendarId, timeMin, timeMax, maxResults, pageToken });
-      const output = {
-        events: result.items.map(formatEvent),
-        nextPageToken: result.nextPageToken,
-      };
-      return { content: [{ type: "text", text: JSON.stringify(output, null, 2) }] };
+      try {
+        const result = await gcal.listEvents({ calendarId, timeMin, timeMax, maxResults, pageToken });
+        const output = {
+          events: result.items.map(formatEvent),
+          nextPageToken: result.nextPageToken,
+        };
+        return { content: [{ type: "text", text: JSON.stringify(output, null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error listing events: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -166,8 +174,12 @@ async function main() {
       calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
     },
     async ({ eventId, calendarId }) => {
-      const event = await gcal.getEvent(eventId, calendarId);
-      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      try {
+        const event = await gcal.getEvent(eventId, calendarId);
+        return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error getting event: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -190,10 +202,14 @@ async function main() {
       reminders: z.array(z.object({ method: z.string(), minutes: z.number() })).optional().describe("Custom reminders"),
     },
     async ({ summary, start, end, timeZone, description, attendees, location, conferenceData, calendarId, recurrence, colorId, visibility, reminders }) => {
-      const event = await gcal.createEvent({
-        calendarId, summary, start, end, timeZone, description, attendees, location, conferenceData, recurrence, colorId, visibility, reminders,
-      });
-      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      try {
+        const event = await gcal.createEvent({
+          calendarId, summary, start, end, timeZone, description, attendees, location, conferenceData, recurrence, colorId, visibility, reminders,
+        });
+        return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error creating event: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -215,8 +231,12 @@ async function main() {
       recurrence: z.array(z.string()).optional().describe("Updated RRULE recurrence rules"),
     },
     async ({ eventId, calendarId, summary, description, start, end, timeZone, location, attendees, colorId, visibility, recurrence }) => {
-      const event = await gcal.updateEvent(eventId, { calendarId, summary, description, start, end, timeZone, location, attendees, colorId, visibility, recurrence });
-      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      try {
+        const event = await gcal.updateEvent(eventId, { calendarId, summary, description, start, end, timeZone, location, attendees, colorId, visibility, recurrence });
+        return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error updating event: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -228,8 +248,12 @@ async function main() {
       calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
     },
     async ({ eventId, calendarId }) => {
-      await gcal.deleteEvent(eventId, calendarId);
-      return { content: [{ type: "text", text: "Event deleted." }] };
+      try {
+        await gcal.deleteEvent(eventId, calendarId);
+        return { content: [{ type: "text", text: "Event deleted." }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error deleting event: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -242,8 +266,12 @@ async function main() {
       maxResults: z.number().optional().describe("Maximum results (default: 10)"),
     },
     async ({ query, calendarId, maxResults }) => {
-      const events = await gcal.searchEvents(query, { calendarId, maxResults });
-      return { content: [{ type: "text", text: JSON.stringify(events.map(formatEvent), null, 2) }] };
+      try {
+        const events = await gcal.searchEvents(query, { calendarId, maxResults });
+        return { content: [{ type: "text", text: JSON.stringify(events.map(formatEvent), null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error searching events: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -256,8 +284,12 @@ async function main() {
       calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
     },
     async ({ eventId, response, calendarId }) => {
-      await gcal.respondToEvent(eventId, response, calendarId);
-      return { content: [{ type: "text", text: `Response "${response}" sent.` }] };
+      try {
+        await gcal.respondToEvent(eventId, response, calendarId);
+        return { content: [{ type: "text", text: `Response "${response}" sent.` }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error responding to event: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -271,8 +303,12 @@ async function main() {
       timeZone: z.string().optional().describe("Time zone (default: UTC)"),
     },
     async ({ emails, timeMin, timeMax, timeZone }) => {
-      const result = await gcal.getFreeBusy({ emails, timeMin, timeMax, timeZone });
-      return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      try {
+        const result = await gcal.getFreeBusy({ emails, timeMin, timeMax, timeZone });
+        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error checking availability: ${e.message}` }], isError: true };
+      }
     }
   );
 
@@ -284,14 +320,22 @@ async function main() {
       calendarId: z.string().optional().describe("Calendar ID (default: primary)"),
     },
     async ({ text, calendarId }) => {
-      const event = await gcal.quickAdd(text, calendarId);
-      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      try {
+        const event = await gcal.quickAdd(text, calendarId);
+        return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error creating event: ${e.message}` }], isError: true };
+      }
     }
   );
 
   server.tool("get_colors", "Get available event and calendar color options", {}, async () => {
-    const colors = await gcal.getColors();
-    return { content: [{ type: "text", text: JSON.stringify(colors, null, 2) }] };
+    try {
+      const colors = await gcal.getColors();
+      return { content: [{ type: "text", text: JSON.stringify(colors, null, 2) }] };
+    } catch (e: any) {
+      return { content: [{ type: "text", text: `Error getting colors: ${e.message}` }], isError: true };
+    }
   });
 
   server.tool(
@@ -303,8 +347,12 @@ async function main() {
       sourceCalendarId: z.string().optional().describe("Source calendar ID (default: primary)"),
     },
     async ({ eventId, destinationCalendarId, sourceCalendarId }) => {
-      const event = await gcal.moveEvent(eventId, destinationCalendarId, sourceCalendarId);
-      return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      try {
+        const event = await gcal.moveEvent(eventId, destinationCalendarId, sourceCalendarId);
+        return { content: [{ type: "text", text: JSON.stringify(formatEvent(event), null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error moving event: ${e.message}` }], isError: true };
+      }
     }
   );
 
