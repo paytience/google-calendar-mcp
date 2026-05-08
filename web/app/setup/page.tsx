@@ -232,7 +232,7 @@ function SetupContent() {
       {apiKey && (
         <div className="mb-8">
           <h2 className="text-lg font-bold text-center mb-4">Add to your AI tool</h2>
-          <ConfigSnippets />
+          <ConfigSnippets apiKey={apiKey || undefined} />
         </div>
       )}
 
