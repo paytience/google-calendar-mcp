@@ -27,6 +27,10 @@ function PricingContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ session_id: sid }),
     });
+    if (!response.ok) {
+      setLoading(false);
+      return;
+    }
     const data = await response.json();
     if (data.url) {
       window.location.href = data.url;
