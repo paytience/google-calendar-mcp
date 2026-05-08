@@ -6,7 +6,8 @@ const configs = [
   {
     name: "Claude Code",
     file: "~/.claude.json",
-    cli: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
+    cliNpx: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
+    cliDocker: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- docker run -i --rm -e GOOGLE_CALENDAR_MCP_API_KEY ghcr.io/paytience/google-calendar-mcp:latest`,
     npx: `{
   "mcpServers": {
     "google-calendar": {
@@ -138,19 +139,22 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function CodeBlock({ code }: { code: string }) {
+function CodeBlock({ code, highlight }: { code: string; highlight?: string }) {
+  const token = highlight || "<your-api-key>";
   return (
     <div className="relative group">
       <CopyButton text={code} />
       <pre className="text-xs font-mono bg-zinc-950 rounded-lg p-4 overflow-x-auto border border-zinc-800">
         {code.split("\n").map((line, i) => {
-          if (line.includes("<your-api-key>")) {
-            const [before, after] = line.split("<your-api-key>");
+          if (line.includes(token)) {
+            const idx = line.indexOf(token);
+            const before = line.slice(0, idx);
+            const after = line.slice(idx + token.length);
             return (
               <div key={i} className="text-zinc-300">
                 {before}
                 <span className="text-emerald-400 border border-emerald-400/30 bg-emerald-400/5 rounded px-1 py-0.5">
-                  {"<your-api-key>"}
+                  {token}
                 </span>
                 {after}
               </div>
@@ -167,13 +171,16 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
-export function ConfigSnippets() {
+export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
   const [active, setActive] = useState(0);
   const [method, setMethod] = useState<"npx" | "docker">("npx");
 
   const config = configs[active];
-  const hasCli = "cli" in config;
-  const code = config[method] as string;
+  const cliKey = method === "npx" ? "cliNpx" : "cliDocker";
+  const hasCli = cliKey in config;
+  const placeholder = "<your-api-key>";
+  const replaceKey = (s: string) => apiKey ? s.replace(new RegExp(placeholder.replace(/[<>-]/g, "\\$&"), "g"), apiKey) : s;
+  const code = replaceKey(config[method] as string);
 
   return (
     <div className="w-full rounded-xl bg-zinc-900/50 border border-zinc-800 overflow-hidden text-left">
@@ -221,7 +228,7 @@ export function ConfigSnippets() {
           <>
             <div>
               <p className="text-xs text-zinc-500 mb-3">Run in your terminal:</p>
-              <CodeBlock code={config.cli as string} />
+              <CodeBlock code={replaceKey((config as Record<string, string>)[cliKey])} highlight={apiKey} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-zinc-800"></div>
@@ -234,7 +241,7 @@ export function ConfigSnippets() {
           <p className="text-xs text-zinc-500 mb-3">
             Add to <code className="text-zinc-400">{config.file}</code>:
           </p>
-          <CodeBlock code={code} />
+          <CodeBlock code={code} highlight={apiKey} />
         </div>
       </div>
     </div>
