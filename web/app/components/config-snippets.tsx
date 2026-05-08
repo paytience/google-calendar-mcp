@@ -167,13 +167,15 @@ function CodeBlock({ code }: { code: string }) {
   );
 }
 
-export function ConfigSnippets() {
+export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
   const [active, setActive] = useState(0);
   const [method, setMethod] = useState<"npx" | "docker">("npx");
 
   const config = configs[active];
   const hasCli = "cli" in config;
-  const code = config[method] as string;
+  const placeholder = "<your-api-key>";
+  const replaceKey = (s: string) => apiKey ? s.replace(new RegExp(placeholder.replace(/[<>-]/g, "\\$&"), "g"), apiKey) : s;
+  const code = replaceKey(config[method] as string);
 
   return (
     <div className="w-full rounded-xl bg-zinc-900/50 border border-zinc-800 overflow-hidden text-left">
@@ -221,7 +223,7 @@ export function ConfigSnippets() {
           <>
             <div>
               <p className="text-xs text-zinc-500 mb-3">Run in your terminal:</p>
-              <CodeBlock code={config.cli as string} />
+              <CodeBlock code={replaceKey(config.cli as string)} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-zinc-800"></div>

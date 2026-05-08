@@ -61,7 +61,7 @@ function SuccessContent() {
           )}
 
           <div className="space-y-5">
-            <ConfigSnippets />
+            <ConfigSnippets apiKey={apiKey || undefined} />
           </div>
         </div>
 
