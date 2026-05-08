@@ -11,9 +11,9 @@ Code conversion is complete. Build and tests pass. The following tasks require m
 ## 1. Stripe (new account required)
 
 1. Sign up at https://dashboard.stripe.com/register with a new email/business
-2. Business name: "Google Calendar MCP" or "mcpcalendar.com"
+2. Business name: "Google Calendar MCP" or "gcalmcp.com"
 3. Create product: "Google Calendar MCP" ($5 one-time)
-4. Set up webhook endpoint: `https://mcpcalendar.com/api/stripe/webhook`
+4. Set up webhook endpoint: `https://gcalmcp.com/api/stripe/webhook`
 5. Note: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`
 
 ## 2. Google Cloud Console
@@ -21,7 +21,7 @@ Code conversion is complete. Build and tests pass. The following tasks require m
 1. Create a Google Cloud project (or reuse existing)
 2. Enable the **Google Calendar API**
 3. Create OAuth 2.0 credentials (Web application type):
-   - Authorized redirect URI: `https://mcpcalendar.com/api/auth/callback`
+   - Authorized redirect URI: `https://gcalmcp.com/api/auth/callback`
 4. Set the OAuth consent screen:
    - Scopes: `calendar`, `calendar.events`, `userinfo.email`, `userinfo.profile`
    - App name: "Google Calendar MCP"
@@ -51,7 +51,7 @@ Existing project ID: (see Supabase dashboard)
 5. Add environment variables:
    - `GOOGLE_CLIENT_ID`
    - `GOOGLE_CLIENT_SECRET`
-   - `GOOGLE_REDIRECT_URI` = `https://mcpcalendar.com/api/auth/callback`
+   - `GOOGLE_REDIRECT_URI` = `https://gcalmcp.com/api/auth/callback`
    - `SUPABASE_URL`
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `ENCRYPTION_KEY` (generate: `openssl rand -hex 32`)
@@ -66,7 +66,7 @@ Existing project ID: (see Supabase dashboard)
 2. Point DNS to Vercel (add CNAME or use Vercel nameservers)
 3. Add domain in Vercel project settings
 4. Verify SSL is working
-5. Update all references in code if not using `mcpcalendar.com`
+5. Update all references in code if not using `gcalmcp.com`
 
 ### Suggested domains
 
@@ -81,13 +81,13 @@ Existing project ID: (see Supabase dashboard)
 | `gcalmcp.io` | $37.99 | .io option |
 | `mcpcalendar.io` | $37.99 | .io option |
 
-Unavailable: `mcpcalendar.com`, `calendarmcp.com`, `mcp-calendar.com`
+Unavailable: `gcalmcp.com`, `calendarmcp.com`, `mcp-calendar.com`
 
 Purchase link (Vercel): https://vercel.com/domains/search
 
 ## 6. Resend (Email)
 
-1. Add `mcpcalendar.com` domain to Resend
+1. Add `gcalmcp.com` domain to Resend
 2. Verify DNS records (SPF, DKIM)
 3. Note: `RESEND_API_KEY` (reuse existing key or create new)
 
@@ -120,7 +120,7 @@ Make package public in GitHub Packages settings.
 |----------|-------|--------|
 | `GOOGLE_CLIENT_ID` | Vercel, Supabase edge fn | Google Cloud Console |
 | `GOOGLE_CLIENT_SECRET` | Vercel, Supabase edge fn | Google Cloud Console |
-| `GOOGLE_REDIRECT_URI` | Vercel | `https://mcpcalendar.com/api/auth/callback` |
+| `GOOGLE_REDIRECT_URI` | Vercel | `https://gcalmcp.com/api/auth/callback` |
 | `SUPABASE_URL` | Vercel | Supabase dashboard |
 | `SUPABASE_SERVICE_ROLE_KEY` | Vercel | Supabase dashboard |
 | `ENCRYPTION_KEY` | Vercel, Supabase edge fn | `openssl rand -hex 32` |

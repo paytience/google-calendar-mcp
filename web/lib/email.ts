@@ -11,7 +11,7 @@ function getResend() {
 
 export async function sendApiKeyEmail(to: string, apiKey: string, displayName: string) {
   await getResend().emails.send({
-    from: "Google Calendar MCP <noreply@mcpcalendar.com>",
+    from: "Google Calendar MCP <noreply@gcalmcp.com>",
     to,
     subject: "Your Google Calendar MCP API Key",
     html: `
@@ -39,7 +39,7 @@ export async function sendApiKeyEmail(to: string, apiKey: string, displayName: s
 
 export async function sendSetupLinkEmail(to: string, setupUrl: string) {
   await getResend().emails.send({
-    from: "Google Calendar MCP <noreply@mcpcalendar.com>",
+    from: "Google Calendar MCP <noreply@gcalmcp.com>",
     to,
     subject: "Complete your Google Calendar MCP setup",
     html: `

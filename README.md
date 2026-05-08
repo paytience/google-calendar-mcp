@@ -156,7 +156,7 @@ Open an issue on this repository.
 
 ## Privacy
 
-See our [Privacy Policy](https://mcpcalendar.com/privacy).
+See our [Privacy Policy](https://gcalmcp.com/privacy).
 
 ## License
 
