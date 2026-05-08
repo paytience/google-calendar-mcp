@@ -6,6 +6,7 @@ const configs = [
   {
     name: "Claude Code",
     file: "~/.claude.json",
+    cli: `claude mcp add google-calendar -e GOOGLE_CALENDAR_MCP_API_KEY=<your-api-key> -- npx -y @paytience/google-calendar-mcp@latest`,
     npx: `{
   "mcpServers": {
     "google-calendar": {
@@ -127,10 +128,12 @@ function CheckIcon({ className }: { className?: string }) {
 
 export function ConfigSnippets() {
   const [active, setActive] = useState(0);
-  const [method, setMethod] = useState<"npx" | "docker">("npx");
+  const [method, setMethod] = useState<"cli" | "npx" | "docker">("cli");
   const [copied, setCopied] = useState(false);
 
-  const code = configs[active][method];
+  const hasCli = "cli" in configs[active];
+  const effectiveMethod = !hasCli && method === "cli" ? "npx" : method;
+  const code = configs[active][effectiveMethod as keyof typeof configs[number]] as string;
 
   const copyCode = () => {
     navigator.clipboard.writeText(code);
@@ -145,7 +148,10 @@ export function ConfigSnippets() {
           {configs.map((config, i) => (
             <button
               key={config.name}
-              onClick={() => setActive(i)}
+              onClick={() => {
+                setActive(i);
+                if (!("cli" in configs[i]) && method === "cli") setMethod("npx");
+              }}
               className={`px-4 py-2.5 text-xs font-medium transition-colors ${
                 active === i
                   ? "text-white bg-zinc-800/50 border-b-2 border-blue-400"
@@ -157,10 +163,22 @@ export function ConfigSnippets() {
           ))}
         </div>
         <div className="flex mr-3 rounded-md bg-zinc-800 p-0.5">
+          {hasCli && (
+            <button
+              onClick={() => setMethod("cli")}
+              className={`px-2.5 py-1 text-[10px] font-medium rounded transition-colors ${
+                method === "cli"
+                  ? "bg-zinc-700 text-white"
+                  : "text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              CLI
+            </button>
+          )}
           <button
             onClick={() => setMethod("npx")}
             className={`px-2.5 py-1 text-[10px] font-medium rounded transition-colors ${
-              method === "npx"
+              effectiveMethod === "npx"
                 ? "bg-zinc-700 text-white"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
@@ -181,7 +199,11 @@ export function ConfigSnippets() {
       </div>
       <div className="p-5">
         <p className="text-xs text-zinc-500 mb-3">
-          Add to <code className="text-zinc-400">{configs[active].file}</code>:
+          {effectiveMethod === "cli" ? (
+            <>Run in your terminal:</>
+          ) : (
+            <>Add to <code className="text-zinc-400">{configs[active].file}</code>:</>
+          )}
         </p>
         <div className="relative group">
           <button
