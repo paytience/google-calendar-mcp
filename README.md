@@ -72,6 +72,7 @@ Add to `.kiro/settings/mcp.json`:
 }
 ```
 
+
 ### Docker
 
 ```json
@@ -97,6 +98,7 @@ Add to `.kiro/settings/mcp.json`:
 | `search_events` | Search events by keyword |
 | `quick_add_event` | Create an event using natural language |
 | `respond_to_event` | RSVP to an event (accept, tentative, decline) |
+
 | `get_free_busy` | Check availability for attendees |
 | `move_event` | Move an event to a different calendar |
 | `get_colors` | Get available event color options |
