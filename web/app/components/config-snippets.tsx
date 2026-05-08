@@ -193,7 +193,7 @@ export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
               className={`px-4 py-2.5 text-xs font-medium transition-colors ${
                 active === i
                   ? "text-white bg-zinc-800/50 border-b-2 border-blue-400"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  : "text-zinc-400 hover:text-zinc-300"
               }`}
             >
               {c.name}
@@ -227,19 +227,19 @@ export function ConfigSnippets({ apiKey }: { apiKey?: string }) {
         {hasCli && (
           <>
             <div>
-              <p className="text-xs text-zinc-500 mb-3">Run in your terminal:</p>
+              <p className="text-xs text-zinc-400 mb-3">Run in your terminal:</p>
               <CodeBlock code={replaceKey((config as Record<string, string>)[cliKey])} highlight={apiKey} />
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-zinc-800"></div>
-              <span className="text-xs text-zinc-600">or</span>
+              <span className="text-xs text-zinc-500">or</span>
               <div className="flex-1 h-px bg-zinc-800"></div>
             </div>
           </>
         )}
         <div>
-          <p className="text-xs text-zinc-500 mb-3">
-            Add to <code className="text-zinc-400">{config.file}</code>:
+          <p className="text-xs text-zinc-400 mb-3">
+            Add to <code className="text-zinc-300">{config.file}</code>:
           </p>
           <CodeBlock code={code} highlight={apiKey} />
         </div>

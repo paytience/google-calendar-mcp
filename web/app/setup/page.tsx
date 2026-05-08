@@ -138,7 +138,7 @@ function SetupContent() {
           </div>
           <div>
             <h3 className="font-semibold">Payment complete</h3>
-            <p className="text-sm text-zinc-500">One-time purchase confirmed.</p>
+            <p className="text-sm text-zinc-400">One-time purchase confirmed.</p>
           </div>
         </div>
 
@@ -158,7 +158,7 @@ function SetupContent() {
           <div className="flex-1">
             <h3 className="font-semibold">Connect Google Account</h3>
             {isCompleted ? (
-              <p className="text-sm text-zinc-500">{email || "Connected"}</p>
+              <p className="text-sm text-zinc-400">{email || "Connected"}</p>
             ) : isPaid ? (
               <div className="mt-3">
                 <a
@@ -169,7 +169,7 @@ function SetupContent() {
                 </a>
               </div>
             ) : (
-              <p className="text-sm text-zinc-500">Loading...</p>
+              <p className="text-sm text-zinc-400">Loading...</p>
             )}
           </div>
         </div>
@@ -209,20 +209,20 @@ function SetupContent() {
                     {emailSent ? "Sent!" : sending ? "Sending..." : "Send to my email"}
                   </button>
                 </div>
-                <p className="text-xs text-zinc-500 mt-2">This key was also sent to your email.</p>
+                <p className="text-xs text-zinc-400 mt-2">This key was also sent to your email.</p>
               </div>
             ) : reconnected ? (
               <div>
                 <p className="text-sm text-emerald-400 mt-2">Account reconnected successfully. Your existing API key still works.</p>
                 <div className="mt-4 p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
                   <p className="text-sm text-emerald-300 font-medium">You can close this window and return to your terminal.</p>
-                  <p className="text-xs text-zinc-500 mt-1">Your CLI will detect the reconnection automatically.</p>
+                  <p className="text-xs text-zinc-400 mt-1">Your CLI will detect the reconnection automatically.</p>
                 </div>
               </div>
             ) : isCompleted ? (
-              <p className="text-sm text-zinc-500">Key was sent to your email. Check your inbox.</p>
+              <p className="text-sm text-zinc-400">Key was sent to your email. Check your inbox.</p>
             ) : (
-              <p className="text-sm text-zinc-500">Complete step 2 first.</p>
+              <p className="text-sm text-zinc-400">Complete step 2 first.</p>
             )}
           </div>
         </div>

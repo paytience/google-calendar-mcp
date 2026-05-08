@@ -93,7 +93,7 @@ function PricingContent() {
             {loading ? "Redirecting..." : "Purchase"}
           </button>
 
-          <div className="flex items-center justify-center gap-5 mt-5 text-xs text-zinc-500">
+          <div className="flex items-center justify-center gap-5 mt-5 text-xs text-zinc-400">
             <span className="flex items-center gap-1.5">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -113,7 +113,7 @@ function PricingContent() {
         </div>
 
         {/* Trust badges */}
-        <div className="flex flex-wrap justify-center gap-3 mb-14 text-xs text-zinc-500">
+        <div className="flex flex-wrap justify-center gap-3 mb-14 text-xs text-zinc-400">
           <span className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-zinc-800 bg-zinc-900/50">
             <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -211,7 +211,7 @@ function PricingContent() {
           >
             {loading ? "Redirecting..." : "Get Google Calendar MCP for $5"}
           </button>
-          <p className="text-xs text-zinc-500 mt-3">One-time payment. Full refund anytime.</p>
+          <p className="text-xs text-zinc-400 mt-3">One-time payment. Full refund anytime.</p>
         </div>
       </div>
     </main>

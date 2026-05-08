@@ -89,9 +89,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link href="/" className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors">
                 Google Calendar MCP
               </Link>
-              <p className="text-xs text-zinc-600 mt-1.5">MCP server for Google Calendar</p>
+              <p className="text-xs text-zinc-500 mt-1.5">MCP server for Google Calendar</p>
             </div>
-            <div className="flex flex-wrap justify-center gap-8 text-xs text-zinc-500">
+            <div className="flex flex-wrap justify-center gap-8 text-xs text-zinc-400">
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Product</span>
                 <Link href="/pricing" className="hover:text-zinc-300 transition-colors">Pricing</Link>
@@ -107,7 +107,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
-          <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-zinc-800/30 text-center text-xs text-zinc-600">
+          <div className="max-w-5xl mx-auto mt-8 pt-6 border-t border-zinc-800/30 text-center text-xs text-zinc-500">
             Built by Paytience
           </div>
         </footer>
