@@ -93,7 +93,7 @@ export default function Image() {
             color: "#71717a",
           }}
         >
-          <span>mcpcalendar.com</span>
+          <span>gcalmcp.com</span>
           <span style={{ color: "#3f3f46" }}>|</span>
           <span>$5 one-time</span>
           <span style={{ color: "#3f3f46" }}>|</span>

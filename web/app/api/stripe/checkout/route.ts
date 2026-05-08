@@ -4,7 +4,7 @@ import { getSupabase } from "@/lib/supabase";
 export async function POST(request: Request) {
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
   const PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1TRXnEIvnPDvHV9e0w0KpIDI";
-  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "mcpcalendar.com";
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host") || "gcalmcp.com";
   const protocol = request.headers.get("x-forwarded-proto") || "https";
   const origin = `${protocol}://${host}`;
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   // Create the mcp_session record now (before payment) so the login route can find it
   const supabase = getSupabase();
-  await supabase.from("mcp_sessions").upsert({
+  await supabase.from("gcal_sessions").upsert({
     session_id: sessionId,
     status: "pending",
   }, { onConflict: "session_id" });

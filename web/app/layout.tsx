@@ -5,7 +5,7 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mcpcalendar.com"),
+  metadataBase: new URL("https://gcalmcp.com"),
   title: {
     default: "Google Calendar MCP: Connect Google Calendar to AI Assistants",
     template: "%s | Google Calendar MCP",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     title: "Google Calendar MCP: Connect Google Calendar to AI Assistants",
     description:
       "Give Claude, Cursor, and Windsurf direct access to your Google Calendar. Create events, check availability, and manage schedules without leaving your AI workflow.",
-    url: "https://mcpcalendar.com",
+    url: "https://gcalmcp.com",
     siteName: "Google Calendar MCP",
     type: "website",
     locale: "en_US",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "https://mcpcalendar.com",
+    canonical: "https://gcalmcp.com",
   },
 };
 
@@ -99,7 +99,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Support</span>
-                <a href="mailto:support@mcpcalendar.com" className="hover:text-zinc-300 transition-colors">Email Support</a>
+                <a href="mailto:support@gcalmcp.com" className="hover:text-zinc-300 transition-colors">Email Support</a>
               </div>
               <div className="flex flex-col gap-2">
                 <span className="font-medium text-zinc-400 uppercase tracking-wider text-[10px]">Legal</span>

@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 
   const supabase = getSupabase();
   const { data: session } = await supabase
-    .from("mcp_sessions")
+    .from("gcal_sessions")
     .select("status, user_email, display_name")
     .eq("session_id", session_id)
     .single();

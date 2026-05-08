@@ -8,10 +8,10 @@ export const metadata: Metadata = {
     title: "Get Google Calendar MCP for $5",
     description:
       "One-time payment. Lifetime access to Google Calendar in your AI tools.",
-    url: "https://mcpcalendar.com/pricing",
+    url: "https://gcalmcp.com/pricing",
   },
   alternates: {
-    canonical: "https://mcpcalendar.com/pricing",
+    canonical: "https://gcalmcp.com/pricing",
   },
 };
 
