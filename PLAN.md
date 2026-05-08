@@ -2,45 +2,59 @@
 
 Code conversion is complete. Build and tests pass. The following tasks require manual action.
 
-## Done (automated)
+## Done
 
-- [x] Stripe product created (Google Calendar MCP, $5 one-time) on existing account
+- [x] Stripe product created, webhook configured (checkout.session.completed, charge.refunded)
+- [x] Stripe sandbox keys added to Vercel Preview (dev branch), live keys to Production (main)
 - [x] GitHub repo: `paytience/google-calendar-mcp` (public, code pushed, PR merged to main)
 - [x] All source code converted, 35 unit tests passing
+- [x] Vercel project created, domain gcalmcp.com configured
+- [x] DNS configured (GoDaddy → Vercel)
+- [x] Google Cloud project `gcalmcp-prod` created, Calendar API enabled
+- [x] OAuth consent screen configured (branding, scopes, privacy policy)
+- [x] OAuth 2.0 client created (redirect URI: `https://gcalmcp.com/api/auth/callback`)
+- [x] Supabase: project renamed to "business-mcps", shared for both outlook-mcp and gcalmcp
+- [x] Supabase: `gcal_sessions`, `gcal_tokens`, `gcal_api_keys`, `gcal_customers` tables created
+- [x] Supabase: `gcal-tokens` edge function deployed (Google token endpoint)
+- [x] Codebase updated to use `gcal_` prefixed tables
+- [x] Brevo account created, gcalmcp.com domain added
+- [x] Privacy policy page exists at /privacy
+- [x] Brevo DNS verified (DKIM, Brevo code, DMARC)
+- [x] Brevo API key generated, added to Vercel
+- [x] Email code updated from Resend to Brevo API
+- [x] Gmail "Send as" configured (support@gcalmcp.com via Brevo SMTP)
+- [x] ImprovMX configured, MX records added (forwarding *@gcalmcp.com → Gmail)
+- [x] Vercel env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ENCRYPTION_KEY`, `BREVO_API_KEY`
+- [x] Supabase edge function secrets: `GCAL_ENCRYPTION_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
-## 1. Stripe (new account required)
+## Remaining
 
-1. Sign up at https://dashboard.stripe.com/register with a new email/business
-2. Business name: "Google Calendar MCP" or "gcalmcp.com"
-3. Create product: "Google Calendar MCP" ($5 one-time)
-4. Set up webhook endpoint: `https://gcalmcp.com/api/stripe/webhook`
-5. Note: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`
+### 1. Google verification
 
-## 2. Google Cloud Console
+- [ ] Submit app for Google OAuth verification (can test with <100 users before approval)
 
-1. Create a Google Cloud project (or reuse existing)
-2. Enable the **Google Calendar API**
-3. Create OAuth 2.0 credentials (Web application type):
-   - Authorized redirect URI: `https://gcalmcp.com/api/auth/callback`
-4. Set the OAuth consent screen:
-   - Scopes: `calendar`, `calendar.events`, `userinfo.email`, `userinfo.profile`
-   - App name: "Google Calendar MCP"
-5. Submit for Google verification (required for production; can test with < 100 users before approval)
-6. Note: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+### 6. NPM Publish
 
-## 3. Supabase
+```bash
+npm publish --access public
+```
 
-Free tier limit reached (2 projects). Choose one:
-- **Option A**: Pause/delete the `outlook-mcp` project, then create `google-calendar-mcp`
-- **Option B**: Reuse `outlook-mcp` project (schema is provider-agnostic), rename it
-- **Option C**: Upgrade to Pro to remove the limit
+Package: `@paytience/google-calendar-mcp`
 
-Regardless of option:
-- Confirm tables exist: `mcp_sessions`, `mcp_tokens`, `mcp_api_keys`
-- Update the token-refresh edge function to use `https://oauth2.googleapis.com/token`
-- Update edge function env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+### 7. Docker / GHCR
 
-Existing project ID: (see Supabase dashboard)
+```bash
+docker build -t ghcr.io/paytience/google-calendar-mcp:latest .
+docker push ghcr.io/paytience/google-calendar-mcp:latest
+```
+
+Make package public in GitHub Packages settings.
+
+### 8. Post-deploy Testing
+
+1. Set `GOOGLE_CALENDAR_MCP_API_KEY` and run: `npm run test:e2e`
+2. Manually test the full purchase flow on staging
+3. Verify token refresh works via edge function
 
 ## 4. Vercel (new project, manual)
 
