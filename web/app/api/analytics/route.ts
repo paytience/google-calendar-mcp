@@ -3,6 +3,10 @@ import { getSupabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ ok: true });
+    }
+
     const { event, session_id, metadata } = await req.json();
 
     if (!event) {
@@ -18,6 +22,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ error: "failed" }, { status: 500 });
+    return NextResponse.json({ ok: true });
   }
 }
