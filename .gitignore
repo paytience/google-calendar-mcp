@@ -5,3 +5,4 @@ tokens.json
 accounts/
 *.log
 .playwright-mcp
+.venv
