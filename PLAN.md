@@ -1,130 +1,212 @@
-# Google Calendar MCP: Remaining Manual Steps
+# Ads Setup: gcalmcp.com & mcpoutlook.com
 
-Code conversion is complete. Build and tests pass. The following tasks require manual action.
+## Phase 1: Tracking Setup (code changes, can be automated)
 
-## Done (automated)
+### 1.1 Google Ads (gtag.js)
 
-- [x] Stripe product created (Google Calendar MCP, $5 one-time) on existing account
-- [x] GitHub repo: `paytience/google-calendar-mcp` (public, code pushed, PR merged to main)
-- [x] All source code converted, 35 unit tests passing
+- [x] Add gtag.js snippet to `web/app/layout.tsx` on both repos
+  - Script: `https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX`
+  - Env var: `NEXT_PUBLIC_GOOGLE_ADS_ID`
+- [x] Fire conversion event on /success page after purchase confirmation
+  - `gtag('event', 'conversion', { send_to: 'AW-XXXXXXX/YYYYYY', value: 5.00, currency: 'USD' })`
+  - Env var: `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL`
+- [x] Add gtag to /pricing page for "begin_checkout" event (tracks funnel drop-off)
 
-## 1. Stripe (new account required)
+### 1.2 Meta Pixel
 
-1. Sign up at https://dashboard.stripe.com/register with a new email/business
-2. Business name: "Google Calendar MCP" or "gcalmcp.com"
-3. Create product: "Google Calendar MCP" ($5 one-time)
-4. Set up webhook endpoint: `https://gcalmcp.com/api/stripe/webhook`
-5. Note: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID`
+- [x] Add Meta Pixel base code to `web/app/layout.tsx` on both repos
+  - Env var: `NEXT_PUBLIC_META_PIXEL_ID`
+- [x] Fire `Purchase` event on /success page (`fbq('track', 'Purchase', { value: 5.00, currency: 'USD' })`)
+- [x] Fire `InitiateCheckout` event on /pricing page CTA click
+- [x] Fire `Lead` event on /setup page when OAuth flow starts
+- [ ] Verify events in Meta Events Manager (use Meta Pixel Helper Chrome extension)
 
-## 2. Google Cloud Console
+### 1.3 Shared analytics component
 
-1. Create a Google Cloud project (or reuse existing)
-2. Enable the **Google Calendar API**
-3. Create OAuth 2.0 credentials (Web application type):
-   - Authorized redirect URI: `https://gcalmcp.com/api/auth/callback`
-4. Set the OAuth consent screen:
-   - Scopes: `calendar`, `calendar.events`, `userinfo.email`, `userinfo.profile`
-   - App name: "Google Calendar MCP"
-5. Submit for Google verification (required for production; can test with < 100 users before approval)
-6. Note: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- [x] Create `web/app/components/tracking-scripts.tsx` with both pixels
+- [x] Create `web/lib/track.ts` helper for firing events consistently
+- [x] Apply to both repos identically
 
-## 3. Supabase
+---
 
-Free tier limit reached (2 projects). Choose one:
-- **Option A**: Pause/delete the `outlook-mcp` project, then create `google-calendar-mcp`
-- **Option B**: Reuse `outlook-mcp` project (schema is provider-agnostic), rename it
-- **Option C**: Upgrade to Pro to remove the limit
+## Phase 2: Account Setup (manual, ~15 min)
 
-Regardless of option:
-- Confirm tables exist: `mcp_sessions`, `mcp_tokens`, `mcp_api_keys`
-- Update the token-refresh edge function to use `https://oauth2.googleapis.com/token`
-- Update edge function env vars: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+### 2.1 Google Ads
 
-Existing project ID: (see Supabase dashboard)
+- [ ] Create account at ads.google.com (use existing Google login)
+- [ ] Set billing (credit card)
+- [ ] Create conversion action: "Purchase" (category: Purchase, value: $5, count: one per click)
+- [ ] Note the Conversion ID (AW-XXXXXXXXXX) and Conversion Label
+- [ ] Enable Enhanced Conversions (uses email from purchase for better attribution)
 
-## 4. Vercel (new project, manual)
+### 2.2 Meta Ads
 
-1. Go to https://vercel.com/new
-2. Import `paytience/google-calendar-mcp` from GitHub
-3. Set root directory to `web`
-4. Framework preset: Next.js
-5. Add environment variables:
-   - `GOOGLE_CLIENT_ID`
-   - `GOOGLE_CLIENT_SECRET`
-   - `GOOGLE_REDIRECT_URI` = `https://gcalmcp.com/api/auth/callback`
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `ENCRYPTION_KEY` (generate: `openssl rand -hex 32`)
-   - `STRIPE_SECRET_KEY`
-   - `STRIPE_WEBHOOK_SECRET`
-   - `STRIPE_PRICE_ID`
-   - `RESEND_API_KEY`
+- [ ] Create Business account at business.facebook.com
+- [ ] Create Ad Account under the business
+- [ ] Create Meta Pixel in Events Manager
+- [ ] Note the Pixel ID (15-16 digits)
+- [ ] Verify domain ownership (add DNS TXT record or meta tag)
+- [ ] Set billing (credit card)
 
-## 5. Domain & DNS
+---
 
-1. Purchase a domain (can buy directly via Vercel for easy DNS setup)
-2. Point DNS to Vercel (add CNAME or use Vercel nameservers)
-3. Add domain in Vercel project settings
-4. Verify SSL is working
-5. Update all references in code if not using `gcalmcp.com`
+## Phase 3: Campaign Creation (manual, but copy/keywords prepared below)
 
-### Suggested domains
+### 3.1 Google Ads: Search Campaigns
 
-| Domain | Price/yr | Notes |
-|--------|----------|-------|
-| `gcalmcp.com` | $11.25 | Short, clear |
-| `gcal-mcp.com` | $11.25 | Hyphenated variant |
-| `googlecalmcp.com` | $11.25 | Explicit |
-| `mcpgcal.com` | $11.25 | MCP-first |
-| `calendarforai.com` | $11.25 | Descriptive |
-| `gcal.tools` | $17.99 | Clean TLD |
-| `gcalmcp.io` | $37.99 | .io option |
-| `mcpcalendar.io` | $37.99 | .io option |
+**Campaign structure (one per product):**
 
-Unavailable: `gcalmcp.com`, `calendarmcp.com`, `mcp-calendar.com`
+#### Campaign: gcalmcp.com
 
-Purchase link (Vercel): https://vercel.com/domains/search
+| Ad Group | Keywords (phrase match) | Intent |
+|----------|----------------------|--------|
+| Brand/Product | "google calendar mcp", "gcal mcp", "mcp google calendar" | Direct |
+| AI Calendar | "ai calendar assistant", "ai calendar integration", "calendar ai tool" | Solution |
+| Claude/Cursor | "claude calendar", "cursor calendar plugin", "windsurf calendar" | Platform |
+| Competitor | "reclaim ai alternative", "clockwise alternative", "motion alternative" | Capture |
 
-## 6. Resend (Email)
+#### Campaign: mcpoutlook.com
 
-1. Add `gcalmcp.com` domain to Resend
-2. Verify DNS records (SPF, DKIM)
-3. Note: `RESEND_API_KEY` (reuse existing key or create new)
+| Ad Group | Keywords (phrase match) | Intent |
+|----------|----------------------|--------|
+| Brand/Product | "outlook mcp", "mcp outlook", "outlook mcp server" | Direct |
+| AI Email | "ai email assistant", "ai outlook integration", "email ai tool" | Solution |
+| Claude/Cursor | "claude outlook", "claude email", "cursor email plugin" | Platform |
+| Competitor | "superhuman alternative", "shortwave alternative" | Capture |
 
-## 7. NPM Publish
+**Settings:**
+- Bidding: Maximize conversions (switch to Target CPA after 30 conversions)
+- Daily budget: $10-20 per campaign to start
+- Locations: US, UK, EU, AU, CA (English-speaking dev markets)
+- Networks: Search only (disable Display/Search Partners initially)
+- Ad schedule: All day (devs work odd hours)
 
-```bash
-npm publish --access public
-```
+#### Ad Copy (gcalmcp.com)
 
-Package: `@paytience/google-calendar-mcp`
+**Responsive Search Ad:**
+- Headlines (max 30 chars each):
+  1. "Google Calendar for Claude"
+  2. "AI Calendar Assistant | $5"
+  3. "MCP Server for Google Cal"
+  4. "Connect Calendar to Claude"
+  5. "One-Time $5 | No Subscription"
+  6. "Works with Cursor & Windsurf"
+- Descriptions (max 90 chars each):
+  1. "Give your AI assistant access to Google Calendar. One-time payment, instant setup."
+  2. "Read, create, and manage calendar events from Claude, Cursor, or Windsurf. $5 forever."
 
-## 8. Docker / GHCR
+**Sitelinks:**
+- "Pricing" → /pricing
+- "Setup Guide" → /setup
+- "Privacy Policy" → /privacy
 
-```bash
-docker build -t ghcr.io/paytience/google-calendar-mcp:latest .
-docker push ghcr.io/paytience/google-calendar-mcp:latest
-```
+#### Ad Copy (mcpoutlook.com)
 
-Make package public in GitHub Packages settings.
+**Responsive Search Ad:**
+- Headlines:
+  1. "Outlook MCP for Claude"
+  2. "AI Email Assistant | $5"
+  3. "MCP Server for Outlook"
+  4. "Connect Outlook to Claude"
+  5. "One-Time $5 | No Subscription"
+  6. "Works with Cursor & Windsurf"
+- Descriptions:
+  1. "Give your AI assistant access to Outlook email and calendar. One-time payment, instant setup."
+  2. "Read, send, and manage emails from Claude, Cursor, or Windsurf. $5 forever."
 
-## 9. Post-deploy Testing
+**Sitelinks:**
+- "Pricing" → /pricing
+- "Setup Guide" → /setup
+- "Privacy Policy" → /privacy
 
-1. Set `GOOGLE_CALENDAR_MCP_API_KEY` and run: `npm run test:e2e`
-2. Manually test the full purchase flow on staging
-3. Verify token refresh works via edge function
+### 3.2 Meta Ads: Awareness + Conversion Campaigns
 
-## Summary of Env Vars
+**Campaign structure:**
 
-| Variable | Where | Source |
-|----------|-------|--------|
-| `GOOGLE_CLIENT_ID` | Vercel, Supabase edge fn | Google Cloud Console |
-| `GOOGLE_CLIENT_SECRET` | Vercel, Supabase edge fn | Google Cloud Console |
-| `GOOGLE_REDIRECT_URI` | Vercel | `https://gcalmcp.com/api/auth/callback` |
-| `SUPABASE_URL` | Vercel | Supabase dashboard |
-| `SUPABASE_SERVICE_ROLE_KEY` | Vercel | Supabase dashboard |
-| `ENCRYPTION_KEY` | Vercel, Supabase edge fn | `openssl rand -hex 32` |
-| `STRIPE_SECRET_KEY` | Vercel | New Stripe account |
-| `STRIPE_WEBHOOK_SECRET` | Vercel | New Stripe account |
-| `STRIPE_PRICE_ID` | Vercel | New Stripe account |
-| `RESEND_API_KEY` | Vercel | Resend dashboard |
+#### Campaign 1: Conversions (both products)
+
+- Objective: Sales / Conversions
+- Optimization: Purchase event
+- Budget: $15-25/day
+- Placement: Facebook Feed, Instagram Feed, Instagram Stories (disable Audience Network)
+
+**Audience targeting:**
+- Ages: 22-45
+- Interests (layer these with AND/OR):
+  - Software development, Programming, GitHub, VS Code
+  - Artificial Intelligence, Machine Learning, Large Language Models
+  - Claude AI, ChatGPT, GitHub Copilot
+  - Productivity tools, Developer tools
+- Exclude: People who already purchased (custom audience from Pixel)
+
+**Ad formats:**
+- Single image or short video (15s screen recording of MCP in action)
+- Carousel: Step 1 → Step 2 → Step 3 showing setup flow
+
+**Ad copy template:**
+- Primary text: "Your AI assistant can now read and manage your [Google Calendar/Outlook]. One command, $5, works forever. No subscription."
+- Headline: "Connect [Google Calendar/Outlook] to Claude"
+- CTA: "Get Started"
+- Link: gcalmcp.com or mcpoutlook.com
+
+#### Campaign 2: Retargeting
+
+- Audience: Website visitors who didn't purchase (Pixel-based, last 30 days)
+- Budget: $5-10/day
+- Ad copy: "Still thinking about it? $5 once, full refund anytime."
+
+---
+
+## Phase 4: Creative Assets (partially automatable)
+
+- [ ] Screen recording: 30s GIF/video showing Claude reading calendar events
+- [ ] Screen recording: 30s GIF/video showing Claude sending an email
+- [ ] Static images: dark-themed cards matching website aesthetic (1200x628 for Feed, 1080x1920 for Stories)
+- [ ] Use website screenshots/hero section as base
+- [ ] Tools: Can use Figma, or screenshot the website demo section
+
+---
+
+## Phase 5: Launch & Optimize (ongoing)
+
+### Week 1
+- [ ] Launch all campaigns with broad targeting
+- [ ] Check conversion tracking fires correctly (Google Ads Tag Assistant, Meta Pixel Helper)
+- [ ] Add negative keywords to Google (e.g., "free", "google calendar app", "outlook download")
+
+### Week 2
+- [ ] Review search term reports, add negatives, promote good terms to exact match
+- [ ] Pause underperforming ad groups (CPA > $5 means losing money)
+- [ ] On Meta: kill ad sets with CTR < 1% after 1000 impressions
+
+### Week 3+
+- [ ] Build lookalike audience from purchasers (once you have 50+ conversions on Meta)
+- [ ] Test new ad copy variations
+- [ ] Scale budget on winning ad groups/audiences
+- [ ] Consider YouTube ads (short pre-roll showing the product)
+
+---
+
+## Budget Summary
+
+| Platform | Daily | Monthly | Notes |
+|----------|-------|---------|-------|
+| Google Ads (gcalmcp) | $10-20 | $300-600 | Search intent, high conversion |
+| Google Ads (outlook) | $10-20 | $300-600 | Search intent, high conversion |
+| Meta (conversions) | $15-25 | $450-750 | Broader reach, lower intent |
+| Meta (retargeting) | $5-10 | $150-300 | High ROI on warm audience |
+| **Total** | **$40-75** | **$1,200-2,250** | Break-even: 240-450 sales/month |
+
+At $5/sale, need 240-450 purchases/month to break even. Target ROAS: 2-3x.
+
+---
+
+## Quick Reference: IDs to Collect
+
+| Item | Value | Status |
+|------|-------|--------|
+| Google Ads Account ID | AW-___________ | [ ] Pending |
+| Google Ads Conversion Label (gcal) | ____________ | [ ] Pending |
+| Google Ads Conversion Label (outlook) | ____________ | [ ] Pending |
+| Meta Pixel ID | ____________ | [ ] Pending |
+| Meta Business ID | ____________ | [ ] Pending |

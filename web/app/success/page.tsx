@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { track } from "@vercel/analytics";
 import { ConfigSnippets } from "../components/config-snippets";
+import { trackConversion } from "@/lib/track";
 
 function SuccessContent() {
   const params = useSearchParams();
@@ -14,6 +15,7 @@ function SuccessContent() {
   useEffect(() => {
     if (!error && apiKey) {
       track("purchase_complete");
+      trackConversion(5);
     }
   }, [error, apiKey]);
 

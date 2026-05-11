@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { ConfigSnippets } from "../components/config-snippets";
+import { trackLead } from "@/lib/track";
 
 function SetupContent() {
   const params = useSearchParams();
@@ -163,6 +164,7 @@ function SetupContent() {
               <div className="mt-3">
                 <a
                   href={`/api/auth/login?session_id=${sessionId}`}
+                  onClick={() => trackLead()}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-900 font-semibold rounded-lg hover:bg-zinc-200 transition-colors text-sm"
                 >
                   Sign in with Google
