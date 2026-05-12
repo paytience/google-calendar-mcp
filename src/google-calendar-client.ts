@@ -129,10 +129,11 @@ export class GoogleCalendarClient {
     visibility?: "default" | "public" | "private" | "confidential";
   }) {
     const cal = await this.ensureClient();
+    const tz = options.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
     const event: calendar_v3.Schema$Event = {
       summary: options.summary,
-      start: { dateTime: options.start, timeZone: options.timeZone },
-      end: { dateTime: options.end, timeZone: options.timeZone },
+      start: { dateTime: options.start, timeZone: tz },
+      end: { dateTime: options.end, timeZone: tz },
     };
 
     if (options.description) event.description = options.description;
@@ -192,8 +193,9 @@ export class GoogleCalendarClient {
 
     if (options.summary) update.summary = options.summary;
     if (options.description !== undefined) update.description = options.description;
-    if (options.start) update.start = { dateTime: options.start, timeZone: options.timeZone };
-    if (options.end) update.end = { dateTime: options.end, timeZone: options.timeZone };
+    const tz = options.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    if (options.start) update.start = { dateTime: options.start, timeZone: tz };
+    if (options.end) update.end = { dateTime: options.end, timeZone: tz };
     if (options.location !== undefined) update.location = options.location;
     if (options.attendees) update.attendees = options.attendees.map((email) => ({ email }));
     if (options.colorId) update.colorId = options.colorId;

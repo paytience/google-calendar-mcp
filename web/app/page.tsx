@@ -1,5 +1,5 @@
 import { ConfigSnippets } from "./components/config-snippets";
-import { AnimatedDemo } from "./components/demo/animated-demo";
+import { DemoCarousel } from "./components/demo-carousel";
 import { TrackedCTA } from "./components/tracked-cta";
 import { GlowCard } from "./components/glow-card";
 
@@ -158,7 +158,7 @@ export default function Home() {
         <p className="text-center text-sm text-zinc-400 mb-6">See it in action</p>
         <div className="relative">
           <div className="absolute inset-0 -m-4 rounded-2xl bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none"></div>
-          <AnimatedDemo />
+          <DemoCarousel />
         </div>
       </section>
 
