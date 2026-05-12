@@ -116,24 +116,17 @@ export default function Home() {
       />
 
       {/* Hero */}
-      <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-24 pb-16 md:pt-32 md:pb-24">
+      <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-16 pb-8 md:pt-20 md:pb-12">
         <div className="relative z-10 max-w-4xl w-full text-center">
-          <div className="animate-fade-in-1">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-8 text-xs font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-              MCP Server for Google Calendar
-            </div>
-          </div>
-
-          <h1 className="animate-fade-in-2 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 gradient-text-animated leading-tight">
-            Google Calendar, inside your AI tools
+          <h1 className="animate-fade-in-1 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 gradient-text-animated leading-tight">
+            Google Calendar, in your AI tools
           </h1>
 
-          <p className="animate-fade-in-3 text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="animate-fade-in-2 text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
             Give your AI agent direct access to Google Calendar. Create events, check availability, and manage your schedule without leaving your workflow.
           </p>
 
-          <div className="animate-fade-in-4 flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
+          <div className="animate-fade-in-3 flex flex-col sm:flex-row items-center justify-center gap-4">
             <TrackedCTA href="/pricing" source="hero" variant="primary">
               Get Started
             </TrackedCTA>
@@ -141,26 +134,23 @@ export default function Home() {
               View Documentation
             </TrackedCTA>
           </div>
-
-          {/* Supported tools */}
-          <div className="animate-fade-in-5 flex flex-wrap items-center justify-center gap-3 text-xs">
-            <span className="text-zinc-400 mr-1">Works with</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Claude Code</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Cursor</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Windsurf</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Kiro</span>
-          </div>
+          <p className="animate-fade-in-3 text-sm text-zinc-500 mt-4">$5 one-time · No subscription · Full refund anytime</p>
         </div>
       </section>
 
       {/* Demo */}
       <section className="w-full max-w-4xl px-6 pb-20 md:pb-28">
-        <p className="text-center text-sm text-zinc-400 mb-6">See it in action</p>
-        <div className="relative">
-          <div className="absolute inset-0 -m-4 rounded-2xl bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none"></div>
-          <DemoCarousel />
-        </div>
+        <DemoCarousel />
       </section>
+
+      {/* Supported tools */}
+      <div className="animate-fade-in-5 flex flex-wrap items-center justify-center gap-3 text-xs pb-16">
+        <span className="text-zinc-400 mr-1">Works with</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Claude Code</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Cursor</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Windsurf</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Kiro</span>
+      </div>
 
       <div className="section-divider w-full max-w-3xl mx-auto"></div>
 
@@ -168,7 +158,7 @@ export default function Home() {
       <section className="w-full max-w-5xl px-6 py-20 md:py-28">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Everything you need</h2>
-          <p className="text-zinc-400 text-lg max-w-xl mx-auto">14 tools covering events, scheduling, and calendar management. Full control over Google Calendar from any AI assistant.</p>
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto">16 tools covering events, scheduling, and calendar management. Full control over Google Calendar from any AI assistant.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feature) => (
@@ -211,8 +201,13 @@ export default function Home() {
         </div>
 
         {/* Config snippets */}
+        <div className="text-center mb-8">
+          <h3 className="text-xl font-semibold text-white">Add to your AI tool</h3>
+        </div>
         <ConfigSnippets />
       </section>
+
+      <div className="section-divider w-full max-w-3xl mx-auto"></div>
 
       {/* Trust / Security */}
       <section className="w-full px-6 py-12">
