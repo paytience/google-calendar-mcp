@@ -116,7 +116,7 @@ export default function Home() {
       />
 
       {/* Hero */}
-      <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-24 pb-8 md:pt-32 md:pb-12">
+      <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-16 pb-8 md:pt-20 md:pb-12">
         <div className="relative z-10 max-w-4xl w-full text-center">
           <div className="animate-fade-in-1">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-8 text-xs font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
@@ -133,22 +133,13 @@ export default function Home() {
             Give your AI agent direct access to Google Calendar. Create events, check availability, and manage your schedule without leaving your workflow.
           </p>
 
-          <div className="animate-fade-in-4 flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
+          <div className="animate-fade-in-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <TrackedCTA href="/pricing" source="hero" variant="primary">
               Get Started
             </TrackedCTA>
             <TrackedCTA href="/docs" source="hero" variant="secondary">
               View Documentation
             </TrackedCTA>
-          </div>
-
-          {/* Supported tools */}
-          <div className="animate-fade-in-5 flex flex-wrap items-center justify-center gap-3 text-xs">
-            <span className="text-zinc-400 mr-1">Works with</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Claude Code</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Cursor</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Windsurf</span>
-            <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Kiro</span>
           </div>
         </div>
       </section>
@@ -157,6 +148,15 @@ export default function Home() {
       <section className="w-full max-w-4xl px-6 pb-20 md:pb-28">
         <DemoCarousel />
       </section>
+
+      {/* Supported tools */}
+      <div className="animate-fade-in-5 flex flex-wrap items-center justify-center gap-3 text-xs pb-16">
+        <span className="text-zinc-400 mr-1">Works with</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Claude Code</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Cursor</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Windsurf</span>
+        <span className="px-2.5 py-1 rounded-md bg-zinc-800/80 text-zinc-300 border border-zinc-700/50">Kiro</span>
+      </div>
 
       <div className="section-divider w-full max-w-3xl mx-auto"></div>
 
