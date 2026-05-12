@@ -150,7 +150,7 @@ function PricingContent() {
 
         {/* Tools list */}
         <div className="mb-14">
-          <h2 className="text-xl font-semibold mb-6 text-center">14 tools included</h2>
+          <h2 className="text-xl font-semibold mb-6 text-center">16 tools included</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Events */}
             <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">

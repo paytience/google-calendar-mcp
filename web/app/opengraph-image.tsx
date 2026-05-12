@@ -97,7 +97,7 @@ export default function Image() {
           <span style={{ color: "#3f3f46" }}>|</span>
           <span>$5 one-time</span>
           <span style={{ color: "#3f3f46" }}>|</span>
-          <span>14 tools</span>
+          <span>16 tools</span>
         </div>
       </div>
     ),

@@ -119,7 +119,7 @@ export default function Home() {
       <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-16 pb-8 md:pt-20 md:pb-12">
         <div className="relative z-10 max-w-4xl w-full text-center">
           <h1 className="animate-fade-in-1 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 gradient-text-animated leading-tight">
-            Let your AI manage Google Calendar
+            Google Calendar, in your AI tools
           </h1>
 
           <p className="animate-fade-in-2 text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
@@ -158,7 +158,7 @@ export default function Home() {
       <section className="w-full max-w-5xl px-6 py-20 md:py-28">
         <div className="text-center mb-14">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">Everything you need</h2>
-          <p className="text-zinc-400 text-lg max-w-xl mx-auto">14 tools covering events, scheduling, and calendar management. Full control over Google Calendar from any AI assistant.</p>
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto">16 tools covering events, scheduling, and calendar management. Full control over Google Calendar from any AI assistant.</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {features.map((feature) => (
@@ -201,8 +201,13 @@ export default function Home() {
         </div>
 
         {/* Config snippets */}
+        <div className="text-center mb-8">
+          <h3 className="text-xl font-semibold text-white">Add to your AI tool</h3>
+        </div>
         <ConfigSnippets />
       </section>
+
+      <div className="section-divider w-full max-w-3xl mx-auto"></div>
 
       {/* Trust / Security */}
       <section className="w-full px-6 py-12">
