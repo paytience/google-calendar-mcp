@@ -57,7 +57,7 @@ export function DemoCarousel() {
               priority={i === 0}
             />
           ))}
-          <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.4)] rounded-b-lg"></div>
+          <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_20px_rgba(0,0,0,0.7)]"></div>
         </div>
       </div>
 
