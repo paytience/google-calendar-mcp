@@ -119,7 +119,7 @@ export default function Home() {
       <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-16 pb-8 md:pt-20 md:pb-12">
         <div className="relative z-10 max-w-4xl w-full text-center">
           <h1 className="animate-fade-in-1 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 gradient-text-animated leading-tight">
-            Google Calendar, inside your AI tools
+            Let your AI manage Google Calendar
           </h1>
 
           <p className="animate-fade-in-2 text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
