@@ -141,6 +141,7 @@ export default function Home() {
               View Documentation
             </TrackedCTA>
           </div>
+          <p className="animate-fade-in-4 text-sm text-zinc-500 mt-4">$5 one-time · No subscription · Full refund anytime</p>
         </div>
       </section>
 
