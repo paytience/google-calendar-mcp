@@ -51,7 +51,7 @@ export function DemoCarousel() {
               src={demo.src}
               alt={demo.alt}
               fill
-              className={`object-cover object-top transition-opacity duration-500 ease-in-out ${
+              className={`object-contain transition-opacity duration-500 ease-in-out ${
                 i === active ? "opacity-100" : "opacity-0"
               }`}
               priority={i === 0}
