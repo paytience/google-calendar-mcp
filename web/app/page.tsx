@@ -116,7 +116,7 @@ export default function Home() {
       />
 
       {/* Hero */}
-      <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-24 pb-16 md:pt-32 md:pb-24">
+      <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-24 pb-8 md:pt-32 md:pb-12">
         <div className="relative z-10 max-w-4xl w-full text-center">
           <div className="animate-fade-in-1">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-8 text-xs font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
