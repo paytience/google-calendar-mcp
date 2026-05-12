@@ -44,16 +44,15 @@ export function DemoCarousel() {
         </div>
 
         {/* Image with fade transition */}
-        <div className="relative">
+        <div className="relative aspect-[16/9]">
           {demos.map((demo, i) => (
             <Image
               key={demo.src}
               src={demo.src}
               alt={demo.alt}
-              width={1232}
-              height={528}
-              className={`w-full h-auto transition-opacity duration-500 ease-in-out ${
-                i === active ? "opacity-100 relative" : "opacity-0 absolute inset-0"
+              fill
+              className={`object-cover object-top transition-opacity duration-500 ease-in-out ${
+                i === active ? "opacity-100" : "opacity-0"
               }`}
               priority={i === 0}
             />
