@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, useEffect } from "react";
 import { track } from "@vercel/analytics";
-import { AnimatedDemo } from "../components/demo/animated-demo";
+import { DemoCarousel } from "../components/demo-carousel";
 import { logEvent } from "@/lib/analytics";
 import { trackInitiateCheckout } from "@/lib/track";
 
@@ -145,7 +145,7 @@ function PricingContent() {
         {/* Demo */}
         <div className="mb-16">
           <h2 className="text-xl font-semibold mb-5 text-center">See it in action</h2>
-          <AnimatedDemo />
+          <DemoCarousel />
         </div>
 
         {/* Tools list */}
