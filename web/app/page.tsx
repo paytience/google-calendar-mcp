@@ -155,11 +155,7 @@ export default function Home() {
 
       {/* Demo */}
       <section className="w-full max-w-4xl px-6 pb-20 md:pb-28">
-        <p className="text-center text-sm text-zinc-400 mb-6">See it in action</p>
-        <div className="relative">
-          <div className="absolute inset-0 -m-4 rounded-2xl bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none"></div>
-          <DemoCarousel />
-        </div>
+        <DemoCarousel />
       </section>
 
       <div className="section-divider w-full max-w-3xl mx-auto"></div>
