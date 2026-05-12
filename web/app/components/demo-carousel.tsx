@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const demos = [
   {
@@ -28,6 +28,24 @@ const demos = [
 
 export function DemoCarousel() {
   const [active, setActive] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setActive((prev) => (prev + 1) % demos.length);
+    }, 6000);
+  }, []);
+
+  useEffect(() => {
+    resetTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [resetTimer]);
+
+  const go = (index: number) => {
+    setActive(index);
+    resetTimer();
+  };
 
   return (
     <div className="space-y-4">
@@ -64,7 +82,7 @@ export function DemoCarousel() {
       {/* Controls below */}
       <div className="flex items-center justify-between px-1">
         <button
-          onClick={() => setActive((active - 1 + demos.length) % demos.length)}
+          onClick={() => go((active - 1 + demos.length) % demos.length)}
           className="p-2 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors"
           aria-label="Previous"
         >
@@ -77,7 +95,7 @@ export function DemoCarousel() {
           {demos.map((demo, i) => (
             <button
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => go(i)}
               className={`text-xs transition-colors ${
                 i === active
                   ? "text-zinc-200 font-medium"
@@ -90,7 +108,7 @@ export function DemoCarousel() {
         </div>
 
         <button
-          onClick={() => setActive((active + 1) % demos.length)}
+          onClick={() => go((active + 1) % demos.length)}
           className="p-2 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-colors"
           aria-label="Next"
         >
