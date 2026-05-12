@@ -118,22 +118,15 @@ export default function Home() {
       {/* Hero */}
       <section className="hero-glow relative w-full flex flex-col items-center px-6 pt-16 pb-8 md:pt-20 md:pb-12">
         <div className="relative z-10 max-w-4xl w-full text-center">
-          <div className="animate-fade-in-1">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 mb-8 text-xs font-medium rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-              MCP Server for Google Calendar
-            </div>
-          </div>
-
-          <h1 className="animate-fade-in-2 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 gradient-text-animated leading-tight">
+          <h1 className="animate-fade-in-1 text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6 gradient-text-animated leading-tight">
             Google Calendar, inside your AI tools
           </h1>
 
-          <p className="animate-fade-in-3 text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="animate-fade-in-2 text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
             Give your AI agent direct access to Google Calendar. Create events, check availability, and manage your schedule without leaving your workflow.
           </p>
 
-          <div className="animate-fade-in-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="animate-fade-in-3 flex flex-col sm:flex-row items-center justify-center gap-4">
             <TrackedCTA href="/pricing" source="hero" variant="primary">
               Get Started
             </TrackedCTA>
@@ -141,7 +134,7 @@ export default function Home() {
               View Documentation
             </TrackedCTA>
           </div>
-          <p className="animate-fade-in-4 text-sm text-zinc-500 mt-4">$5 one-time · No subscription · Full refund anytime</p>
+          <p className="animate-fade-in-3 text-sm text-zinc-500 mt-4">$5 one-time · No subscription · Full refund anytime</p>
         </div>
       </section>
 
