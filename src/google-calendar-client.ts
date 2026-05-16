@@ -70,6 +70,20 @@ export class GoogleCalendarClient {
     });
   }
 
+  async createCalendar(options: { summary: string; description?: string; timeZone?: string }) {
+    const cal = await this.ensureClient();
+    return withRetry(async () => {
+      const response = await cal.calendars.insert({
+        requestBody: {
+          summary: options.summary,
+          description: options.description,
+          timeZone: options.timeZone,
+        },
+      });
+      return response.data;
+    });
+  }
+
   async listEvents(options?: {
     calendarId?: string;
     timeMin?: string;
