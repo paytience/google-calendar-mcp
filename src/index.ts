@@ -143,6 +143,24 @@ async function main() {
   });
 
   server.tool(
+    "create_calendar",
+    "Create a new calendar",
+    {
+      summary: z.string().describe("Name of the calendar"),
+      description: z.string().optional().describe("Calendar description"),
+      timeZone: z.string().optional().describe("Time zone (e.g., America/New_York)"),
+    },
+    async ({ summary, description, timeZone }) => {
+      try {
+        const calendar = await gcal.createCalendar({ summary, description, timeZone });
+        return { content: [{ type: "text", text: JSON.stringify(formatCalendar(calendar), null, 2) }] };
+      } catch (e: any) {
+        return { content: [{ type: "text", text: `Error creating calendar: ${e.message}` }], isError: true };
+      }
+    }
+  );
+
+  server.tool(
     "list_events",
     "List upcoming calendar events within a time range",
     {
